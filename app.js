@@ -294,6 +294,7 @@ function openNewSessionModal(prefillDate = "") {
   updateSessionId();
   document.getElementById("capturedGapsRows").innerHTML = "";
   document.getElementById("plannedGapsRows").innerHTML = "";
+  addCapturedGapRow(); // pre-populate one empty row
   document.getElementById("sessionModal").classList.add("open");
 }
 
@@ -312,12 +313,16 @@ function openEditSessionModal(sessionId) {
   document.getElementById("sessionParticipants").value = s.participants || "";
   document.getElementById("sessionLocation").value = s.location || "";
   document.getElementById("sessionStatus").value = s.status || "planned";
-  document.getElementById("sessionFeedback").value = s.feedback || "";
 
   // Captured gaps
   document.getElementById("capturedGapsRows").innerHTML = "";
   capturedGapCount = 0;
-  (s.capturedGaps || []).forEach(g => addCapturedGapRow(g));
+  const capturedGaps = s.capturedGaps || [];
+  if (capturedGaps.length > 0) {
+    capturedGaps.forEach(g => addCapturedGapRow(g));
+  } else {
+    addCapturedGapRow(); // pre-populate one empty row if none saved
+  }
 
   // Planned gaps
   document.getElementById("plannedGapsRows").innerHTML = "";
@@ -330,7 +335,7 @@ function openEditSessionModal(sessionId) {
 
 function clearSessionForm() {
   ["sessionScenario","sessionDate","sessionTime","sessionId","sessionLeader",
-   "sessionParticipants","sessionLocation","sessionFeedback"]
+   "sessionParticipants","sessionLocation"]
     .forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = el.type === "time" ? "09:00" : "";
@@ -506,7 +511,6 @@ function saveSession() {
     participants: document.getElementById("sessionParticipants").value.trim(),
     location: document.getElementById("sessionLocation").value.trim(),
     status,
-    feedback: document.getElementById("sessionFeedback").value.trim(),
     capturedGaps,
     plannedGaps,
     updatedAt: new Date().toISOString()

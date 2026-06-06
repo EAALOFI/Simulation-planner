@@ -256,18 +256,14 @@
         </div>
         <div id="plannedGapsRows"><!-- rows added dynamically --></div>
 
-        <!-- Feedback & Captured Gaps (only show if status = completed) -->
+        <!-- Captured Gaps -->
         <div id="feedbackSection">
           <div class="section-divider">Session Feedback &amp; Captured Gaps</div>
-          <div class="form-group">
-            <label>General Feedback / Observations</label>
-            <textarea id="sessionFeedback" rows="4" placeholder="Overall observations, what went well, clinical team performance…"></textarea>
-          </div>
           <div class="captured-gaps-header">
             <span>Captured Workflow Gaps</span>
             <button class="btn-xs" onclick="addCapturedGapRow()">+ Add Gap</button>
           </div>
-          <div id="capturedGapsRows"><!-- rows added dynamically --></div>
+          <div id="capturedGapsRows"><!-- first row pre-populated by JS --></div>
         </div>
 
         <!-- Scenario Document -->
