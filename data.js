@@ -111,14 +111,14 @@ const SCENARIOS = [
   },
   {
     id: "SUBACUTE-KFSHRC-AMH",
-    title: "Referral of Sub-acute Cases – KFSHRC to AlMaathar Hospital",
+    title: "Admission Office Communication Exercise",
     department: "Transfer / External Referral",
     file: "Subacute_Cases_KFSHRC_to_AMH_Part_1.pdf",
     timing: { setup: 20, execution: 45, debrief: 20 },
-    groups: ["KFSHRC Transfer Office & External Health Services", "Al Maathar Hospital Patient Services Staff"],
-    goal: "Validate operational efficiency, response timelines, and communication accuracy for transferring sub-acute cases from KFSHRC to Al Maathar Hospital.",
+    groups: ["KFSHRC Transfer Office & External Health Services", "Almather Hospital Patient Services Staff"],
+    goal: "Validate operational efficiency, response timelines, and communication accuracy for transferring sub-acute cases from KFSHRC to Almather Hospital.",
     content: {
-      vignette: "Sub-acute patient requiring transfer from KFSHRC to Al Maathar Hospital (AMH). Transfer request initiated through formal channels.",
+      vignette: "Sub-acute patient requiring transfer from KFSHRC to Almather Hospital (AMH). Transfer request initiated through formal channels.",
       patient: { age: "Varies (sub-acute case)", pmh: "Per referral", allergies: "Per referral", vitals: "Stable, sub-acute" },
       objectives: [
         "Response Timeliness: Decision and reply within 30-minute benchmark.",
