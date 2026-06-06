@@ -490,6 +490,7 @@ body {
   white-space: nowrap;
 }
 .btn-xs:hover { border-color: var(--teal); background: var(--teal-dim); }
+.add-gap-below { display: block; margin-top: 8px; }
 
 .btn-icon {
   background: none;
