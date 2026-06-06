@@ -40,41 +40,6 @@ const SCENARIOS = [
     }
   },
   {
-    id: "B20-PNEUMONIA-TRANSFER",
-    title: "B20 Inpatient Readiness – External Transfer Pneumonia",
-    department: "Inpatient / Emergency",
-    file: "Inpatient_flow_sim_B20_2_1.pdf",
-    timing: { setup: 30, execution: 60, debrief: 20 },
-    groups: ["Duty Managers & Registration Staff", "ER Nursing & Physicians", "Inpatient Nursing (B20)", "Inpatient Physicians (On-call/Admitting)", "EMS/Porter Teams", "Laboratory & Pharmacy"],
-    goal: "Validate operational readiness, workflow efficiency, and system interoperability for an external patient transfer arriving at ER for B20 inpatient admission.",
-    content: {
-      vignette: "External transfer patient with pneumonia requiring IV antibiotics and O₂ therapy arriving via EMS to ER for B20 inpatient admission.",
-      patient: { age: "Adult", pmh: "Pneumonia", allergies: "TBC", vitals: "Per referring facility records" },
-      objectives: [
-        "Registration Integrity: 100% accuracy in pre-arrival to inpatient encounter transition.",
-        "Unit & Equipment Readiness: Confirm B20 room fully equipped with O₂, suction, IV pumps.",
-        "Clinical Interoperability: Verify successful order entry for CBC and Pharmacy.",
-        "Inter-departmental Communication: Demonstrate verbal and digital comms between Duty Manager, ER, and Inpatient.",
-        "Seamless Transitions: Efficient handoffs between EMS, ER, and inpatient floor."
-      ],
-      steps: [
-        "Step 1 – Pre-Arrival: Duty Manager receives transfer notification; activates pre-arrival encounter.",
-        "Step 2 – EMS Arrival: Confirm patient identity; initiate electronic handover.",
-        "Step 3 – ER Assessment: Triage and stabilisation; update HIS encounter.",
-        "Step 4 – Inpatient Referral: Admitting physician reviews; accepts to B20.",
-        "Step 5 – Room Prep: Nursing confirms O₂, suction, IV pump readiness.",
-        "Step 6 – Transfer to B20: Physical patient move; complete digital handover.",
-        "Step 7 – Order Entry: Lab (CBC) and Pharmacy (IV antibiotics) orders placed."
-      ],
-      debriefTopics: [
-        "Was the pre-arrival encounter created accurately and on time?",
-        "Were room equipment checks completed prior to patient arrival?",
-        "Were there any HIS delays in order entry or acceptance workflow?",
-        "How was inter-departmental communication handled between ER and B20?"
-      ]
-    }
-  },
-  {
     id: "OPD-INGROWN-TOENAIL",
     title: "OPD General Surgery – Ingrown Toenail Minor Procedure",
     department: "Outpatient / General Surgery",
