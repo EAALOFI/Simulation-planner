@@ -120,6 +120,7 @@ function openNewSessionModal(prefillDate = "") {
   if (prefillDate) document.getElementById("sessionDate").value = prefillDate;
   updateSessionId();
   document.getElementById("capturedGapsRows").innerHTML = "";
+  document.getElementById("plannedGapsRows").innerHTML = "";
   document.getElementById("sessionModal").classList.add("open");
 }
 
@@ -144,6 +145,10 @@ function openEditSessionModal(sessionId) {
   document.getElementById("capturedGapsRows").innerHTML = "";
   capturedGapCount = 0;
   (s.capturedGaps || []).forEach(g => addCapturedGapRow(g));
+
+  // Planned gaps
+  document.getElementById("plannedGapsRows").innerHTML = "";
+  (s.plannedGaps || []).forEach(g => addPlannedGapRow(g));
 
   handleScenarioChange();
   updateScenarioDocSlot(s.scenarioId);
@@ -287,6 +292,31 @@ function addCapturedGapRow(existing = null) {
   document.getElementById("capturedGapsRows").appendChild(row);
 }
 
+function addPlannedGapRow(existing = null) {
+  const row = document.createElement("div");
+  row.className = "captured-gap-row";
+  row.innerHTML = `
+    <input type="text" placeholder="Describe the planned gap…" value="${existing ? escHtml(existing.description || "") : ""}">
+    <select>
+      <option${existing?.category === "HIS / IT System" ? " selected" : ""}>HIS / IT System</option>
+      <option${existing?.category === "Clinical Protocol" ? " selected" : ""}>Clinical Protocol</option>
+      <option${existing?.category === "Communication" ? " selected" : ""}>Communication</option>
+      <option${existing?.category === "Equipment" ? " selected" : ""}>Equipment</option>
+      <option${existing?.category === "Staffing / Role Clarity" ? " selected" : ""}>Staffing / Role Clarity</option>
+      <option${existing?.category === "Documentation" ? " selected" : ""}>Documentation</option>
+      <option${existing?.category === "Patient Flow" ? " selected" : ""}>Patient Flow</option>
+      <option${existing?.category === "Other" ? " selected" : ""}>Other</option>
+    </select>
+    <select>
+      <option value="high"${existing?.priority === "high" ? " selected" : ""}>High</option>
+      <option value="medium"${existing?.priority === "medium" ? " selected" : ""}>Medium</option>
+      <option value="low"${existing?.priority === "low" ? " selected" : ""}>Low</option>
+    </select>
+    <button class="btn-icon danger" onclick="this.parentElement.remove()">✕</button>
+  `;
+  document.getElementById("plannedGapsRows").appendChild(row);
+}
+
 function saveSession() {
   const scenarioId = document.getElementById("sessionScenario").value;
   const date = document.getElementById("sessionDate").value;
@@ -297,13 +327,20 @@ function saveSession() {
   if (!scenarioId) { showToast("Please select a scenario.", "error"); return; }
   if (!date) { showToast("Please select a date.", "error"); return; }
 
-  // Collect captured gaps from rows
-  const gapRows = document.querySelectorAll(".captured-gap-row");
+  // Collect captured gaps
   const capturedGaps = [];
-  gapRows.forEach(row => {
+  document.querySelectorAll("#capturedGapsRows .captured-gap-row").forEach(row => {
     const inputs = row.querySelectorAll("input, select");
     const desc = inputs[0].value.trim();
     if (desc) capturedGaps.push({ description: desc, category: inputs[1].value, priority: inputs[2].value });
+  });
+
+  // Collect planned gaps
+  const plannedGaps = [];
+  document.querySelectorAll("#plannedGapsRows .captured-gap-row").forEach(row => {
+    const inputs = row.querySelectorAll("input, select");
+    const desc = inputs[0].value.trim();
+    if (desc) plannedGaps.push({ description: desc, category: inputs[1].value, priority: inputs[2].value });
   });
 
   const sessionData = {
@@ -316,6 +353,7 @@ function saveSession() {
     status,
     feedback: document.getElementById("sessionFeedback").value.trim(),
     capturedGaps,
+    plannedGaps,
     updatedAt: new Date().toISOString()
   };
 
@@ -328,6 +366,9 @@ function saveSession() {
     capturedGaps.forEach(g => {
       addGap({ ...g, sessionId: editingSessionId, date, status: "open" });
     });
+    plannedGaps.forEach(g => {
+      addGap({ ...g, sessionId: editingSessionId, date, status: "open" });
+    });
     showToast("Session updated.", "success");
   } else {
     const newId = document.getElementById("sessionId").value;
@@ -335,6 +376,9 @@ function saveSession() {
     sessionData.createdAt = new Date().toISOString();
     addSession(sessionData);
     capturedGaps.forEach(g => {
+      addGap({ ...g, sessionId: newId, date, status: "open" });
+    });
+    plannedGaps.forEach(g => {
       addGap({ ...g, sessionId: newId, date, status: "open" });
     });
     showToast("Session scheduled.", "success");

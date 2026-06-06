@@ -188,6 +188,11 @@
         <div class="pre-gaps-list" id="preGapsList">
           <p class="empty-note">Schedule a repeated scenario to see pre-identified gaps here.</p>
         </div>
+        <div class="captured-gaps-header">
+          <span>Additional Planned Gaps</span>
+          <button class="btn-xs" onclick="addPlannedGapRow()">+ Add Gap</button>
+        </div>
+        <div id="plannedGapsRows"><!-- rows added dynamically --></div>
 
         <!-- Feedback & Captured Gaps (only show if status = completed) -->
         <div id="feedbackSection">
