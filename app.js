@@ -32,7 +32,8 @@ const WORKSTREAMS = [
 ];
 
 function workstreamOptions(selected = "") {
-  return WORKSTREAMS.map(w =>
+  const placeholder = `<option value="" disabled${!selected ? " selected" : ""}>Choose workstream…</option>`;
+  return placeholder + WORKSTREAMS.map(w =>
     `<option${w === selected ? " selected" : ""}>${escHtml(w)}</option>`
   ).join("");
 }
@@ -452,9 +453,11 @@ function addCapturedGapRow(existing = null) {
     <input type="text" placeholder="Describe the workflow gap…" value="${existing ? escHtml(existing.description || "") : ""}">
     <select>${workstreamOptions(existing?.category || "")}</select>
     <select>
-      <option value="high"${existing?.priority === "high" ? " selected" : ""}>High</option>
-      <option value="medium"${existing?.priority === "medium" ? " selected" : ""}>Medium</option>
       <option value="low"${existing?.priority === "low" ? " selected" : ""}>Low</option>
+      <option value="medium"${(!existing || existing.priority === "medium") ? " selected" : ""}>Medium</option>
+      <option value="high"${existing?.priority === "high" ? " selected" : ""}>High</option>
+      <option value="critical"${existing?.priority === "critical" ? " selected" : ""}>Critical</option>
+      <option value="stopper"${existing?.priority === "stopper" ? " selected" : ""}>Stopper</option>
     </select>
     <button class="btn-icon danger" onclick="this.parentElement.remove()">✕</button>
   `;
@@ -468,9 +471,11 @@ function addPlannedGapRow(existing = null) {
     <input type="text" placeholder="Describe the planned gap…" value="${existing ? escHtml(existing.description || "") : ""}">
     <select>${workstreamOptions(existing?.category || "")}</select>
     <select>
-      <option value="high"${existing?.priority === "high" ? " selected" : ""}>High</option>
-      <option value="medium"${existing?.priority === "medium" ? " selected" : ""}>Medium</option>
       <option value="low"${existing?.priority === "low" ? " selected" : ""}>Low</option>
+      <option value="medium"${(!existing || existing.priority === "medium") ? " selected" : ""}>Medium</option>
+      <option value="high"${existing?.priority === "high" ? " selected" : ""}>High</option>
+      <option value="critical"${existing?.priority === "critical" ? " selected" : ""}>Critical</option>
+      <option value="stopper"${existing?.priority === "stopper" ? " selected" : ""}>Stopper</option>
     </select>
     <button class="btn-icon danger" onclick="this.parentElement.remove()">✕</button>
   `;
