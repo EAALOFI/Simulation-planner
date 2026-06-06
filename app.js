@@ -576,11 +576,15 @@ function openScenarioViewer(scenarioId) {
     </div>
 
     <div class="sv-panel" id="sv-pdf">
-      <iframe src="${pdfPath}" class="pdf-embed" title="${escHtml(sc.title)}">
-        <p>Your browser cannot display PDFs inline.
-          <a href="${pdfPath}" target="_blank">Open PDF in new tab</a>
-        </p>
-      </iframe>
+      <div class="pdf-open-block">
+        <div class="pdf-icon">📄</div>
+        <div class="pdf-open-name">${escHtml(sc.file)}</div>
+        <p class="pdf-open-note">Click below to open or download the scenario document.</p>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:16px">
+          <button class="btn-primary" onclick="window.open('scenarios/${sc.file}', '_blank')">Open PDF</button>
+          <button class="btn-secondary" onclick="downloadCurrentScenario()">⬇ Download</button>
+        </div>
+      </div>
     </div>
 
     <div class="sv-panel hidden" id="sv-overview">
