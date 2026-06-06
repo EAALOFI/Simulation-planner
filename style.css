@@ -42,34 +42,106 @@
 
 /* ── DARK MODE ──────────────────────────────────────────── */
 body.dark {
-  --bg:       #0f1117;
-  --bg2:      #1a1d27;
-  --bg3:      #222534;
-  --bg4:      #2a2e40;
-  --border:   #2e3348;
-  --border2:  #3d4460;
+  --bg:       #111827;
+  --bg2:      #1e2535;
+  --bg3:      #253044;
+  --bg4:      #2d3a52;
+  --border:   #2e3f58;
+  --border2:  #3d5270;
 
-  --text:     #e8eaf2;
-  --text2:    #9aa3b8;
-  --text3:    #5c6480;
+  --text:     #f1f5f9;
+  --text2:    #94a3b8;
+  --text3:    #4e6080;
 
-  --teal:     #22d3ee;
-  --teal2:    #06b6d4;
-  --teal-dim: rgba(34,211,238,.12);
+  --teal:     #38bdf8;
+  --teal2:    #0ea5e9;
+  --teal-dim: rgba(56,189,248,.15);
   --amber:    #fbbf24;
-  --amber-dim:rgba(251,191,36,.12);
-  --red:      #f87171;
-  --red-dim:  rgba(248,113,113,.1);
+  --amber-dim:rgba(251,191,36,.15);
+  --red:      #fb7185;
+  --red-dim:  rgba(251,113,133,.13);
   --green:    #4ade80;
-  --green-dim:rgba(74,222,128,.1);
+  --green-dim:rgba(74,222,128,.13);
   --blue:     #60a5fa;
-  --blue-dim: rgba(96,165,250,.1);
-  --purple:   #a78bfa;
-  --purple-dim:rgba(167,139,250,.1);
+  --blue-dim: rgba(96,165,250,.13);
+  --purple:   #c084fc;
+  --purple-dim:rgba(192,132,252,.13);
 
-  --shadow:    0 1px 4px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  --shadow:    0 2px 8px rgba(0,0,0,.5), 0 6px 24px rgba(0,0,0,.4);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,.4);
 }
+
+/* Sidebar — distinctly darker than content area */
+body.dark .sidebar {
+  background: #0d1420;
+  border-right-color: #1e2d42;
+}
+body.dark .sidebar-header { border-bottom-color: #1e2d42; }
+body.dark .sidebar-toggle-row { border-bottom-color: #1e2d42; }
+body.dark .sidebar-footer { border-top-color: #1e2d42; }
+body.dark .nav-item:hover { background: rgba(255,255,255,.06); }
+body.dark .nav-item.active { background: rgba(56,189,248,.15); color: #38bdf8; }
+
+/* Cards — elevated from page bg */
+body.dark .session-card {
+  background: #1e2535;
+  border-color: #2e3f58;
+}
+body.dark .session-card:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 4px 16px rgba(56,189,248,.1);
+}
+body.dark .day-col {
+  background: #1e2535;
+  border-color: #2e3f58;
+}
+body.dark .day-col.weekend-col { background: #161f2e; opacity: 0.7; }
+body.dark .day-col.today-col { border-color: #38bdf8; }
+body.dark .day-header { background: #253044; border-bottom-color: #2e3f58; }
+body.dark .today-col .day-header { background: rgba(56,189,248,.12); }
+
+/* Modals */
+body.dark .modal { background: #1a2236; border: 1px solid #2e3f58; }
+body.dark .modal-header { border-bottom-color: #2e3f58; }
+body.dark .modal-footer { border-top-color: #2e3f58; }
+body.dark .modal-overlay { background: rgba(0,0,0,.7); }
+
+/* Inputs & selects */
+body.dark input[type="text"],
+body.dark input[type="date"],
+body.dark input[type="time"],
+body.dark select,
+body.dark textarea {
+  background: #111827;
+  border-color: #2e3f58;
+  color: #f1f5f9;
+}
+body.dark input::placeholder,
+body.dark textarea::placeholder { color: #4e6080; }
+body.dark input:focus,
+body.dark select:focus,
+body.dark textarea:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+}
+body.dark select option { background: #1e2535; }
+
+/* Gaps table */
+body.dark .gaps-table thead tr { background: #253044; }
+body.dark .gaps-table tbody tr { border-bottom-color: #2e3f58; }
+body.dark .gaps-table tbody tr:hover { background: #253044; }
+
+/* Section dividers & misc */
+body.dark .section-divider { border-bottom-color: #2e3f58; color: #94a3b8; }
+body.dark .form-group label { color: #94a3b8; }
+body.dark .badge-auto { background: #253044; color: #38bdf8; border-color: #2e3f58; }
+body.dark .scenario-card { background: #1e2535; border-color: #2e3f58; }
+body.dark .scenario-card:hover { border-color: #38bdf8; box-shadow: 0 4px 20px rgba(56,189,248,.1); }
+body.dark .pre-gap-item { background: #111827; border-color: #2e3f58; }
+body.dark .captured-gap-row { background: #111827; border-color: #2e3f58; }
+body.dark .btn-xs { background: #253044; border-color: #2e3f58; }
+body.dark .weekend-badge { background: #1e2535; color: #4e6080; border-color: #2e3f58; }
+body.dark .gaps-summary .stat-card { background: #1e2535; border-color: #2e3f58; }
 
 /* Dark mode theme toggle button */
 .theme-toggle {
