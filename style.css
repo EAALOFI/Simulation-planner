@@ -986,7 +986,7 @@ select option { background: var(--bg2); }
 .mobile-overlay {
   display: none;
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;   /* avoid inset — not on old iOS */
+  top: 56px; left: 0; right: 0; bottom: 0;
   background: rgba(0,0,0,.5);
   z-index: 99;
   -webkit-backdrop-filter: blur(2px);
@@ -1053,7 +1053,7 @@ select option { background: var(--bg2); }
     margin: 0 auto;
   }
 
-  /* Sidebar — off-screen, slides in as full overlay panel */
+  /* Sidebar — off-screen, slides in below mobile header */
   .sidebar {
     -webkit-transform: translateX(-100%);
     transform: translateX(-100%);
@@ -1063,7 +1063,7 @@ select option { background: var(--bg2); }
     -webkit-transition: -webkit-transform .25s ease;
     transition: transform .25s ease;
     box-shadow: none;
-    top: 0; bottom: 0; left: 0;
+    top: 56px; bottom: 0; left: 0;
   }
   .sidebar.mobile-open {
     -webkit-transform: translateX(0);
