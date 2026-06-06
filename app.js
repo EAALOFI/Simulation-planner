@@ -16,26 +16,52 @@ window.addEventListener("DOMContentLoaded", async () => {
   populateScenarioSelects();
   renderWeekPlanner();
   renderWeekLabel();
-  // Sidebar toggle
+  // Sidebar toggle (desktop)
   document.getElementById("sidebarToggle").addEventListener("click", () => {
     document.getElementById("sidebar").classList.toggle("collapsed");
   });
 
-  // Dark mode toggle
+  // Mobile sidebar
+  const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+  const mobileOverlay = document.getElementById("mobileOverlay");
+  const sidebar = document.getElementById("sidebar");
+  const closeMobileSidebar = () => {
+    sidebar.classList.remove("mobile-open");
+    mobileOverlay.classList.remove("open");
+  };
+  mobileMenuBtn.addEventListener("click", () => {
+    sidebar.classList.toggle("mobile-open");
+    mobileOverlay.classList.toggle("open");
+  });
+  mobileOverlay.addEventListener("click", closeMobileSidebar);
+  // Close sidebar when a nav item is tapped on mobile
+  document.querySelectorAll(".nav-item").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (window.innerWidth <= 640) closeMobileSidebar();
+    });
+  });
+
+  // Dark mode toggle (shared between desktop + mobile)
   const themeToggle = document.getElementById("themeToggle");
+  const themeToggleMobile = document.getElementById("themeToggleMobile");
   const brandLogo = document.getElementById("brandLogo");
+  const mobileHeaderLogo = document.getElementById("mobileHeaderLogo");
   const applyTheme = (dark) => {
     document.body.classList.toggle("dark", dark);
-    themeToggle.textContent = dark ? "🌙" : "☀️";
-    themeToggle.title = dark ? "Switch to light mode" : "Switch to dark mode";
+    const icon = dark ? "🌙" : "☀️";
+    const title = dark ? "Switch to light mode" : "Switch to dark mode";
+    themeToggle.textContent = icon;
+    themeToggle.title = title;
+    themeToggleMobile.textContent = icon;
+    themeToggleMobile.title = title;
     if (brandLogo) brandLogo.src = dark ? "Almather_Logo_Black.png" : "AMH logo.jpg";
+    if (mobileHeaderLogo) mobileHeaderLogo.src = dark ? "Almather_Logo_Black.png" : "AMH logo.jpg";
     localStorage.setItem("simtrack_theme", dark ? "dark" : "light");
   };
   const savedTheme = localStorage.getItem("simtrack_theme");
   applyTheme(savedTheme === "dark");
-  themeToggle.addEventListener("click", () => {
-    applyTheme(!document.body.classList.contains("dark"));
-  });
+  themeToggle.addEventListener("click", () => applyTheme(!document.body.classList.contains("dark")));
+  themeToggleMobile.addEventListener("click", () => applyTheme(!document.body.classList.contains("dark")));
 });
 
 // ── Views ─────────────────────────────────────────────────────
