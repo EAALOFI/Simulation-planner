@@ -208,7 +208,10 @@
 
         <div class="form-grid">
           <div class="form-group span2">
-            <label>Scenario</label>
+            <label style="display:flex;align-items:center;justify-content:space-between;">
+              Scenario
+              <button type="button" class="add-scenario-inline" onclick="openAddScenarioModal(true)">+ Add Scenario</button>
+            </label>
             <select id="sessionScenario" onchange="handleScenarioChange()">
               <option value="">Select scenario…</option>
             </select>

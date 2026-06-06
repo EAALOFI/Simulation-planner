@@ -783,7 +783,10 @@ function confirmDeleteScenario(id) {
 }
 
 // ── Add Scenario Modal ────────────────────────────────────────
-function openAddScenarioModal() {
+let _addScenarioFromSession = false;
+
+function openAddScenarioModal(fromSession = false) {
+  _addScenarioFromSession = fromSession;
   document.getElementById("addScenarioModal").classList.add("open");
   document.getElementById("newScenarioTitle").focus();
 }
@@ -829,6 +832,16 @@ function saveNewScenario() {
   renderScenarioCards();
   populateScenarioSelects();
   showToast("Scenario added to the library!");
+
+  // If opened from the session modal, auto-select the new scenario
+  if (_addScenarioFromSession) {
+    const sel = document.getElementById("sessionScenario");
+    if (sel) {
+      sel.value = id;
+      handleScenarioChange();
+    }
+    _addScenarioFromSession = false;
+  }
 }
 
 function openNewSessionModalForScenario(scenarioId) {

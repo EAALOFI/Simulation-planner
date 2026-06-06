@@ -491,6 +491,13 @@ body {
 }
 .btn-xs:hover { border-color: var(--teal); background: var(--teal-dim); }
 .add-gap-below { display: block; margin-top: 8px; }
+.add-scenario-inline {
+  font-size: 11px; font-weight: 600; font-family: var(--font-body);
+  color: var(--teal); background: none; border: none;
+  cursor: pointer; padding: 0; text-decoration: underline;
+  text-underline-offset: 2px; opacity: .8;
+}
+.add-scenario-inline:hover { opacity: 1; }
 
 .btn-icon {
   background: none;
