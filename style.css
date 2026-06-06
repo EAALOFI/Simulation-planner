@@ -986,7 +986,7 @@ select option { background: var(--bg2); }
 .mobile-overlay {
   display: none;
   position: fixed;
-  top: 56px; left: 0; right: 0; bottom: 0;
+  top: 70px; left: 0; right: 0; bottom: 0;
   background: rgba(0,0,0,.5);
   z-index: 99;
   -webkit-backdrop-filter: blur(2px);
@@ -1013,26 +1013,27 @@ select option { background: var(--bg2); }
     justify-content: space-between;
     position: fixed;
     top: 0; left: 0; right: 0;
-    height: 56px;
+    height: 70px;
     background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    padding: 0 14px;
-    padding-left: max(14px, env(safe-area-inset-left));
-    padding-right: max(14px, env(safe-area-inset-right));
+    border-bottom: 2px solid var(--border);
+    padding: 0 16px;
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
     z-index: 101;
-    gap: 10px;
+    gap: 12px;
     box-sizing: border-box;
     -webkit-box-sizing: border-box;
+    box-shadow: 0 2px 8px rgba(0,0,0,.07);
   }
 
   .mobile-menu-btn {
-    background: none;
+    background: var(--bg3);
     border: 1px solid var(--border2);
     border-radius: var(--radius-sm);
     color: var(--text2);
-    font-size: 20px;
-    width: 38px; height: 38px;
-    min-width: 38px;
+    font-size: 22px;
+    width: 44px; height: 44px;
+    min-width: 44px;
     display: -webkit-flex;
     display: flex;
     -webkit-align-items: center;
@@ -1045,9 +1046,9 @@ select option { background: var(--bg2); }
   }
 
   .mobile-logo {
-    height: 34px;
+    height: 44px;
     width: auto;
-    max-width: 130px;
+    max-width: 150px;
     object-fit: contain;
     display: block;
     margin: 0 auto;
@@ -1063,7 +1064,7 @@ select option { background: var(--bg2); }
     -webkit-transition: -webkit-transform .25s ease;
     transition: transform .25s ease;
     box-shadow: none;
-    top: 56px; bottom: 0; left: 0;
+    top: 70px; bottom: 0; left: 0;
   }
   .sidebar.mobile-open {
     -webkit-transform: translateX(0);
@@ -1078,7 +1079,7 @@ select option { background: var(--bg2); }
   /* Main — full width, below top bar */
   .main {
     margin-left: 0 !important;
-    padding: 68px 14px 24px;
+    padding: 82px 14px 24px;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
@@ -1148,7 +1149,16 @@ select option { background: var(--bg2); }
   }
 }
 
+/* Mobile theme toggle size */
+@media (max-width: 640px) {
+  .mobile-header .theme-toggle {
+    width: 44px; height: 44px;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+}
+
 /* Dark mode mobile header */
-body.dark .mobile-header { background: #0d1420; border-bottom-color: #1e2d42; }
-body.dark .mobile-menu-btn { border-color: #2e3f58; color: #94a3b8; }
+body.dark .mobile-header { background: #0d1420; border-bottom-color: #1e2d42; box-shadow: 0 2px 8px rgba(0,0,0,.4); }
+body.dark .mobile-menu-btn { background: #1e2535; border-color: #2e3f58; color: #94a3b8; }
 body.dark .mobile-logo { filter: invert(1) brightness(0.88) sepia(0.05); }
