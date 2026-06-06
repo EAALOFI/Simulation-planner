@@ -366,16 +366,16 @@ function getSundayOfWeek(offset = 0) {
   return sunday;
 }
 
-// Returns array of {name, dateStr, date} for Sun–Thu
+// Returns array of {name, dateStr, date, weekend} for Sun–Sat
 function getWorkWeekDays(offset = 0) {
   const sunday = getSundayOfWeek(offset);
   const days = [];
-  const names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"];
-  for (let i = 0; i < 5; i++) {
+  const names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  for (let i = 0; i < 7; i++) {
     const d = new Date(sunday);
     d.setDate(sunday.getDate() + i);
     const dateStr = d.toISOString().split("T")[0];
-    days.push({ name: names[i], dateStr, date: d });
+    days.push({ name: names[i], dateStr, date: d, weekend: i >= 5 });
   }
   return days;
 }

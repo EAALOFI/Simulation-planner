@@ -304,6 +304,30 @@ body {
   box-shadow: 0 0 0 2px var(--teal-dim), var(--shadow-sm);
 }
 
+.day-col.weekend-col {
+  background: var(--bg);
+  border-color: var(--border);
+  opacity: 0.65;
+  border-style: dashed;
+}
+.day-col.weekend-col:hover { opacity: 0.85; }
+.day-col.weekend-col .day-header { background: transparent; }
+
+.weekend-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-family: var(--font-mono);
+  background: #f1f5f9;
+  color: #94a3b8;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-left: 4px;
+  vertical-align: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .day-header {
   padding: 12px 14px;
   border-bottom: 1px solid var(--border);

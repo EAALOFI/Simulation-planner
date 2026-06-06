@@ -61,24 +61,25 @@ function renderWeekPlanner() {
   const grid = document.getElementById("weekGrid");
   grid.innerHTML = "";
 
-  days.forEach(({ name, dateStr, date }) => {
+  days.forEach(({ name, dateStr, date, weekend }) => {
     const sessions = getSessionsForDate(dateStr);
     const todayClass = isToday(dateStr) ? " today-col" : "";
+    const weekendClass = weekend ? " weekend-col" : "";
 
     const col = document.createElement("div");
-    col.className = "day-col" + todayClass;
+    col.className = "day-col" + todayClass + weekendClass;
 
     const dayNum = date.getDate();
     col.innerHTML = `
       <div class="day-header">
         <div>
-          <div class="day-name">${name}</div>
+          <div class="day-name">${name}${weekend ? ' <span class="weekend-badge">Optional</span>' : ""}</div>
           <div class="day-date${isToday(dateStr) ? " today" : ""}">${dayNum}</div>
         </div>
         <button class="day-add" title="Schedule session" onclick="openNewSessionModal('${dateStr}')">＋</button>
       </div>
       <div class="day-sessions" id="day-${dateStr}">
-        ${sessions.length === 0 ? '<div class="empty-day">No sessions</div>' : ""}
+        ${sessions.length === 0 ? `<div class="empty-day">${weekend ? "Weekend — optional" : "No sessions"}</div>` : ""}
       </div>
     `;
     grid.appendChild(col);
