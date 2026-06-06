@@ -8,6 +8,35 @@ let currentDetailSessionId = null;
 let currentScenarioViewId = null;
 let capturedGapCount = 0;
 
+// ── Workstream Categories ─────────────────────────────────────
+const WORKSTREAMS = [
+  "Billing & Registration",
+  "Clinical & Nursing",
+  "Medical Team (Physicians)",
+  "Patient Services",
+  "Pharmacy",
+  "Food Service",
+  "Environmental",
+  "Infection Control",
+  "Morgue",
+  "FMS (Facilities)",
+  "Clinical Engineering",
+  "IT & Systems",
+  "Laboratory",
+  "Radiology",
+  "Patient Safety & Quality",
+  "Signage & Wayfinding",
+  "Parking & Transport",
+  "Security",
+  "General / Other"
+];
+
+function workstreamOptions(selected = "") {
+  return WORKSTREAMS.map(w =>
+    `<option${w === selected ? " selected" : ""}>${escHtml(w)}</option>`
+  ).join("");
+}
+
 // ── Access Gate & Identity ────────────────────────────────────
 const SIMTRACK_PASSWORD = "AMHSIM2026";
 
@@ -414,16 +443,7 @@ function addCapturedGapRow(existing = null) {
   row.dataset.idx = capturedGapCount;
   row.innerHTML = `
     <input type="text" placeholder="Describe the workflow gap…" value="${existing ? escHtml(existing.description || "") : ""}">
-    <select>
-      <option${existing?.category === "HIS / IT System" ? " selected" : ""}>HIS / IT System</option>
-      <option${existing?.category === "Clinical Protocol" ? " selected" : ""}>Clinical Protocol</option>
-      <option${existing?.category === "Communication" ? " selected" : ""}>Communication</option>
-      <option${existing?.category === "Equipment" ? " selected" : ""}>Equipment</option>
-      <option${existing?.category === "Staffing / Role Clarity" ? " selected" : ""}>Staffing / Role Clarity</option>
-      <option${existing?.category === "Documentation" ? " selected" : ""}>Documentation</option>
-      <option${existing?.category === "Patient Flow" ? " selected" : ""}>Patient Flow</option>
-      <option${existing?.category === "Other" ? " selected" : ""}>Other</option>
-    </select>
+    <select>${workstreamOptions(existing?.category || "")}</select>
     <select>
       <option value="high"${existing?.priority === "high" ? " selected" : ""}>High</option>
       <option value="medium"${existing?.priority === "medium" ? " selected" : ""}>Medium</option>
@@ -439,16 +459,7 @@ function addPlannedGapRow(existing = null) {
   row.className = "captured-gap-row";
   row.innerHTML = `
     <input type="text" placeholder="Describe the planned gap…" value="${existing ? escHtml(existing.description || "") : ""}">
-    <select>
-      <option${existing?.category === "HIS / IT System" ? " selected" : ""}>HIS / IT System</option>
-      <option${existing?.category === "Clinical Protocol" ? " selected" : ""}>Clinical Protocol</option>
-      <option${existing?.category === "Communication" ? " selected" : ""}>Communication</option>
-      <option${existing?.category === "Equipment" ? " selected" : ""}>Equipment</option>
-      <option${existing?.category === "Staffing / Role Clarity" ? " selected" : ""}>Staffing / Role Clarity</option>
-      <option${existing?.category === "Documentation" ? " selected" : ""}>Documentation</option>
-      <option${existing?.category === "Patient Flow" ? " selected" : ""}>Patient Flow</option>
-      <option${existing?.category === "Other" ? " selected" : ""}>Other</option>
-    </select>
+    <select>${workstreamOptions(existing?.category || "")}</select>
     <select>
       <option value="high"${existing?.priority === "high" ? " selected" : ""}>High</option>
       <option value="medium"${existing?.priority === "medium" ? " selected" : ""}>Medium</option>
