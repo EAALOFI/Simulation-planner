@@ -9,7 +9,10 @@ let currentScenarioViewId = null;
 let capturedGapCount = 0;
 
 // ── Init ─────────────────────────────────────────────────────
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
+  document.getElementById("loadingOverlay").style.display = "flex";
+  await initFirestore();
+  document.getElementById("loadingOverlay").style.display = "none";
   populateScenarioSelects();
   renderWeekPlanner();
   renderWeekLabel();

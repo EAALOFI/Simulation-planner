@@ -224,20 +224,60 @@ const SCENARIOS = [
 
 // ── Storage helpers ──────────────────────────────────────────
 const KEYS = {
-  sessions: "simtrack_sessions",
-  gaps: "simtrack_gaps",
-  currentWeekOffset: "simtrack_week_offset"
+  sessions: "sessions",
+  gaps: "gaps",
+  currentWeekOffset: "weekOffset"
 };
 
+// In-memory store — loaded from Firestore on startup
+const _store = { sessions: [], gaps: [], weekOffset: 0 };
+let _db = null;
+
 function loadData(key, fallback = []) {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch { return fallback; }
+  if (key === KEYS.sessions) return _store.sessions;
+  if (key === KEYS.gaps) return _store.gaps;
+  if (key === KEYS.currentWeekOffset) return _store.weekOffset;
+  return fallback;
 }
 
 function saveData(key, data) {
-  localStorage.setItem(key, JSON.stringify(data));
+  if (key === KEYS.sessions) _store.sessions = data;
+  else if (key === KEYS.gaps) _store.gaps = data;
+  else if (key === KEYS.currentWeekOffset) _store.weekOffset = data;
+  _firestoreWrite();
+}
+
+function _firestoreWrite() {
+  if (!_db) return;
+  _db.collection("simtrack").doc("data").set({
+    sessions: _store.sessions,
+    gaps: _store.gaps,
+    weekOffset: _store.weekOffset
+  }).catch(e => console.error("Firestore write error:", e));
+}
+
+async function initFirestore() {
+  const firebaseConfig = {
+    apiKey: "AIzaSyDCdQ-elTfBY6ivIRh00Hwt_4-aXrOyUEQ",
+    authDomain: "simtrack-amh.firebaseapp.com",
+    projectId: "simtrack-amh",
+    storageBucket: "simtrack-amh.firebasestorage.app",
+    messagingSenderId: "264931281331",
+    appId: "1:264931281331:web:1012d1c3ad8ba6ea6fa3c6"
+  };
+  firebase.initializeApp(firebaseConfig);
+  _db = firebase.firestore();
+  try {
+    const doc = await _db.collection("simtrack").doc("data").get();
+    if (doc.exists) {
+      const d = doc.data();
+      _store.sessions = d.sessions || [];
+      _store.gaps = d.gaps || [];
+      _store.weekOffset = d.weekOffset || 0;
+    }
+  } catch (e) {
+    console.error("Firestore load error:", e);
+  }
 }
 
 // ── Sessions ─────────────────────────────────────────────────

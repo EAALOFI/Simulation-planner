@@ -10,6 +10,13 @@
 </head>
 <body>
 
+  <!-- Loading overlay -->
+  <div id="loadingOverlay" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,0.92);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:12px;font-family:'DM Sans',sans-serif;color:#0891b2;font-size:15px;font-weight:500;">
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" style="animation:spin 1s linear infinite"><circle cx="18" cy="18" r="15" stroke="#e2e8f0" stroke-width="3"/><path d="M18 3a15 15 0 0 1 15 15" stroke="#0891b2" stroke-width="3" stroke-linecap="round"/></svg>
+    Connecting to cloud…
+  </div>
+  <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -310,6 +317,8 @@
   <!-- Toast -->
   <div class="toast" id="toast"></div>
 
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
