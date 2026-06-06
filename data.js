@@ -285,7 +285,11 @@ async function initFirestore() {
 // ── Custom Scenarios ──────────────────────────────────────────
 function getCustomScenarios() { return _store.customScenarios; }
 
-function getAllScenarios() { return [...SCENARIOS, ..._store.customScenarios]; }
+function getAllScenarios() {
+  // Custom entries with same ID override the built-in scenario
+  const customIds = new Set(_store.customScenarios.map(s => s.id));
+  return [...SCENARIOS.filter(s => !customIds.has(s.id)), ..._store.customScenarios];
+}
 
 function addCustomScenario(sc) {
   _store.customScenarios.push(sc);
@@ -294,6 +298,21 @@ function addCustomScenario(sc) {
 
 function deleteCustomScenario(id) {
   _store.customScenarios = _store.customScenarios.filter(s => s.id !== id);
+  _firestoreWrite();
+}
+
+function updateOrOverrideScenario(id, changes) {
+  const existingIdx = _store.customScenarios.findIndex(s => s.id === id);
+  if (existingIdx !== -1) {
+    // Update existing custom/override entry
+    _store.customScenarios[existingIdx] = { ..._store.customScenarios[existingIdx], ...changes };
+  } else {
+    // Built-in scenario — create an override copy in customScenarios
+    const builtin = SCENARIOS.find(s => s.id === id);
+    if (builtin) {
+      _store.customScenarios.push({ ...builtin, ...changes, isOverride: true });
+    }
+  }
   _firestoreWrite();
 }
 
@@ -408,5 +427,6 @@ function isToday(dateStr) {
 }
 
 function getScenarioById(id) {
-  return SCENARIOS.find(s => s.id === id) || _store.customScenarios.find(s => s.id === id) || null;
+  // Custom/overrides take precedence over built-in
+  return _store.customScenarios.find(s => s.id === id) || SCENARIOS.find(s => s.id === id) || null;
 }

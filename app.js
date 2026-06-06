@@ -763,9 +763,10 @@ function renderScenarioCards() {
         <span>◎ ${sessionCount} session${sessionCount !== 1 ? "s" : ""} run</span>
       </div>
       <div class="scenario-card-actions">
-        ${!isCustom ? `<button class="btn-secondary" onclick="openScenarioViewer('${sc.id}')">📄 View Scenario</button>` : ""}
+        <button class="btn-secondary" onclick="openScenarioViewer('${sc.id}')">📋 View</button>
+        <button class="btn-ghost" onclick="openEditScenarioModal('${sc.id}')">✏ Edit</button>
         <button class="btn-primary" onclick="openNewSessionModalForScenario('${sc.id}')">+ Schedule</button>
-        ${isCustom ? `<button class="btn-ghost" onclick="confirmDeleteScenario('${sc.id}')">🗑 Delete</button>` : ""}
+        ${isCustom ? `<button class="btn-ghost danger-ghost" onclick="confirmDeleteScenario('${sc.id}')">🗑</button>` : ""}
       </div>
     `;
     container.appendChild(card);
@@ -784,32 +785,79 @@ function confirmDeleteScenario(id) {
 
 // ── Add Scenario Modal ────────────────────────────────────────
 let _addScenarioFromSession = false;
+let _editingScenarioId = null; // null = add mode, string = edit mode
 
 function openAddScenarioModal(fromSession = false) {
   _addScenarioFromSession = fromSession;
+  _editingScenarioId = null;
+  // Reset modal to "Add" mode
+  document.getElementById("addScenarioModalTitle").textContent = "Add Scenario";
+  document.getElementById("addScenarioSaveBtn").textContent = "Save Scenario";
+  ["newScenarioTitle","newScenarioDept","newScenarioGoal","newScenarioVignette","newScenarioObjectives"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  document.getElementById("addScenarioModal").classList.add("open");
+  document.getElementById("newScenarioTitle").focus();
+}
+
+function openEditScenarioModal(scenarioId) {
+  const sc = getScenarioById(scenarioId);
+  if (!sc) return;
+  _editingScenarioId = scenarioId;
+  _addScenarioFromSession = false;
+
+  document.getElementById("addScenarioModalTitle").textContent = "Edit Scenario";
+  document.getElementById("addScenarioSaveBtn").textContent = "Save Changes";
+  document.getElementById("newScenarioTitle").value = sc.title || "";
+  document.getElementById("newScenarioDept").value = sc.department || "";
+  document.getElementById("newScenarioGoal").value = sc.goal || "";
+  document.getElementById("newScenarioVignette").value = sc.content?.vignette || "";
+  document.getElementById("newScenarioObjectives").value = (sc.content?.objectives || []).join("\n");
   document.getElementById("addScenarioModal").classList.add("open");
   document.getElementById("newScenarioTitle").focus();
 }
 
 function closeAddScenarioModal() {
   document.getElementById("addScenarioModal").classList.remove("open");
-  ["newScenarioTitle","newScenarioDept","newScenarioGoal","newScenarioVignette","newScenarioObjectives"].forEach(id => {
-    document.getElementById(id).value = "";
-  });
+  _editingScenarioId = null;
 }
 
 function saveNewScenario() {
-  const title = document.getElementById("newScenarioTitle").value.trim();
-  const dept  = document.getElementById("newScenarioDept").value.trim();
-  const goal  = document.getElementById("newScenarioGoal").value.trim();
+  const title    = document.getElementById("newScenarioTitle").value.trim();
+  const dept     = document.getElementById("newScenarioDept").value.trim();
+  const goal     = document.getElementById("newScenarioGoal").value.trim();
   const vignette = document.getElementById("newScenarioVignette").value.trim();
   const objRaw   = document.getElementById("newScenarioObjectives").value.trim();
 
   if (!title) { alert("Title is required."); return; }
 
   const objectives = objRaw ? objRaw.split("\n").map(l => l.trim()).filter(Boolean) : [];
+
+  if (_editingScenarioId) {
+    // ── Edit mode ──
+    const changes = {
+      title,
+      department: dept || "—",
+      goal: goal || "",
+      content: {
+        ...(getScenarioById(_editingScenarioId)?.content || {}),
+        vignette,
+        objectives
+      }
+    };
+    updateOrOverrideScenario(_editingScenarioId, changes);
+    closeAddScenarioModal();
+    renderScenarioCards();
+    populateScenarioSelects();
+    // Refresh viewer if it's open on this scenario
+    if (currentScenarioViewId === _editingScenarioId) openScenarioViewer(_editingScenarioId);
+    showToast("Scenario updated.");
+    return;
+  }
+
+  // ── Add mode ──
   const user = loadIdentity();
-  const id = "CUSTOM-" + Date.now();
+  const id   = "CUSTOM-" + Date.now();
   const code = title.replace(/[^a-zA-Z0-9]/g, "-").replace(/-+/g, "-").slice(0, 12).toUpperCase();
 
   const sc = {
@@ -819,12 +867,7 @@ function saveNewScenario() {
     isCustom: true,
     addedBy: user ? `${user.name} (${user.staffId})` : "Unknown",
     addedAt: new Date().toISOString(),
-    content: {
-      vignette: vignette || "",
-      objectives,
-      steps: [],
-      debriefTopics: []
-    }
+    content: { vignette, objectives, steps: [], debriefTopics: [] }
   };
 
   addCustomScenario(sc);
@@ -833,13 +876,9 @@ function saveNewScenario() {
   populateScenarioSelects();
   showToast("Scenario added to the library!");
 
-  // If opened from the session modal, auto-select the new scenario
   if (_addScenarioFromSession) {
     const sel = document.getElementById("sessionScenario");
-    if (sel) {
-      sel.value = id;
-      handleScenarioChange();
-    }
+    if (sel) { sel.value = id; handleScenarioChange(); }
     _addScenarioFromSession = false;
   }
 }

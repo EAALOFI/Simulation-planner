@@ -377,6 +377,7 @@
       <div class="modal-body" id="scenarioViewBody"><!-- filled --></div>
       <div class="modal-footer">
         <button class="btn-ghost" onclick="closeModal('scenarioViewModal')">Close</button>
+        <button class="btn-secondary" onclick="closeModal('scenarioViewModal'); openEditScenarioModal(currentScenarioViewId)">✏ Edit Scenario</button>
       </div>
     </div>
   </div>
@@ -385,7 +386,7 @@
   <div class="modal-overlay" id="addScenarioModal">
     <div class="modal">
       <div class="modal-header">
-        <h2 class="modal-title">Add Scenario</h2>
+        <h2 class="modal-title" id="addScenarioModalTitle">Add Scenario</h2>
         <button class="modal-close" onclick="closeAddScenarioModal()">✕</button>
       </div>
       <div class="modal-body">
@@ -412,7 +413,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn-ghost" onclick="closeAddScenarioModal()">Cancel</button>
-        <button class="btn-primary" onclick="saveNewScenario()">Save Scenario</button>
+        <button class="btn-primary" id="addScenarioSaveBtn" onclick="saveNewScenario()">Save Scenario</button>
       </div>
     </div>
   </div>
