@@ -321,13 +321,19 @@ function saveSession() {
 
   if (editingSessionId) {
     updateSession(editingSessionId, sessionData);
+    // Sync captured gaps to global registry:
+    // remove gaps previously linked to this session, then re-add current ones
+    const existing = getGaps().filter(g => g.sessionId === editingSessionId);
+    existing.forEach(g => deleteGap(g.id));
+    capturedGaps.forEach(g => {
+      addGap({ ...g, sessionId: editingSessionId, date, status: "open" });
+    });
     showToast("Session updated.", "success");
   } else {
     const newId = document.getElementById("sessionId").value;
     sessionData.id = newId;
     sessionData.createdAt = new Date().toISOString();
     addSession(sessionData);
-    // Auto-add captured gaps to global registry
     capturedGaps.forEach(g => {
       addGap({ ...g, sessionId: newId, date, status: "open" });
     });
