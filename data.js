@@ -6,7 +6,7 @@
 const SCENARIOS = [
   {
     id: "ED-SEPSIS",
-    title: "ED Sepsis Management & ICU Admission",
+    title: "ED to ICU Admission",
     department: "Emergency Department / ICU",
     file: "ED_Sepsis_Management__ICU_Admission_simulation.pdf",
     timing: { setup: 30, execution: 60, debrief: 30 },
@@ -41,7 +41,7 @@ const SCENARIOS = [
   },
   {
     id: "OPD-INGROWN-TOENAIL",
-    title: "OPD General Surgery – Ingrown Toenail Minor Procedure",
+    title: "OPD and Procedure Room Readiness",
     department: "Outpatient / General Surgery",
     file: "OPD_GS_Ingrown_Toenail.pdf",
     timing: { setup: 20, execution: 45, debrief: 20 },
