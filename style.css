@@ -1046,9 +1046,9 @@ select option { background: var(--bg2); }
   }
 
   .mobile-logo {
-    height: 44px;
+    height: 54px;
     width: auto;
-    max-width: 150px;
+    max-width: 180px;
     object-fit: contain;
     display: block;
     margin: 0 auto;
