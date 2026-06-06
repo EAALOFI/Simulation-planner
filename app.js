@@ -858,62 +858,38 @@ function openScenarioViewer(scenarioId) {
   const sc = getScenarioById(scenarioId);
   if (!sc) return;
 
-  const pdfPath = `scenarios/${sc.file}`;
   document.getElementById("scenarioViewTitle").textContent = sc.title;
   document.getElementById("scenarioViewBody").innerHTML = `
-    <div class="scenario-viewer-tabs">
-      <button class="sv-tab active" onclick="switchScenarioTab('pdf', this)">📄 PDF Document</button>
-      <button class="sv-tab" onclick="switchScenarioTab('overview', this)">📋 Overview</button>
-    </div>
-
-    <div class="sv-panel" id="sv-pdf">
-      <div class="pdf-open-block">
-        <div class="pdf-icon">📄</div>
-        <div class="pdf-open-name">${escHtml(sc.file)}</div>
-        <p class="pdf-open-note">Click below to open or download the scenario document.</p>
-        <div style="display:flex;gap:10px;justify-content:center;margin-top:16px">
-          <button class="btn-primary" onclick="window.open('scenarios/${sc.file}', '_blank')">Open PDF</button>
-          <button class="btn-secondary" onclick="downloadCurrentScenario()">⬇ Download</button>
-        </div>
+    <div class="scenario-viewer-content">
+      <div class="meta-grid">
+        <div class="meta-item"><label>Department</label><span>${escHtml(sc.department || "—")}</span></div>
+        ${sc.timing ? `
+        <div class="meta-item"><label>Total Duration</label><span>${sc.timing.setup + sc.timing.execution + sc.timing.debrief} min</span></div>
+        <div class="meta-item"><label>Setup</label><span>${sc.timing.setup} min</span></div>
+        <div class="meta-item"><label>Execution</label><span>${sc.timing.execution} min</span></div>
+        <div class="meta-item"><label>Debrief</label><span>${sc.timing.debrief} min</span></div>
+        ` : ""}
       </div>
-    </div>
 
-    <div class="sv-panel hidden" id="sv-overview">
-      <div class="scenario-viewer-content">
-        <h3>Scenario Overview</h3>
-        <div class="meta-grid">
-          <div class="meta-item"><label>Department</label><span>${escHtml(sc.department)}</span></div>
-          <div class="meta-item"><label>Total Duration</label><span>${sc.timing.setup + sc.timing.execution + sc.timing.debrief} min</span></div>
-          <div class="meta-item"><label>Setup</label><span>${sc.timing.setup} min</span></div>
-          <div class="meta-item"><label>Execution</label><span>${sc.timing.execution} min</span></div>
-          <div class="meta-item"><label>Debrief</label><span>${sc.timing.debrief} min</span></div>
-        </div>
+      ${sc.goal ? `<h3>Educational Goal</h3><p>${escHtml(sc.goal)}</p>` : ""}
 
-        <h3>Educational Goal</h3>
-        <p>${escHtml(sc.goal)}</p>
+      ${sc.groups?.length ? `<h3>Target Learning Groups</h3><ul>${sc.groups.map(g => `<li>${escHtml(g)}</li>`).join("")}</ul>` : ""}
 
-        <h3>Target Learning Groups</h3>
-        <ul>${sc.groups.map(g => `<li>${escHtml(g)}</li>`).join("")}</ul>
+      ${sc.content?.vignette ? `<h3>Clinical Vignette</h3><p>${escHtml(sc.content.vignette)}</p>` : ""}
 
-        <h3>Clinical Vignette</h3>
-        <p>${escHtml(sc.content.vignette)}</p>
+      ${sc.content?.patient ? `
+      <h3>Patient Profile</h3>
+      <div class="meta-grid">
+        <div class="meta-item"><label>Age / PMH</label><span>${escHtml(sc.content.patient.age)} — ${escHtml(sc.content.patient.pmh)}</span></div>
+        <div class="meta-item"><label>Allergies</label><span>${escHtml(sc.content.patient.allergies)}</span></div>
+        <div class="meta-item" style="grid-column:1/-1"><label>Baseline Vitals</label><span>${escHtml(sc.content.patient.vitals)}</span></div>
+      </div>` : ""}
 
-        <h3>Patient Profile</h3>
-        <div class="meta-grid">
-          <div class="meta-item"><label>Age / PMH</label><span>${escHtml(sc.content.patient.age)} — ${escHtml(sc.content.patient.pmh)}</span></div>
-          <div class="meta-item"><label>Allergies</label><span>${escHtml(sc.content.patient.allergies)}</span></div>
-          <div class="meta-item" style="grid-column:1/-1"><label>Baseline Vitals</label><span>${escHtml(sc.content.patient.vitals)}</span></div>
-        </div>
+      ${sc.content?.objectives?.length ? `<h3>Operational Objectives</h3><ul>${sc.content.objectives.map(o => `<li>${escHtml(o)}</li>`).join("")}</ul>` : ""}
 
-        <h3>Operational Objectives</h3>
-        <ul>${sc.content.objectives.map(o => `<li>${escHtml(o)}</li>`).join("")}</ul>
+      ${sc.content?.steps?.length ? `<h3>Scenario Workflow Steps</h3><ul>${sc.content.steps.map(s => `<li>${escHtml(s)}</li>`).join("")}</ul>` : ""}
 
-        <h3>Scenario Workflow Steps</h3>
-        <ul>${sc.content.steps.map(s => `<li>${escHtml(s)}</li>`).join("")}</ul>
-
-        <h3>Debriefing Topics</h3>
-        <ul>${sc.content.debriefTopics.map(d => `<li>${escHtml(d)}</li>`).join("")}</ul>
-      </div>
+      ${sc.content?.debriefTopics?.length ? `<h3>Debriefing Topics</h3><ul>${sc.content.debriefTopics.map(d => `<li>${escHtml(d)}</li>`).join("")}</ul>` : ""}
     </div>
   `;
   document.getElementById("scenarioViewModal").classList.add("open");
