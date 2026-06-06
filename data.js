@@ -146,20 +146,20 @@ const SCENARIOS = [
   },
   {
     id: "URGENT-REFERRAL-KFSHRC",
-    title: "Urgent Referral Back to KFSHRC – Acute Cholangitis",
+    title: "Reverse Transfer - AMH to KFSH (Urgent)",
     department: "Inpatient / Emergency Transfer",
     file: "Urgent_referral_back_to_KFSHRC_emergency.pdf",
     timing: { setup: 30, execution: 60, debrief: 20 },
-    groups: ["Duty Managers", "Registration Staff", "Inpatient Nursing (B20)", "Inpatient Physicians (On-call/Admitting)", "EMS", "Laboratory & Pharmacy"],
-    goal: "Validate operational readiness, workflow efficiency, and system interoperability for an urgent external patient transfer involving a surgical/medical patient with biliary pathology during B20 admission.",
+    groups: ["Duty Managers", "Registration Staff", "Inpatient Nursing (AMH)", "Inpatient Physicians (On-call/Admitting)", "EMS", "Laboratory & Pharmacy"],
+    goal: "Validate operational readiness, workflow efficiency, and system interoperability for an urgent external patient transfer involving a surgical/medical patient with biliary pathology during AMH admission.",
     content: {
-      vignette: "Patient admitted to B20 develops signs of Acute Cholangitis/Cholecystitis requiring urgent referral back to KFSHRC emergency department.",
+      vignette: "Patient admitted to AMH develops signs of Acute Cholangitis/Cholecystitis requiring urgent referral back to KFSHRC emergency department.",
       patient: { age: "Adult", pmh: "Biliary pathology", allergies: "TBC", vitals: "Deteriorating – biliary sepsis signs" },
       objectives: [
         "Rapid Deterioration Recognition: Identify early signs of cholangitis escalation.",
         "Urgent Transfer Protocol: Activate urgent referral pathway to KFSHRC ED.",
         "Documentation Under Pressure: Complete transfer documentation accurately.",
-        "Inter-facility Communication: Effective handover between B20 and KFSHRC ED team.",
+        "Inter-facility Communication: Effective handover between AMH and KFSHRC ED team.",
         "EMS Coordination: Timely dispatch and safe patient transport."
       ],
       steps: [
@@ -174,7 +174,7 @@ const SCENARIOS = [
       debriefTopics: [
         "Was the clinical deterioration recognized and escalated promptly?",
         "Was the urgent referral pathway activated correctly?",
-        "Were there communication delays between B20 and KFSHRC ED?",
+        "Were there communication delays between AMH and KFSHRC ED?",
         "Was the transfer documentation complete and accurate?"
       ]
     }
