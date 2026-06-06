@@ -20,6 +20,21 @@ window.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("sidebarToggle").addEventListener("click", () => {
     document.getElementById("sidebar").classList.toggle("collapsed");
   });
+
+  // Dark mode toggle
+  const themeToggle = document.getElementById("themeToggle");
+  const applyTheme = (dark) => {
+    document.body.classList.toggle("dark", dark);
+    themeToggle.textContent = dark ? "🌙" : "☀️";
+    themeToggle.title = dark ? "Switch to light mode" : "Switch to dark mode";
+    localStorage.setItem("simtrack_theme", dark ? "dark" : "light");
+  };
+  const savedTheme = localStorage.getItem("simtrack_theme");
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  applyTheme(savedTheme ? savedTheme === "dark" : prefersDark);
+  themeToggle.addEventListener("click", () => {
+    applyTheme(!document.body.classList.contains("dark"));
+  });
 });
 
 // ── Views ─────────────────────────────────────────────────────
