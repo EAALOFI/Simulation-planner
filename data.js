@@ -76,14 +76,14 @@ const SCENARIOS = [
   },
   {
     id: "PNEUMONIA-KFSH",
-    title: "B20 Inpatient Readiness – Pneumonia from KFSH",
+    title: "Subacute Patient Transfer KFSH to AMH",
     department: "Inpatient Transfer",
     file: "Pneumonia_from_KFSH.pdf",
     timing: { setup: 30, execution: 60, debrief: 20 },
-    groups: ["Duty Managers & Registration Staff", "Inpatient Nursing (B20)", "Inpatient Physicians (On-call/Admitting)", "EMS/Porter Teams", "Laboratory & Pharmacy"],
-    goal: "Validate operational readiness, workflow efficiency, and system interoperability for external transfer from KFSH arriving for B20 inpatient admission with pneumonia.",
+    groups: ["Duty Managers & Registration Staff", "Inpatient Nursing (AMH)", "Inpatient Physicians (On-call/Admitting)", "EMS/Porter Teams", "Laboratory & Pharmacy"],
+    goal: "Validate operational readiness, workflow efficiency, and system interoperability for external transfer from KFSH arriving for AMH inpatient admission with pneumonia.",
     content: {
-      vignette: "Patient transferred from King Faisal Specialist Hospital & Research Centre (KFSH) with confirmed pneumonia requiring IV antibiotics and O₂ therapy at B20.",
+      vignette: "Patient transferred from King Faisal Specialist Hospital & Research Centre (KFSH) with confirmed pneumonia requiring IV antibiotics and O₂ therapy at AMH.",
       patient: { age: "Adult", pmh: "Pneumonia", allergies: "Per KFSH records", vitals: "Per transfer documents" },
       objectives: [
         "Registration Integrity: Validate 100% accuracy pre-arrival to inpatient encounter.",
