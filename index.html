@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SimTrack — Hospital Operational Readiness</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <span class="logo-mark">⬡</span>
+        <div>
+          <div class="logo-title">SimTrack</div>
+          <div class="logo-sub">Operational Readiness</div>
+        </div>
+      </div>
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">‹</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-view="planner" onclick="showView('planner')">
+        <span class="nav-icon">◈</span><span class="nav-label">Weekly Planner</span>
+      </button>
+      <button class="nav-item" data-view="sessions" onclick="showView('sessions')">
+        <span class="nav-icon">◎</span><span class="nav-label">All Sessions</span>
+      </button>
+      <button class="nav-item" data-view="gaps" onclick="showView('gaps')">
+        <span class="nav-icon">◇</span><span class="nav-label">Gaps Registry</span>
+      </button>
+      <button class="nav-item" data-view="scenarios" onclick="showView('scenarios')">
+        <span class="nav-icon">◉</span><span class="nav-label">Scenario Library</span>
+      </button>
+      <button class="nav-item" data-view="readiness" onclick="showView('readiness')">
+        <span class="nav-icon">◈</span><span class="nav-label">Readiness Report</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="week-selector">
+        <button class="week-btn" id="prevWeek" onclick="navigateWeek(-1)">←</button>
+        <span class="week-label" id="weekLabel">Week —</span>
+        <button class="week-btn" id="nextWeek" onclick="navigateWeek(1)">→</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main" id="main">
+
+    <!-- WEEKLY PLANNER VIEW -->
+    <section class="view active" id="view-planner">
+      <div class="view-header">
+        <div>
+          <h1 class="view-title">Weekly Planner</h1>
+          <p class="view-sub" id="plannerWeekRange">Loading...</p>
+        </div>
+        <button class="btn-primary" onclick="openNewSessionModal()">+ Schedule Session</button>
+      </div>
+      <div class="week-grid" id="weekGrid"><!-- filled by JS --></div>
+    </section>
+
+    <!-- ALL SESSIONS VIEW -->
+    <section class="view" id="view-sessions">
+      <div class="view-header">
+        <div>
+          <h1 class="view-title">All Sessions</h1>
+          <p class="view-sub">Complete simulation history & logs</p>
+        </div>
+        <div class="filter-bar">
+          <input class="search-input" id="sessionSearch" placeholder="Search sessions…" oninput="renderSessionsList()" />
+          <select class="filter-select" id="statusFilter" onchange="renderSessionsList()">
+            <option value="">All Status</option>
+            <option value="planned">Planned</option>
+            <option value="completed">Completed</option>
+            <option value="repeated">Repeated</option>
+          </select>
+        </div>
+      </div>
+      <div class="sessions-list" id="sessionsList"><!-- filled by JS --></div>
+    </section>
+
+    <!-- GAPS REGISTRY VIEW -->
+    <section class="view" id="view-gaps">
+      <div class="view-header">
+        <div>
+          <h1 class="view-title">Gaps Registry</h1>
+          <p class="view-sub">All captured workflow gaps across sessions</p>
+        </div>
+        <button class="btn-primary" onclick="openAddGapModal()">+ Add Gap</button>
+      </div>
+      <div class="gaps-summary" id="gapsSummary"><!-- filled by JS --></div>
+      <div class="gaps-table-wrap">
+        <table class="gaps-table" id="gapsTable">
+          <thead>
+            <tr>
+              <th>Gap ID</th><th>Description</th><th>Category</th><th>Session</th><th>Priority</th><th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="gapsTableBody"><!-- filled by JS --></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SCENARIO LIBRARY VIEW -->
+    <section class="view" id="view-scenarios">
+      <div class="view-header">
+        <div>
+          <h1 class="view-title">Scenario Library</h1>
+          <p class="view-sub">All simulation scenarios &amp; documents</p>
+        </div>
+      </div>
+      <div class="scenario-cards" id="scenarioCards"><!-- filled by JS --></div>
+    </section>
+
+    <!-- READINESS REPORT VIEW -->
+    <section class="view" id="view-readiness">
+      <div class="view-header">
+        <div>
+          <h1 class="view-title">Readiness Report</h1>
+          <p class="view-sub">Operational readiness log &amp; proof of validation</p>
+        </div>
+        <button class="btn-secondary" onclick="printReport()">⬇ Export Report</button>
+      </div>
+      <div class="readiness-content" id="readinessContent"><!-- filled by JS --></div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================
+       MODALS
+  ============================================================ -->
+
+  <!-- New/Edit Session Modal -->
+  <div class="modal-overlay" id="sessionModal">
+    <div class="modal large">
+      <div class="modal-header">
+        <h2 class="modal-title" id="sessionModalTitle">Schedule Session</h2>
+        <button class="modal-close" onclick="closeModal('sessionModal')">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <div class="form-grid">
+          <div class="form-group span2">
+            <label>Scenario</label>
+            <select id="sessionScenario" onchange="handleScenarioChange()">
+              <option value="">Select scenario…</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="sessionDate" onchange="updateSessionId()" />
+          </div>
+          <div class="form-group">
+            <label>Time</label>
+            <input type="time" id="sessionTime" value="09:00" />
+          </div>
+          <div class="form-group span2">
+            <label>Session ID <span class="form-hint" id="sessionIdPreview"></span></label>
+            <input type="text" id="sessionId" readonly placeholder="Auto-generated" />
+          </div>
+          <div class="form-group span2">
+            <label>Simulation Leader</label>
+            <input type="text" id="sessionLeader" placeholder="Full name and role…" />
+          </div>
+          <div class="form-group span2">
+            <label>Target Departments / Participants</label>
+            <input type="text" id="sessionParticipants" placeholder="e.g. ED, ICU, Pharmacy…" />
+          </div>
+          <div class="form-group span2">
+            <label>Location / Room</label>
+            <input type="text" id="sessionLocation" placeholder="e.g. ED Simulation Bay, B20 Ward…" />
+          </div>
+          <div class="form-group span2">
+            <label>Status</label>
+            <select id="sessionStatus">
+              <option value="planned">Planned</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Pre-identified Gaps (auto-pulled from previous sessions) -->
+        <div class="section-divider">Pre-Identified Gaps <span class="badge-auto">Auto-populated from prior sessions</span></div>
+        <div class="pre-gaps-list" id="preGapsList">
+          <p class="empty-note">Schedule a repeated scenario to see pre-identified gaps here.</p>
+        </div>
+
+        <!-- Feedback & Captured Gaps (only show if status = completed) -->
+        <div id="feedbackSection">
+          <div class="section-divider">Session Feedback &amp; Captured Gaps</div>
+          <div class="form-group">
+            <label>General Feedback / Observations</label>
+            <textarea id="sessionFeedback" rows="4" placeholder="Overall observations, what went well, clinical team performance…"></textarea>
+          </div>
+          <div class="captured-gaps-header">
+            <span>Captured Workflow Gaps</span>
+            <button class="btn-xs" onclick="addCapturedGapRow()">+ Add Gap</button>
+          </div>
+          <div id="capturedGapsRows"><!-- rows added dynamically --></div>
+        </div>
+
+        <!-- Scenario Document -->
+        <div class="section-divider">Scenario Document</div>
+        <div class="scenario-doc-slot" id="sessionScenarioDoc">
+          <p class="empty-note">Select a scenario above to see its document.</p>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" onclick="closeModal('sessionModal')">Cancel</button>
+        <button class="btn-primary" onclick="saveSession()">Save Session</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session Detail Modal (read mode) -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal large">
+      <div class="modal-header">
+        <h2 class="modal-title" id="detailModalTitle">Session Detail</h2>
+        <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+      </div>
+      <div class="modal-body" id="detailModalBody"><!-- filled by JS --></div>
+      <div class="modal-footer">
+        <button class="btn-ghost" onclick="closeModal('detailModal')">Close</button>
+        <button class="btn-secondary" onclick="editCurrentDetail()">Edit Session</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Gap Modal -->
+  <div class="modal-overlay" id="addGapModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Add Gap</h2>
+        <button class="modal-close" onclick="closeModal('addGapModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Gap Description</label>
+          <textarea id="gapDesc" rows="3" placeholder="Describe the workflow gap…"></textarea>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Category</label>
+            <select id="gapCategory">
+              <option>HIS / IT System</option>
+              <option>Clinical Protocol</option>
+              <option>Communication</option>
+              <option>Equipment</option>
+              <option>Staffing / Role Clarity</option>
+              <option>Documentation</option>
+              <option>Patient Flow</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Priority</label>
+            <select id="gapPriority">
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <div class="form-group span2">
+            <label>Linked Session (optional)</label>
+            <select id="gapSession"><option value="">— None —</option></select>
+          </div>
+          <div class="form-group span2">
+            <label>Status</label>
+            <select id="gapStatus">
+              <option value="open">Open</option>
+              <option value="in-progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" onclick="closeModal('addGapModal')">Cancel</button>
+        <button class="btn-primary" onclick="saveGap()">Save Gap</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scenario Viewer Modal -->
+  <div class="modal-overlay" id="scenarioViewModal">
+    <div class="modal large">
+      <div class="modal-header">
+        <h2 class="modal-title" id="scenarioViewTitle">Scenario</h2>
+        <button class="modal-close" onclick="closeModal('scenarioViewModal')">✕</button>
+      </div>
+      <div class="modal-body" id="scenarioViewBody"><!-- filled --></div>
+      <div class="modal-footer">
+        <button class="btn-ghost" onclick="closeModal('scenarioViewModal')">Close</button>
+        <button class="btn-primary" onclick="downloadCurrentScenario()">⬇ Download PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

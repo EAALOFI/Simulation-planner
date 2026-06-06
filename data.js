@@ -1,0 +1,383 @@
+// ============================================================
+//  SimTrack — Data Layer
+//  All data stored in localStorage under "simtrack_*" keys
+// ============================================================
+
+const SCENARIOS = [
+  {
+    id: "ED-SEPSIS",
+    title: "ED Sepsis Management & ICU Admission",
+    department: "Emergency Department / ICU",
+    file: "ED_Sepsis_Management__ICU_Admission_simulation.pdf",
+    timing: { setup: 30, execution: 60, debrief: 30 },
+    groups: ["ED Personnel (Physicians, Nursing, Registration)", "HIM Staff", "ICU Personnel", "Respiratory Therapy", "IT/Health IT (Siratech)"],
+    goal: "Validate technical and clinical efficiency of sepsis protocols and ICU admission workflow within the active Siratech HIS.",
+    content: {
+      vignette: "75-year-old male with COPD presents with worsening dyspnea and chills. GCS 13. Presentation indicative of Septic Shock secondary to pneumonia.",
+      patient: { age: 75, pmh: "COPD, DM", allergies: "NKDA", vitals: "O2 Sat 82% RA | RR 28/min | HR 120 bpm | BP 90/50 | Temp 39.0°C" },
+      objectives: [
+        "HIS Proficiency: Navigate Siratech Sepsis PowerPlan including SARI score and SIRS criteria entry.",
+        "Protocol Adherence: Execute Sepsis Bundle within system-mandated timestamps.",
+        "Disposition Efficiency: Coordinate ICU consultation and bed management electronically.",
+        "Alert Response: Validate Sepsis Alert trigger when HR >110 and Temp >38.5 entered at triage.",
+        "Data Continuity: Ensure MRN matches all digital labels for blood cultures and labs."
+      ],
+      steps: [
+        "Step 1 – Arrival: Visual triage; calculate and enter SARI score in HIS.",
+        "Step 2 – Registration: Electronic MRN lookup; activate Emergency encounter.",
+        "Step 3 – Triage: Save vital signs to trigger automated Sepsis Alert logic.",
+        "Step 4 – Physician Encounter: Initiate Sepsis PowerPlan; order Lactic Acid, Blood Cultures, Antibiotics.",
+        "Step 5 – Consultation: Electronic ICU consultation via Siratech Consult Module.",
+        "Step 6 – Admission: Execute electronic bed request; complete medication reconciliation.",
+        "Step 7 – Transfer: Complete digital handover; update status to Transferred."
+      ],
+      debriefTopics: [
+        "How did automated Siratech sepsis alerts influence speed of 3-hour bundle?",
+        "Was there lag between electronic Bed Request and visibility on ICU dashboard?",
+        "Identify any software friction points that hindered clinical focus.",
+        "How will digital records facilitate OPD follow-up post-discharge?"
+      ]
+    }
+  },
+  {
+    id: "B20-PNEUMONIA-TRANSFER",
+    title: "B20 Inpatient Readiness – External Transfer Pneumonia",
+    department: "Inpatient / Emergency",
+    file: "Inpatient_flow_sim_B20_2_1.pdf",
+    timing: { setup: 30, execution: 60, debrief: 20 },
+    groups: ["Duty Managers & Registration Staff", "ER Nursing & Physicians", "Inpatient Nursing (B20)", "Inpatient Physicians (On-call/Admitting)", "EMS/Porter Teams", "Laboratory & Pharmacy"],
+    goal: "Validate operational readiness, workflow efficiency, and system interoperability for an external patient transfer arriving at ER for B20 inpatient admission.",
+    content: {
+      vignette: "External transfer patient with pneumonia requiring IV antibiotics and O₂ therapy arriving via EMS to ER for B20 inpatient admission.",
+      patient: { age: "Adult", pmh: "Pneumonia", allergies: "TBC", vitals: "Per referring facility records" },
+      objectives: [
+        "Registration Integrity: 100% accuracy in pre-arrival to inpatient encounter transition.",
+        "Unit & Equipment Readiness: Confirm B20 room fully equipped with O₂, suction, IV pumps.",
+        "Clinical Interoperability: Verify successful order entry for CBC and Pharmacy.",
+        "Inter-departmental Communication: Demonstrate verbal and digital comms between Duty Manager, ER, and Inpatient.",
+        "Seamless Transitions: Efficient handoffs between EMS, ER, and inpatient floor."
+      ],
+      steps: [
+        "Step 1 – Pre-Arrival: Duty Manager receives transfer notification; activates pre-arrival encounter.",
+        "Step 2 – EMS Arrival: Confirm patient identity; initiate electronic handover.",
+        "Step 3 – ER Assessment: Triage and stabilisation; update HIS encounter.",
+        "Step 4 – Inpatient Referral: Admitting physician reviews; accepts to B20.",
+        "Step 5 – Room Prep: Nursing confirms O₂, suction, IV pump readiness.",
+        "Step 6 – Transfer to B20: Physical patient move; complete digital handover.",
+        "Step 7 – Order Entry: Lab (CBC) and Pharmacy (IV antibiotics) orders placed."
+      ],
+      debriefTopics: [
+        "Was the pre-arrival encounter created accurately and on time?",
+        "Were room equipment checks completed prior to patient arrival?",
+        "Were there any HIS delays in order entry or acceptance workflow?",
+        "How was inter-departmental communication handled between ER and B20?"
+      ]
+    }
+  },
+  {
+    id: "OPD-INGROWN-TOENAIL",
+    title: "OPD General Surgery – Ingrown Toenail Minor Procedure",
+    department: "Outpatient / General Surgery",
+    file: "OPD_GS_Ingrown_Toenail.pdf",
+    timing: { setup: 20, execution: 45, debrief: 20 },
+    groups: ["General Surgery OPD (Physicians, Nursing)", "Patient Services", "Laboratory Technicians", "Pharmacy (Outpatient)", "IT/Health IT (Siratech)"],
+    goal: "Validate technical and clinical efficiency of the outpatient minor procedure workflow in active Siratech HIS, ensuring seamless transition from assessment to billing and procedure documentation.",
+    content: {
+      vignette: "Outpatient presenting to General Surgery clinic for ingrown toenail assessment and minor surgical procedure.",
+      patient: { age: "Adult", pmh: "Ingrown toenail", allergies: "NKDA", vitals: "Stable" },
+      objectives: [
+        "HIS Proficiency: Navigate Siratech OPD Module including order entry for labs and minor procedures.",
+        "Billing Integrity: Finalize Patient Services encounter prior to procedure execution.",
+        "Procedure Documentation: Complete operative note and nursing assessment in HIS.",
+        "Infection Control: Confirm procedural checklist compliance.",
+        "Outpatient Throughput: Validate efficient patient flow from arrival to discharge."
+      ],
+      steps: [
+        "Step 1 – Check-In: Patient Services registers OPD encounter in Siratech.",
+        "Step 2 – Nursing Assessment: Vital signs and chief complaint documented.",
+        "Step 3 – Physician Consultation: Assessment, diagnosis, and procedure consent.",
+        "Step 4 – Billing: Patient Services finalizes billing prior to procedure.",
+        "Step 5 – Lab Order (if applicable): Order entry and collection.",
+        "Step 6 – Minor Procedure: Toenail procedure with nursing support.",
+        "Step 7 – Documentation & Discharge: Complete HIS operative note; discharge instructions."
+      ],
+      debriefTopics: [
+        "Was billing completed before the procedure was performed?",
+        "Were there any delays in lab order entry or result availability?",
+        "How was the OPD patient flow from check-in to discharge?",
+        "Identify any HIS friction points in the minor procedure documentation."
+      ]
+    }
+  },
+  {
+    id: "PNEUMONIA-KFSH",
+    title: "B20 Inpatient Readiness – Pneumonia from KFSH",
+    department: "Inpatient Transfer",
+    file: "Pneumonia_from_KFSH.pdf",
+    timing: { setup: 30, execution: 60, debrief: 20 },
+    groups: ["Duty Managers & Registration Staff", "Inpatient Nursing (B20)", "Inpatient Physicians (On-call/Admitting)", "EMS/Porter Teams", "Laboratory & Pharmacy"],
+    goal: "Validate operational readiness, workflow efficiency, and system interoperability for external transfer from KFSH arriving for B20 inpatient admission with pneumonia.",
+    content: {
+      vignette: "Patient transferred from King Faisal Specialist Hospital & Research Centre (KFSH) with confirmed pneumonia requiring IV antibiotics and O₂ therapy at B20.",
+      patient: { age: "Adult", pmh: "Pneumonia", allergies: "Per KFSH records", vitals: "Per transfer documents" },
+      objectives: [
+        "Registration Integrity: Validate 100% accuracy pre-arrival to inpatient encounter.",
+        "Unit & Equipment Readiness: Confirm inpatient room equipped with O₂, suction, IV pumps.",
+        "Clinical Interoperability: Verify CBC and Pharmacy order readiness.",
+        "Inter-departmental Communication: Effective comms between Duty Manager, Inpatient units.",
+        "Seamless Patient Transitions: Efficient handoffs EMS → Inpatient floor."
+      ],
+      steps: [
+        "Step 1 – Coordination: Duty Manager confirms transfer from KFSH; pre-arrival setup.",
+        "Step 2 – EMS Arrival: Patient received; identity confirmed; HIS encounter activated.",
+        "Step 3 – Inpatient Admission: Admitting physician documents admission orders.",
+        "Step 4 – Room Readiness: Nursing verifies equipment checklist.",
+        "Step 5 – Clinical Handover: Nursing-to-nursing SBAR handover completed.",
+        "Step 6 – Order Entry: Lab (CBC) and IV antibiotic orders entered and verified.",
+        "Step 7 – Monitoring: O₂ therapy initiated; documentation updated in HIS."
+      ],
+      debriefTopics: [
+        "Were KFSH transfer documents integrated accurately into HIS?",
+        "Was room equipment confirmed fully operational before patient arrival?",
+        "Were there any communication gaps between Duty Manager and inpatient team?",
+        "Were lab and pharmacy orders entered and acknowledged in time?"
+      ]
+    }
+  },
+  {
+    id: "SUBACUTE-KFSHRC-AMH",
+    title: "Referral of Sub-acute Cases – KFSHRC to AlMaathar Hospital",
+    department: "Transfer / External Referral",
+    file: "Subacute_Cases_KFSHRC_to_AMH_Part_1.pdf",
+    timing: { setup: 20, execution: 45, debrief: 20 },
+    groups: ["KFSHRC Transfer Office & External Health Services", "Al Maathar Hospital Patient Services Staff"],
+    goal: "Validate operational efficiency, response timelines, and communication accuracy for transferring sub-acute cases from KFSHRC to Al Maathar Hospital.",
+    content: {
+      vignette: "Sub-acute patient requiring transfer from KFSHRC to Al Maathar Hospital (AMH). Transfer request initiated through formal channels.",
+      patient: { age: "Varies (sub-acute case)", pmh: "Per referral", allergies: "Per referral", vitals: "Stable, sub-acute" },
+      objectives: [
+        "Response Timeliness: Decision and reply within 30-minute benchmark.",
+        "Communication Integrity: Use formal templates for acceptance and rejection.",
+        "Clinical Coordination: Confirm required medications and transfer times communicated.",
+        "Documentation: Complete transfer documentation in designated system.",
+        "Inter-facility Protocols: Validate adherence to agreed referral SOP."
+      ],
+      steps: [
+        "Step 1 – Initiation: KFSHRC Transfer Office initiates transfer request to AMH.",
+        "Step 2 – Receiving: AMH Patient Services receives request through designated channel.",
+        "Step 3 – Decision Making: Reviewing physician at AMH reviews case and decides within 30 minutes.",
+        "Step 4 – Communication: Formal acceptance or rejection communicated using standard template.",
+        "Step 5 – Coordination: If accepted, medications and transfer time confirmed.",
+        "Step 6 – Transfer Execution: Physical transfer with complete documentation.",
+        "Step 7 – Admission at AMH: Formal reception and registration completed."
+      ],
+      debriefTopics: [
+        "Was the 30-minute response benchmark met?",
+        "Were formal communication templates used correctly?",
+        "Were required medications confirmed prior to transfer?",
+        "Were there any documentation gaps in the transfer package?"
+      ]
+    }
+  },
+  {
+    id: "URGENT-REFERRAL-KFSHRC",
+    title: "Urgent Referral Back to KFSHRC – Acute Cholangitis",
+    department: "Inpatient / Emergency Transfer",
+    file: "Urgent_referral_back_to_KFSHRC_emergency.pdf",
+    timing: { setup: 30, execution: 60, debrief: 20 },
+    groups: ["Duty Managers", "Registration Staff", "Inpatient Nursing (B20)", "Inpatient Physicians (On-call/Admitting)", "EMS", "Laboratory & Pharmacy"],
+    goal: "Validate operational readiness, workflow efficiency, and system interoperability for an urgent external patient transfer involving a surgical/medical patient with biliary pathology during B20 admission.",
+    content: {
+      vignette: "Patient admitted to B20 develops signs of Acute Cholangitis/Cholecystitis requiring urgent referral back to KFSHRC emergency department.",
+      patient: { age: "Adult", pmh: "Biliary pathology", allergies: "TBC", vitals: "Deteriorating – biliary sepsis signs" },
+      objectives: [
+        "Rapid Deterioration Recognition: Identify early signs of cholangitis escalation.",
+        "Urgent Transfer Protocol: Activate urgent referral pathway to KFSHRC ED.",
+        "Documentation Under Pressure: Complete transfer documentation accurately.",
+        "Inter-facility Communication: Effective handover between B20 and KFSHRC ED team.",
+        "EMS Coordination: Timely dispatch and safe patient transport."
+      ],
+      steps: [
+        "Step 1 – Clinical Deterioration: Inpatient team identifies escalating cholangitis signs.",
+        "Step 2 – Physician Decision: Admitting physician decides on urgent referral to KFSHRC.",
+        "Step 3 – Duty Manager Activation: Duty Manager initiates urgent referral protocol.",
+        "Step 4 – KFSHRC Notification: ED team leader at KFSHRC notified and accepts.",
+        "Step 5 – EMS Activation: EMS dispatched; transfer package prepared.",
+        "Step 6 – Patient Prep: Labs, imaging, and medication list finalized for transfer.",
+        "Step 7 – Transfer & Handover: SBAR handover to KFSHRC ED; documentation closed."
+      ],
+      debriefTopics: [
+        "Was the clinical deterioration recognized and escalated promptly?",
+        "Was the urgent referral pathway activated correctly?",
+        "Were there communication delays between B20 and KFSHRC ED?",
+        "Was the transfer documentation complete and accurate?"
+      ]
+    }
+  },
+  {
+    id: "ED-ASTHMA-DOWNTIME",
+    title: "ED Asthma Exacerbation – Siratech Downtime Protocol",
+    department: "Emergency Department",
+    file: "downtime_asthma_emergency_B20_.pdf",
+    timing: { setup: 30, execution: 60, debrief: 20 },
+    groups: ["ER Registration & HIM Staff", "ER Nursing (Triage and Treatment)", "ER Physicians", "Laboratory/Phlebotomy & Respiratory Therapy", "Radiology Technologists", "Pharmacy Staff"],
+    goal: "Validate the manual downtime workflow, clinical adherence to asthma protocols, and inter-departmental coordination when Siratech HIS is unavailable.",
+    content: {
+      vignette: "Moderate asthma exacerbation patient presents to ED during Siratech HIS downtime. All workflows must be executed manually.",
+      patient: { age: "Adult", pmh: "Asthma", allergies: "NKDA", vitals: "SpO2 89% | RR 26 | HR 108 | Mild tachycardia" },
+      objectives: [
+        "Manual Communication: Effective use of paper orders and verbal communication.",
+        "Patient Safety during Downtime: 100% accuracy in manual patient identification.",
+        "Clinical Protocol Adherence: Execute asthma protocol without HIS support.",
+        "Downtime Forms: Correct use of pre-printed downtime forms.",
+        "Service Coordination: Coordinate Lab, Radiology, Pharmacy manually."
+      ],
+      steps: [
+        "Step 1 – Downtime Declaration: IT confirms downtime; distribute downtime forms.",
+        "Step 2 – Manual Registration: HIM registers patient using paper downtime form.",
+        "Step 3 – Triage: Nursing completes paper triage assessment.",
+        "Step 4 – Physician Assessment: Manual order writing; asthma protocol initiated.",
+        "Step 5 – Ancillary Services: Paper requisitions to Lab, Radiology, Pharmacy.",
+        "Step 6 – Treatment: Nebulization, O₂ therapy, IV access per paper orders.",
+        "Step 7 – System Restoration: Data entry into HIS once system restored; reconcile all records."
+      ],
+      debriefTopics: [
+        "Were downtime paper forms available and correctly used?",
+        "Were any patient safety concerns identified during manual identification?",
+        "How was communication managed between ED modules and ancillary services?",
+        "Were all paper records reconciled accurately when HIS was restored?"
+      ]
+    }
+  }
+];
+
+// ── Storage helpers ──────────────────────────────────────────
+const KEYS = {
+  sessions: "simtrack_sessions",
+  gaps: "simtrack_gaps",
+  currentWeekOffset: "simtrack_week_offset"
+};
+
+function loadData(key, fallback = []) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch { return fallback; }
+}
+
+function saveData(key, data) {
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+// ── Sessions ─────────────────────────────────────────────────
+function getSessions() { return loadData(KEYS.sessions, []); }
+function saveSessions(s) { saveData(KEYS.sessions, s); }
+
+function generateSessionId(scenarioId, existingSessions) {
+  const same = existingSessions.filter(s => s.scenarioId === scenarioId);
+  const num = String(same.length + 1).padStart(2, "0");
+  const shortId = scenarioId.replace(/-/g, "_");
+  return `${shortId}-${num}`;
+}
+
+function addSession(session) {
+  const sessions = getSessions();
+  sessions.push(session);
+  saveSessions(sessions);
+}
+
+function updateSession(id, updates) {
+  const sessions = getSessions();
+  const idx = sessions.findIndex(s => s.id === id);
+  if (idx !== -1) {
+    sessions[idx] = { ...sessions[idx], ...updates };
+    saveSessions(sessions);
+    return true;
+  }
+  return false;
+}
+
+function deleteSession(id) {
+  const sessions = getSessions().filter(s => s.id !== id);
+  saveSessions(sessions);
+}
+
+function getSessionById(id) {
+  return getSessions().find(s => s.id === id) || null;
+}
+
+function getSessionsForDate(dateStr) {
+  return getSessions().filter(s => s.date === dateStr);
+}
+
+// ── Gaps ─────────────────────────────────────────────────────
+function getGaps() { return loadData(KEYS.gaps, []); }
+function saveGaps(g) { saveData(KEYS.gaps, g); }
+
+function addGap(gap) {
+  const gaps = getGaps();
+  gap.id = "GAP-" + String(Date.now()).slice(-6);
+  gaps.push(gap);
+  saveGaps(gaps);
+  return gap;
+}
+
+function updateGap(id, updates) {
+  const gaps = getGaps();
+  const idx = gaps.findIndex(g => g.id === id);
+  if (idx !== -1) { gaps[idx] = { ...gaps[idx], ...updates }; saveGaps(gaps); }
+}
+
+function deleteGap(id) {
+  saveGaps(getGaps().filter(g => g.id !== id));
+}
+
+// Get gaps linked to a scenario (for pre-identification)
+function getGapsForScenario(scenarioId) {
+  return getGaps().filter(g => {
+    if (!g.sessionId) return false;
+    const session = getSessionById(g.sessionId);
+    return session && session.scenarioId === scenarioId;
+  });
+}
+
+// ── Week helpers ─────────────────────────────────────────────
+function getWeekOffset() { return parseInt(loadData(KEYS.currentWeekOffset, 0)) || 0; }
+function setWeekOffset(n) { saveData(KEYS.currentWeekOffset, n); }
+
+function getSundayOfWeek(offset = 0) {
+  const today = new Date();
+  const day = today.getDay(); // 0=Sun
+  const diff = today.getDate() - day;
+  const sunday = new Date(today.setDate(diff + offset * 7));
+  sunday.setHours(0,0,0,0);
+  return sunday;
+}
+
+// Returns array of {name, dateStr, date} for Sun–Thu
+function getWorkWeekDays(offset = 0) {
+  const sunday = getSundayOfWeek(offset);
+  const days = [];
+  const names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"];
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(sunday);
+    d.setDate(sunday.getDate() + i);
+    const dateStr = d.toISOString().split("T")[0];
+    days.push({ name: names[i], dateStr, date: d });
+  }
+  return days;
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return "—";
+  const d = new Date(dateStr + "T00:00:00");
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function isToday(dateStr) {
+  return dateStr === new Date().toISOString().split("T")[0];
+}
+
+function getScenarioById(id) {
+  return SCENARIOS.find(s => s.id === id) || null;
+}
