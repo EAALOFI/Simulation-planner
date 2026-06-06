@@ -755,7 +755,7 @@ function renderReadinessReport() {
     <div class="readiness-section" style="border-color:var(--teal)">
       <h3>Proof of Operational Readiness</h3>
       <p style="font-size:13px;color:var(--text2);line-height:1.8">
-        This log documents the full simulation commissioning cycle conducted at <strong>Al Maathar Hospital (AMH)</strong>.
+        This log documents the full simulation commissioning cycle conducted at <strong>Almather Hospital (AMH)</strong>.
         A total of <strong>${sessions.length} simulation sessions</strong> have been scheduled across <strong>${SCENARIOS.length} clinical scenarios</strong>.
         Of these, <strong>${completed.length} sessions have been completed</strong>.
         The current gap resolution rate stands at <strong style="color:var(--teal)">${readinessPct}%</strong>
