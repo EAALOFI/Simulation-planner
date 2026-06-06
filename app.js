@@ -120,8 +120,31 @@ function bootAfterAccess() {
   }
 }
 
+// ── Theme (runs immediately, before any gate) ─────────────────
+function applyTheme(dark) {
+  document.body.classList.toggle("dark", dark);
+  const icon = dark ? "🌙" : "☀️";
+  const title = dark ? "Switch to light mode" : "Switch to dark mode";
+  const themeToggle = document.getElementById("themeToggle");
+  const themeToggleMobile = document.getElementById("themeToggleMobile");
+  const brandLogo = document.getElementById("brandLogo");
+  const mobileHeaderLogo = document.getElementById("mobileHeaderLogo");
+  if (themeToggle) { themeToggle.textContent = icon; themeToggle.title = title; }
+  if (themeToggleMobile) { themeToggleMobile.textContent = icon; themeToggleMobile.title = title; }
+  if (brandLogo) brandLogo.src = dark ? "Almather_Logo_Black.png" : "AMH logo.jpg";
+  if (mobileHeaderLogo) mobileHeaderLogo.src = dark ? "Almather_Logo_Black.png" : "AMH logo.jpg";
+  localStorage.setItem("simtrack_theme", dark ? "dark" : "light");
+}
+
 // ── Init ─────────────────────────────────────────────────────
 window.addEventListener("DOMContentLoaded", async () => {
+  // Apply saved theme immediately so toggle works even before login
+  applyTheme(localStorage.getItem("simtrack_theme") === "dark");
+  document.getElementById("themeToggle").addEventListener("click",
+    () => applyTheme(!document.body.classList.contains("dark")));
+  document.getElementById("themeToggleMobile").addEventListener("click",
+    () => applyTheme(!document.body.classList.contains("dark")));
+
   document.getElementById("loadingOverlay").style.display = "flex";
   await initFirestore();
   document.getElementById("loadingOverlay").style.display = "none";
@@ -165,27 +188,6 @@ async function bootApp() {
     });
   });
 
-  // Dark mode toggle (shared between desktop + mobile)
-  const themeToggle = document.getElementById("themeToggle");
-  const themeToggleMobile = document.getElementById("themeToggleMobile");
-  const brandLogo = document.getElementById("brandLogo");
-  const mobileHeaderLogo = document.getElementById("mobileHeaderLogo");
-  const applyTheme = (dark) => {
-    document.body.classList.toggle("dark", dark);
-    const icon = dark ? "🌙" : "☀️";
-    const title = dark ? "Switch to light mode" : "Switch to dark mode";
-    themeToggle.textContent = icon;
-    themeToggle.title = title;
-    themeToggleMobile.textContent = icon;
-    themeToggleMobile.title = title;
-    if (brandLogo) brandLogo.src = dark ? "Almather_Logo_Black.png" : "AMH logo.jpg";
-    if (mobileHeaderLogo) mobileHeaderLogo.src = dark ? "Almather_Logo_Black.png" : "AMH logo.jpg";
-    localStorage.setItem("simtrack_theme", dark ? "dark" : "light");
-  };
-  const savedTheme = localStorage.getItem("simtrack_theme");
-  applyTheme(savedTheme === "dark");
-  themeToggle.addEventListener("click", () => applyTheme(!document.body.classList.contains("dark")));
-  themeToggleMobile.addEventListener("click", () => applyTheme(!document.body.classList.contains("dark")));
   renderIdentityBadge();
 }
 
