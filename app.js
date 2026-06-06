@@ -23,15 +23,16 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   // Dark mode toggle
   const themeToggle = document.getElementById("themeToggle");
+  const brandLogo = document.getElementById("brandLogo");
   const applyTheme = (dark) => {
     document.body.classList.toggle("dark", dark);
     themeToggle.textContent = dark ? "🌙" : "☀️";
     themeToggle.title = dark ? "Switch to light mode" : "Switch to dark mode";
+    if (brandLogo) brandLogo.src = dark ? "Almather_Logo_Black.png" : "AMH logo.jpg";
     localStorage.setItem("simtrack_theme", dark ? "dark" : "light");
   };
   const savedTheme = localStorage.getItem("simtrack_theme");
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  applyTheme(savedTheme ? savedTheme === "dark" : prefersDark);
+  applyTheme(savedTheme === "dark");
   themeToggle.addEventListener("click", () => {
     applyTheme(!document.body.classList.contains("dark"));
   });
