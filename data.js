@@ -6,6 +6,7 @@
 const SCENARIOS = [
   {
     id: "ED-SEPSIS",
+    code: "ED-ICU",
     title: "ED to ICU Admission",
     department: "Emergency Department / ICU",
     file: "ED_Sepsis_Management__ICU_Admission_simulation.pdf",
@@ -41,6 +42,7 @@ const SCENARIOS = [
   },
   {
     id: "OPD-INGROWN-TOENAIL",
+    code: "OPD-Proc",
     title: "OPD and Procedure Room Readiness",
     department: "Outpatient / General Surgery",
     file: "OPD_GS_Ingrown_Toenail.pdf",
@@ -76,6 +78,7 @@ const SCENARIOS = [
   },
   {
     id: "PNEUMONIA-KFSH",
+    code: "KFSH-Transfer",
     title: "Subacute Patient Transfer KFSH to AMH",
     department: "Inpatient Transfer",
     file: "Pneumonia_from_KFSH.pdf",
@@ -111,6 +114,7 @@ const SCENARIOS = [
   },
   {
     id: "SUBACUTE-KFSHRC-AMH",
+    code: "Comm-Exercise",
     title: "Admission Office Communication Exercise",
     department: "Transfer / External Referral",
     file: "Subacute_Cases_KFSHRC_to_AMH_Part_1.pdf",
@@ -146,6 +150,7 @@ const SCENARIOS = [
   },
   {
     id: "URGENT-REFERRAL-KFSHRC",
+    code: "Rev-Transfer",
     title: "Reverse Transfer - AMH to KFSH (Urgent)",
     department: "Inpatient / Emergency Transfer",
     file: "Urgent_referral_back_to_KFSHRC_emergency.pdf",
@@ -181,6 +186,7 @@ const SCENARIOS = [
   },
   {
     id: "ED-ASTHMA-DOWNTIME",
+    code: "HIS-Downtime",
     title: "HIS Downtime Protocols",
     department: "Emergency Department",
     file: "downtime_asthma_emergency_B20_.pdf",
@@ -241,8 +247,9 @@ function saveSessions(s) { saveData(KEYS.sessions, s); }
 function generateSessionId(scenarioId, existingSessions) {
   const same = existingSessions.filter(s => s.scenarioId === scenarioId);
   const num = String(same.length + 1).padStart(2, "0");
-  const shortId = scenarioId.replace(/-/g, "_");
-  return `${shortId}-${num}`;
+  const sc = getScenarioById(scenarioId);
+  const code = sc && sc.code ? sc.code : scenarioId.replace(/-/g, "_");
+  return `${code}-${num}`;
 }
 
 function addSession(session) {
