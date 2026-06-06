@@ -230,7 +230,7 @@ const KEYS = {
 };
 
 // In-memory store — loaded from Firestore on startup
-const _store = { sessions: [], gaps: [], weekOffset: 0 };
+const _store = { sessions: [], gaps: [], weekOffset: 0, customScenarios: [] };
 let _db = null;
 
 function loadData(key, fallback = []) {
@@ -252,7 +252,8 @@ function _firestoreWrite() {
   _db.collection("simtrack").doc("data").set({
     sessions: _store.sessions,
     gaps: _store.gaps,
-    weekOffset: _store.weekOffset
+    weekOffset: _store.weekOffset,
+    customScenarios: _store.customScenarios
   }).catch(e => console.error("Firestore write error:", e));
 }
 
@@ -274,10 +275,26 @@ async function initFirestore() {
       _store.sessions = d.sessions || [];
       _store.gaps = d.gaps || [];
       _store.weekOffset = d.weekOffset || 0;
+      _store.customScenarios = d.customScenarios || [];
     }
   } catch (e) {
     console.error("Firestore load error:", e);
   }
+}
+
+// ── Custom Scenarios ──────────────────────────────────────────
+function getCustomScenarios() { return _store.customScenarios; }
+
+function getAllScenarios() { return [...SCENARIOS, ..._store.customScenarios]; }
+
+function addCustomScenario(sc) {
+  _store.customScenarios.push(sc);
+  _firestoreWrite();
+}
+
+function deleteCustomScenario(id) {
+  _store.customScenarios = _store.customScenarios.filter(s => s.id !== id);
+  _firestoreWrite();
 }
 
 // ── Sessions ─────────────────────────────────────────────────
@@ -391,5 +408,5 @@ function isToday(dateStr) {
 }
 
 function getScenarioById(id) {
-  return SCENARIOS.find(s => s.id === id) || null;
+  return SCENARIOS.find(s => s.id === id) || _store.customScenarios.find(s => s.id === id) || null;
 }

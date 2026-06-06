@@ -174,6 +174,7 @@
           <h1 class="view-title">Scenario Library</h1>
           <p class="view-sub">All simulation scenarios &amp; documents</p>
         </div>
+        <button class="btn-primary" onclick="openAddScenarioModal()">+ Add Scenario</button>
       </div>
       <div class="scenario-cards" id="scenarioCards"><!-- filled by JS --></div>
     </section>
@@ -374,6 +375,42 @@
       <div class="modal-footer">
         <button class="btn-ghost" onclick="closeModal('scenarioViewModal')">Close</button>
         <button class="btn-primary" onclick="downloadCurrentScenario()">⬇ Download PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Scenario Modal -->
+  <div class="modal-overlay" id="addScenarioModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Add Scenario</h2>
+        <button class="modal-close" onclick="closeAddScenarioModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Scenario Title <span style="color:var(--red)">*</span></label>
+          <input type="text" id="newScenarioTitle" placeholder="e.g. Mass Casualty Triage Drill" />
+        </div>
+        <div class="form-group">
+          <label>Department / Area</label>
+          <input type="text" id="newScenarioDept" placeholder="e.g. Emergency Department, ICU…" />
+        </div>
+        <div class="form-group">
+          <label>Goal / Purpose</label>
+          <textarea id="newScenarioGoal" rows="2" placeholder="What does this simulation aim to validate?"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Patient Vignette / Scenario Description</label>
+          <textarea id="newScenarioVignette" rows="3" placeholder="Brief clinical scenario description…"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Learning Objectives <span class="form-hint">One per line</span></label>
+          <textarea id="newScenarioObjectives" rows="4" placeholder="Objective 1&#10;Objective 2&#10;Objective 3"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" onclick="closeAddScenarioModal()">Cancel</button>
+        <button class="btn-primary" onclick="saveNewScenario()">Save Scenario</button>
       </div>
     </div>
   </div>

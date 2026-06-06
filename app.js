@@ -746,25 +746,89 @@ function populateGapSessionSelect() {
 function renderScenarioCards() {
   const container = document.getElementById("scenarioCards");
   container.innerHTML = "";
-  SCENARIOS.forEach(sc => {
+  getAllScenarios().forEach(sc => {
     const sessionCount = getSessions().filter(s => s.scenarioId === sc.id).length;
+    const isCustom = !SCENARIOS.find(s => s.id === sc.id);
     const card = document.createElement("div");
-    card.className = "scenario-card";
+    card.className = "scenario-card" + (isCustom ? " scenario-card-custom" : "");
     card.innerHTML = `
-      <div class="scenario-card-dept">${escHtml(sc.department)}</div>
+      <div class="scenario-card-dept">
+        ${escHtml(sc.department || "—")}
+        ${isCustom ? '<span class="custom-badge">Custom</span>' : ""}
+      </div>
       <div class="scenario-card-title">${escHtml(sc.title)}</div>
-      <div class="scenario-card-desc">${escHtml(sc.goal)}</div>
+      <div class="scenario-card-desc">${escHtml(sc.goal || sc.description || "")}</div>
       <div class="scenario-card-meta">
-        <span>⏱ Setup ${sc.timing.setup}m + Exec ${sc.timing.execution}m + Debrief ${sc.timing.debrief}m</span>
+        ${sc.timing ? `<span>⏱ Setup ${sc.timing.setup}m + Exec ${sc.timing.execution}m + Debrief ${sc.timing.debrief}m</span>` : ""}
         <span>◎ ${sessionCount} session${sessionCount !== 1 ? "s" : ""} run</span>
       </div>
       <div class="scenario-card-actions">
-        <button class="btn-secondary" onclick="openScenarioViewer('${sc.id}')">📄 View Scenario</button>
+        ${!isCustom ? `<button class="btn-secondary" onclick="openScenarioViewer('${sc.id}')">📄 View Scenario</button>` : ""}
         <button class="btn-primary" onclick="openNewSessionModalForScenario('${sc.id}')">+ Schedule</button>
+        ${isCustom ? `<button class="btn-ghost" onclick="confirmDeleteScenario('${sc.id}')">🗑 Delete</button>` : ""}
       </div>
     `;
     container.appendChild(card);
   });
+}
+
+function confirmDeleteScenario(id) {
+  const sc = getScenarioById(id);
+  if (!sc) return;
+  if (!confirm(`Delete scenario "${sc.title}"?\nThis cannot be undone. Existing sessions using this scenario will keep their reference.`)) return;
+  deleteCustomScenario(id);
+  renderScenarioCards();
+  populateScenarioSelects();
+  showToast("Scenario deleted.");
+}
+
+// ── Add Scenario Modal ────────────────────────────────────────
+function openAddScenarioModal() {
+  document.getElementById("addScenarioModal").classList.add("open");
+  document.getElementById("newScenarioTitle").focus();
+}
+
+function closeAddScenarioModal() {
+  document.getElementById("addScenarioModal").classList.remove("open");
+  ["newScenarioTitle","newScenarioDept","newScenarioGoal","newScenarioVignette","newScenarioObjectives"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+}
+
+function saveNewScenario() {
+  const title = document.getElementById("newScenarioTitle").value.trim();
+  const dept  = document.getElementById("newScenarioDept").value.trim();
+  const goal  = document.getElementById("newScenarioGoal").value.trim();
+  const vignette = document.getElementById("newScenarioVignette").value.trim();
+  const objRaw   = document.getElementById("newScenarioObjectives").value.trim();
+
+  if (!title) { alert("Title is required."); return; }
+
+  const objectives = objRaw ? objRaw.split("\n").map(l => l.trim()).filter(Boolean) : [];
+  const user = loadIdentity();
+  const id = "CUSTOM-" + Date.now();
+  const code = title.replace(/[^a-zA-Z0-9]/g, "-").replace(/-+/g, "-").slice(0, 12).toUpperCase();
+
+  const sc = {
+    id, code, title,
+    department: dept || "—",
+    goal: goal || "",
+    isCustom: true,
+    addedBy: user ? `${user.name} (${user.staffId})` : "Unknown",
+    addedAt: new Date().toISOString(),
+    content: {
+      vignette: vignette || "",
+      objectives,
+      steps: [],
+      debriefTopics: []
+    }
+  };
+
+  addCustomScenario(sc);
+  closeAddScenarioModal();
+  renderScenarioCards();
+  populateScenarioSelects();
+  showToast("Scenario added to the library!");
 }
 
 function openNewSessionModalForScenario(scenarioId) {
@@ -871,7 +935,7 @@ function renderReadinessReport() {
   const readinessPct = totalGaps === 0 ? 100 : Math.round((resolvedGaps / totalGaps) * 100);
 
   // Scenario completion table
-  const scTable = SCENARIOS.map(sc => {
+  const scTable = getAllScenarios().map(sc => {
     const scSessions = sessions.filter(s => s.scenarioId === sc.id);
     const scCompleted = scSessions.filter(s => s.status === "completed");
     const scGaps = gaps.filter(g => {
@@ -894,7 +958,7 @@ function renderReadinessReport() {
         <div class="kpi-card"><div class="kpi-label">Open Gaps</div><div class="kpi-value" style="color:var(--red)">${openGaps}</div></div>
         <div class="kpi-card"><div class="kpi-label">Resolved Gaps</div><div class="kpi-value" style="color:var(--green)">${resolvedGaps}</div></div>
         <div class="kpi-card"><div class="kpi-label">Readiness Score</div><div class="kpi-value" style="color:var(--teal)">${readinessPct}%</div><div class="kpi-sub">Based on gap resolution</div></div>
-        <div class="kpi-card"><div class="kpi-label">Scenarios Validated</div><div class="kpi-value" style="color:var(--teal)">${scTable.filter(r => r.status === "Validated ✓").length} / ${SCENARIOS.length}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Scenarios Validated</div><div class="kpi-value" style="color:var(--teal)">${scTable.filter(r => r.status === "Validated ✓").length} / ${getAllScenarios().length}</div></div>
       </div>
     </div>
 
@@ -964,7 +1028,7 @@ function renderReadinessReport() {
       <h3>Proof of Operational Readiness</h3>
       <p style="font-size:13px;color:var(--text2);line-height:1.8">
         This log documents the full simulation commissioning cycle conducted at <strong>Almather Hospital (AMH)</strong>.
-        A total of <strong>${sessions.length} simulation sessions</strong> have been scheduled across <strong>${SCENARIOS.length} clinical scenarios</strong>.
+        A total of <strong>${sessions.length} simulation sessions</strong> have been scheduled across <strong>${getAllScenarios().length} clinical scenarios</strong>.
         Of these, <strong>${completed.length} sessions have been completed</strong>.
         The current gap resolution rate stands at <strong style="color:var(--teal)">${readinessPct}%</strong>
         (${resolvedGaps} of ${totalGaps} identified gaps resolved).
@@ -986,7 +1050,7 @@ function populateScenarioSelects() {
   const sel = document.getElementById("sessionScenario");
   if (!sel) return;
   sel.innerHTML = '<option value="">Select scenario…</option>';
-  SCENARIOS.forEach(sc => {
+  getAllScenarios().forEach(sc => {
     const opt = document.createElement("option");
     opt.value = sc.id;
     opt.textContent = sc.title;
