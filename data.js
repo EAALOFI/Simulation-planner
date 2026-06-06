@@ -181,7 +181,7 @@ const SCENARIOS = [
   },
   {
     id: "ED-ASTHMA-DOWNTIME",
-    title: "ED Asthma Exacerbation – Siratech Downtime Protocol",
+    title: "HIS Downtime Protocols",
     department: "Emergency Department",
     file: "downtime_asthma_emergency_B20_.pdf",
     timing: { setup: 30, execution: 60, debrief: 20 },
