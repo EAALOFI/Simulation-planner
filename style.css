@@ -71,6 +71,11 @@ body.dark {
   --shadow-sm: 0 1px 4px rgba(0,0,0,.4);
 }
 
+/* Logo — invert to light silver in dark mode */
+body.dark .brand-logo {
+  filter: invert(1) brightness(0.88) sepia(0.05);
+}
+
 /* Sidebar — distinctly darker than content area */
 body.dark .sidebar {
   background: #0d1420;
