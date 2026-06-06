@@ -71,6 +71,97 @@ body.dark {
   --shadow-sm: 0 1px 4px rgba(0,0,0,.4);
 }
 
+/* ── ACCESS GATE & IDENTITY MODALS ──────────────────────── */
+.gate-overlay {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(10, 14, 26, 0.82);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.gate-modal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px 32px;
+  width: 100%; max-width: 380px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.gate-logo { margin-bottom: 16px; }
+.gate-title {
+  font-family: var(--font-display);
+  font-size: 26px; color: var(--text);
+  margin: 0 0 4px;
+}
+.gate-sub {
+  font-size: 13px; color: var(--text2);
+  margin: 0 0 20px;
+}
+.gate-hint {
+  font-size: 13px; color: var(--text2);
+  margin: 0 0 14px; line-height: 1.5;
+}
+.gate-label {
+  display: block; text-align: left;
+  font-size: 12px; font-weight: 600;
+  color: var(--text2); margin-bottom: 4px;
+  letter-spacing: .04em; text-transform: uppercase;
+}
+.gate-input {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px; font-family: var(--font-body);
+  box-sizing: border-box;
+  transition: border-color var(--transition);
+}
+.gate-input:focus {
+  outline: none; border-color: var(--teal);
+  box-shadow: 0 0 0 3px var(--teal-dim);
+}
+.gate-error {
+  font-size: 12px; color: var(--red);
+  text-align: left; margin-top: 6px;
+}
+.gate-btn {
+  margin-top: 18px; width: 100%;
+  padding: 12px;
+  background: var(--teal); color: #fff;
+  border: none; border-radius: var(--radius-sm);
+  font-size: 15px; font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.gate-btn:hover { background: var(--teal2); }
+
+/* ── IDENTITY BADGE (sidebar footer) ───────────────────── */
+.identity-badge {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 10px; padding: 8px 10px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer; transition: border-color var(--transition);
+}
+.identity-badge:hover { border-color: var(--teal); }
+.identity-icon { font-size: 18px; flex-shrink: 0; }
+.identity-info { flex: 1; min-width: 0; text-align: left; }
+.identity-name {
+  display: block; font-size: 12px; font-weight: 600;
+  color: var(--text); white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.identity-id {
+  display: block; font-size: 11px;
+  color: var(--text2); font-family: var(--font-mono);
+}
+.identity-edit {
+  font-size: 14px; color: var(--text3); flex-shrink: 0;
+}
+
 /* Logo — invert to light silver in dark mode */
 body.dark .brand-logo {
   filter: invert(1) brightness(0.88) sepia(0.05);

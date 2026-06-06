@@ -17,11 +17,47 @@
   </div>
   <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
 
+  <!-- Access password overlay -->
+  <div class="gate-overlay" id="accessOverlay">
+    <div class="gate-modal">
+      <div class="gate-logo">
+        <img src="AMH logo.jpg" alt="Almather Hospital" style="height:56px;width:auto;object-fit:contain;" />
+      </div>
+      <h2 class="gate-title">SimTrack</h2>
+      <p class="gate-sub">Almather Hospital · Simulation Planning</p>
+      <p class="gate-hint">Enter the access password to continue.</p>
+      <form id="accessForm" onsubmit="event.preventDefault(); submitAccessPassword();" autocomplete="on">
+        <input type="text" name="username" value="simtrack-amh" autocomplete="username" style="display:none;" readonly />
+        <input id="accessInput" name="password" type="password" placeholder="Password" autocomplete="current-password" class="gate-input" />
+        <div id="accessError" class="gate-error" style="display:none;">Incorrect password. Please try again.</div>
+        <button type="submit" class="gate-btn">Continue →</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Identity overlay -->
+  <div class="gate-overlay" id="identityOverlay" style="display:none;">
+    <div class="gate-modal">
+      <h2 class="gate-title" style="font-size:20px;">Welcome — introduce yourself</h2>
+      <p class="gate-hint" style="margin-bottom:18px;">Your name and staff ID will be shown on sessions you log. Stored locally on this device.</p>
+      <form id="identityForm" onsubmit="event.preventDefault(); submitIdentity();" autocomplete="on">
+        <label class="gate-label">Full name</label>
+        <input id="identityName" name="name" type="text" autocomplete="name" autocapitalize="words" placeholder="e.g. Dr. Moath Homiad" class="gate-input" />
+        <label class="gate-label" style="margin-top:10px;">Staff ID</label>
+        <input id="identityStaffId" name="employeeId" type="text" inputmode="numeric" pattern="\d*" autocomplete="off" placeholder="e.g. 12345" class="gate-input" />
+        <div id="identityError" class="gate-error" style="display:none;"></div>
+        <button type="submit" class="gate-btn" style="margin-top:16px;">Let's go →</button>
+      </form>
+    </div>
+  </div>
+
   <!-- Mobile top bar -->
   <div class="mobile-header" id="mobileHeader">
     <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">☰</button>
     <img src="AMH logo.jpg" alt="Almather Hospital" class="mobile-logo" id="mobileHeaderLogo" />
-    <button class="theme-toggle" id="themeToggleMobile" aria-label="Toggle dark mode">☀️</button>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <button class="theme-toggle" id="themeToggleMobile" aria-label="Toggle dark mode">☀️</button>
+    </div>
   </div>
 
   <!-- Mobile sidebar backdrop -->
@@ -62,6 +98,14 @@
         <button class="week-btn" id="prevWeek" onclick="navigateWeek(-1)">←</button>
         <span class="week-label" id="weekLabel">Week —</span>
         <button class="week-btn" id="nextWeek" onclick="navigateWeek(1)">→</button>
+      </div>
+      <div class="identity-badge" id="identityBadge" style="display:none;" onclick="changeIdentity()" title="Change identity">
+        <span class="identity-icon">👤</span>
+        <div class="identity-info">
+          <span class="identity-name" id="identityBadgeName"></span>
+          <span class="identity-id" id="identityBadgeId"></span>
+        </div>
+        <span class="identity-edit">✎</span>
       </div>
     </div>
   </aside>

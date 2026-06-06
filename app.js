@@ -8,10 +8,105 @@ let currentDetailSessionId = null;
 let currentScenarioViewId = null;
 let capturedGapCount = 0;
 
+// ── Access Gate & Identity ────────────────────────────────────
+const SIMTRACK_PASSWORD = "AMHSIM2026";
+
+function checkAccessGate() {
+  try { if (sessionStorage.getItem("simtrack_access") === SIMTRACK_PASSWORD) return true; } catch (e) {}
+  return false;
+}
+
+function submitAccessPassword() {
+  const input = document.getElementById("accessInput");
+  if (input.value === SIMTRACK_PASSWORD) {
+    try { sessionStorage.setItem("simtrack_access", SIMTRACK_PASSWORD); } catch (e) {}
+    document.getElementById("accessOverlay").style.display = "none";
+    bootAfterAccess();
+  } else {
+    document.getElementById("accessError").style.display = "block";
+    input.value = "";
+    input.focus();
+  }
+}
+
+function loadIdentity() {
+  try {
+    const saved = localStorage.getItem("simtrack_user");
+    if (saved) return JSON.parse(saved);
+  } catch (e) {}
+  return null;
+}
+
+function saveIdentity(name, staffId) {
+  const user = { name, staffId };
+  try { localStorage.setItem("simtrack_user", JSON.stringify(user)); } catch (e) {}
+  return user;
+}
+
+function submitIdentity() {
+  const name = document.getElementById("identityName").value.trim();
+  const staffId = document.getElementById("identityStaffId").value.trim();
+  const err = document.getElementById("identityError");
+  if (name.length < 2) { err.textContent = "Please enter your full name."; err.style.display = "block"; return; }
+  if (!/^\d{3,8}$/.test(staffId)) { err.textContent = "Staff ID must be 3–8 digits."; err.style.display = "block"; return; }
+  saveIdentity(name, staffId);
+  document.getElementById("identityOverlay").style.display = "none";
+  renderIdentityBadge();
+  bootApp();
+}
+
+function changeIdentity() {
+  if (!confirm("Change your identity? Your name and ID will be updated for future actions.")) return;
+  const current = loadIdentity() || {};
+  document.getElementById("identityName").value = current.name || "";
+  document.getElementById("identityStaffId").value = current.staffId || "";
+  document.getElementById("identityError").style.display = "none";
+  document.getElementById("identityOverlay").style.display = "flex";
+}
+
+function renderIdentityBadge() {
+  const user = loadIdentity();
+  const badge = document.getElementById("identityBadge");
+  if (!badge) return;
+  if (user) {
+    document.getElementById("identityBadgeName").textContent = user.name;
+    document.getElementById("identityBadgeId").textContent = "ID: " + user.staffId;
+    badge.style.display = "flex";
+  } else {
+    badge.style.display = "none";
+  }
+}
+
+// Called after password is accepted
+function bootAfterAccess() {
+  const user = loadIdentity();
+  if (!user) {
+    // First time: show identity form
+    document.getElementById("identityOverlay").style.display = "flex";
+    setTimeout(() => document.getElementById("identityName").focus(), 50);
+  } else {
+    // Returning user: go straight in
+    renderIdentityBadge();
+    bootApp();
+  }
+}
+
 // ── Init ─────────────────────────────────────────────────────
 window.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("loadingOverlay").style.display = "flex";
   await initFirestore();
+  document.getElementById("loadingOverlay").style.display = "none";
+
+  // Show password gate if not yet authenticated this session
+  if (!checkAccessGate()) {
+    document.getElementById("accessOverlay").style.display = "flex";
+    setTimeout(() => document.getElementById("accessInput").focus(), 50);
+    return; // Don't boot the app yet — bootAfterAccess() will handle it
+  }
+  bootAfterAccess();
+});
+
+async function bootApp() {
   document.getElementById("loadingOverlay").style.display = "none";
   populateScenarioSelects();
   renderWeekPlanner();
@@ -62,7 +157,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   applyTheme(savedTheme === "dark");
   themeToggle.addEventListener("click", () => applyTheme(!document.body.classList.contains("dark")));
   themeToggleMobile.addEventListener("click", () => applyTheme(!document.body.classList.contains("dark")));
-});
+  renderIdentityBadge();
+}
 
 // ── Views ─────────────────────────────────────────────────────
 function showView(view) {
