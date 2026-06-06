@@ -567,53 +567,78 @@ function openScenarioViewer(scenarioId) {
   const sc = getScenarioById(scenarioId);
   if (!sc) return;
 
+  const pdfPath = `scenarios/${sc.file}`;
   document.getElementById("scenarioViewTitle").textContent = sc.title;
   document.getElementById("scenarioViewBody").innerHTML = `
-    <div class="scenario-viewer-content">
-      <h3>Scenario Overview</h3>
-      <div class="meta-grid">
-        <div class="meta-item"><label>Department</label><span>${escHtml(sc.department)}</span></div>
-        <div class="meta-item"><label>Total Duration</label><span>${sc.timing.setup + sc.timing.execution + sc.timing.debrief} min</span></div>
-        <div class="meta-item"><label>Setup</label><span>${sc.timing.setup} min</span></div>
-        <div class="meta-item"><label>Execution</label><span>${sc.timing.execution} min</span></div>
-        <div class="meta-item"><label>Debrief</label><span>${sc.timing.debrief} min</span></div>
-        <div class="meta-item"><label>Source File</label><span style="font-family:var(--font-mono);font-size:11px">${escHtml(sc.file)}</span></div>
+    <div class="scenario-viewer-tabs">
+      <button class="sv-tab active" onclick="switchScenarioTab('pdf', this)">📄 PDF Document</button>
+      <button class="sv-tab" onclick="switchScenarioTab('overview', this)">📋 Overview</button>
+    </div>
+
+    <div class="sv-panel" id="sv-pdf">
+      <iframe src="${pdfPath}" class="pdf-embed" title="${escHtml(sc.title)}">
+        <p>Your browser cannot display PDFs inline.
+          <a href="${pdfPath}" target="_blank">Open PDF in new tab</a>
+        </p>
+      </iframe>
+    </div>
+
+    <div class="sv-panel hidden" id="sv-overview">
+      <div class="scenario-viewer-content">
+        <h3>Scenario Overview</h3>
+        <div class="meta-grid">
+          <div class="meta-item"><label>Department</label><span>${escHtml(sc.department)}</span></div>
+          <div class="meta-item"><label>Total Duration</label><span>${sc.timing.setup + sc.timing.execution + sc.timing.debrief} min</span></div>
+          <div class="meta-item"><label>Setup</label><span>${sc.timing.setup} min</span></div>
+          <div class="meta-item"><label>Execution</label><span>${sc.timing.execution} min</span></div>
+          <div class="meta-item"><label>Debrief</label><span>${sc.timing.debrief} min</span></div>
+        </div>
+
+        <h3>Educational Goal</h3>
+        <p>${escHtml(sc.goal)}</p>
+
+        <h3>Target Learning Groups</h3>
+        <ul>${sc.groups.map(g => `<li>${escHtml(g)}</li>`).join("")}</ul>
+
+        <h3>Clinical Vignette</h3>
+        <p>${escHtml(sc.content.vignette)}</p>
+
+        <h3>Patient Profile</h3>
+        <div class="meta-grid">
+          <div class="meta-item"><label>Age / PMH</label><span>${escHtml(sc.content.patient.age)} — ${escHtml(sc.content.patient.pmh)}</span></div>
+          <div class="meta-item"><label>Allergies</label><span>${escHtml(sc.content.patient.allergies)}</span></div>
+          <div class="meta-item" style="grid-column:1/-1"><label>Baseline Vitals</label><span>${escHtml(sc.content.patient.vitals)}</span></div>
+        </div>
+
+        <h3>Operational Objectives</h3>
+        <ul>${sc.content.objectives.map(o => `<li>${escHtml(o)}</li>`).join("")}</ul>
+
+        <h3>Scenario Workflow Steps</h3>
+        <ul>${sc.content.steps.map(s => `<li>${escHtml(s)}</li>`).join("")}</ul>
+
+        <h3>Debriefing Topics</h3>
+        <ul>${sc.content.debriefTopics.map(d => `<li>${escHtml(d)}</li>`).join("")}</ul>
       </div>
-
-      <h3>Educational Goal</h3>
-      <p>${escHtml(sc.goal)}</p>
-
-      <h3>Target Learning Groups</h3>
-      <ul>${sc.groups.map(g => `<li>${escHtml(g)}</li>`).join("")}</ul>
-
-      <h3>Clinical Vignette</h3>
-      <p>${escHtml(sc.content.vignette)}</p>
-
-      <h3>Patient Profile</h3>
-      <div class="meta-grid">
-        <div class="meta-item"><label>Age / PMH</label><span>${escHtml(sc.content.patient.age)} — ${escHtml(sc.content.patient.pmh)}</span></div>
-        <div class="meta-item"><label>Allergies</label><span>${escHtml(sc.content.patient.allergies)}</span></div>
-        <div class="meta-item" style="grid-column:1/-1"><label>Baseline Vitals</label><span>${escHtml(sc.content.patient.vitals)}</span></div>
-      </div>
-
-      <h3>Operational Objectives</h3>
-      <ul>${sc.content.objectives.map(o => `<li>${escHtml(o)}</li>`).join("")}</ul>
-
-      <h3>Scenario Workflow Steps</h3>
-      <ul>${sc.content.steps.map(s => `<li>${escHtml(s)}</li>`).join("")}</ul>
-
-      <h3>Debriefing Topics</h3>
-      <ul>${sc.content.debriefTopics.map(d => `<li>${escHtml(d)}</li>`).join("")}</ul>
     </div>
   `;
   document.getElementById("scenarioViewModal").classList.add("open");
+}
+
+function switchScenarioTab(tab, btn) {
+  document.querySelectorAll(".sv-tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".sv-panel").forEach(p => p.classList.add("hidden"));
+  btn.classList.add("active");
+  document.getElementById("sv-" + tab).classList.remove("hidden");
 }
 
 function downloadCurrentScenario() {
   if (!currentScenarioViewId) return;
   const sc = getScenarioById(currentScenarioViewId);
   if (!sc) return;
-  showToast(`To download: place the original file "${sc.file}" in the /scenarios/ folder of the repository.`, "success");
+  const a = document.createElement("a");
+  a.href = `scenarios/${sc.file}`;
+  a.download = sc.file;
+  a.click();
 }
 
 // ── Readiness Report ──────────────────────────────────────────
