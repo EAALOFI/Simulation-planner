@@ -721,7 +721,7 @@ function saveGap() {
     priority: document.getElementById("gapPriority").value,
     sessionId: document.getElementById("gapSession").value || null,
     status: document.getElementById("gapStatus").value,
-    date: new Date().toISOString().split("T")[0]
+    date: localDateStr(new Date())
   });
   showToast("Gap added.", "success");
   closeModal("addGapModal");

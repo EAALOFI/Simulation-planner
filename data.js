@@ -402,6 +402,14 @@ function getSundayOfWeek(offset = 0) {
   return sunday;
 }
 
+// Format a local Date object as "YYYY-MM-DD" using local timezone (not UTC)
+function localDateStr(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 // Returns array of {name, dateStr, date, weekend} for Sun–Sat
 function getWorkWeekDays(offset = 0) {
   const sunday = getSundayOfWeek(offset);
@@ -410,7 +418,7 @@ function getWorkWeekDays(offset = 0) {
   for (let i = 0; i < 7; i++) {
     const d = new Date(sunday);
     d.setDate(sunday.getDate() + i);
-    const dateStr = d.toISOString().split("T")[0];
+    const dateStr = localDateStr(d);   // ← local timezone, not UTC
     days.push({ name: names[i], dateStr, date: d, weekend: i >= 5 });
   }
   return days;
@@ -423,7 +431,7 @@ function formatDate(dateStr) {
 }
 
 function isToday(dateStr) {
-  return dateStr === new Date().toISOString().split("T")[0];
+  return dateStr === localDateStr(new Date());   // ← local timezone, not UTC
 }
 
 function getScenarioById(id) {
