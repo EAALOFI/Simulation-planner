@@ -220,6 +220,524 @@ const SCENARIOS = [
       ]
     }
   }
+  // ── Scenario 7 ──────────────────────────────────────────────
+  {
+    id: "RRT-ICU-ADMISSION",
+    code: "RRT-ICU",
+    title: "RRT Activation + ICU Admission",
+    department: "Emergency Response / ICU",
+    timing: { setup: 20, execution: 45, debrief: 25 },
+    groups: ["Rapid Response Team (Physicians, Nursing)", "Floor Nursing", "ICU Personnel", "Respiratory Therapy", "IT/Health IT (Siratech)"],
+    goal: "Validate Rapid Response Team activation, real-time clinical documentation, and ICU admission workflow within Siratech HIS under time-critical conditions.",
+    content: {
+      vignette: "58-year-old male on post-surgical ward, Day 3 post-CABG, develops acute respiratory distress and reduced GCS. Floor nurse activates RRT. Team assesses and determines need for urgent ICU transfer.",
+      patient: { age: 58, pmh: "Post-CABG Day 3, DM Type 2", allergies: "Penicillin", vitals: "SpO2 84% RA | RR 32/min | HR 138 bpm | BP 85/55 | GCS 12" },
+      objectives: [
+        "RRT Documentation: Record RRT activation event with accurate timestamp in Siratech.",
+        "ABCDE Assessment: Perform and document structured assessment electronically within HIS.",
+        "ICU Request: Activate Siratech critical bed request module for urgent ICU placement.",
+        "Medication Safety: Verify allergy flags during emergency medication ordering in HIS.",
+        "Handover: Complete electronic SBAR handover from floor to ICU team in Siratech."
+      ],
+      steps: [
+        "Step 1 – Detection: Floor nurse identifies deterioration; documents observations and activates RRT via Siratech alert.",
+        "Step 2 – Response: RRT arrives within target time; response time documented in HIS.",
+        "Step 3 – Assessment: Physician performs ABCDE assessment; findings entered into HIS.",
+        "Step 4 – Decision: Consensus to transfer to ICU; ICU bed request initiated in Siratech.",
+        "Step 5 – Orders: Emergency medication and ventilatory support orders entered; allergy flags verified.",
+        "Step 6 – Transfer: Patient transported with nursing escort; HIS location updated.",
+        "Step 7 – ICU Admission: ICU nursing completes admission assessment; all orders active in new unit."
+      ],
+      debriefTopics: [
+        "Was RRT activation time accurately captured in Siratech within required response windows?",
+        "Were allergy alerts triggered correctly during emergency medication ordering?",
+        "How did the ICU bed request workflow perform under time pressure?",
+        "Were all clinical roles clearly documented in the HIS handover?"
+      ]
+    }
+  },
+
+  // ── Scenario 8 ──────────────────────────────────────────────
+  {
+    id: "ICU-STEPDOWN-FLOOR",
+    code: "ICU-Stepdown",
+    title: "Step-down ICU to Floor",
+    department: "ICU / Medical-Surgical Ward",
+    timing: { setup: 20, execution: 40, debrief: 20 },
+    groups: ["ICU Physicians & Nursing", "Ward Physicians & Nursing", "Patient Services", "Pharmacy", "IT/Health IT (Siratech)"],
+    goal: "Validate the step-down transfer workflow from ICU to a general ward, including medication reconciliation, bed assignment, and structured electronic handover in Siratech HIS.",
+    content: {
+      vignette: "62-year-old female, ICU Day 4 recovering from sepsis, now hemodynamically stable. Attending physician determines patient is ready for step-down to the medical-surgical floor.",
+      patient: { age: 62, pmh: "Sepsis (resolved), CKD Stage 3, HTN", allergies: "Sulfa", vitals: "SpO2 96% 2L NC | HR 88 bpm | BP 118/72 | Temp 37.1°C" },
+      objectives: [
+        "Transfer Order: Document step-down order in Siratech with clinical justification and receiving unit.",
+        "Medication Reconciliation: Complete full medication reconciliation at point of transfer in HIS.",
+        "Bed Management: Validate electronic bed assignment and automated housekeeping notification.",
+        "Nursing Handover: Complete structured SBAR handover in Siratech between ICU and ward nurses.",
+        "Order Continuity: Confirm all pending and standing orders are active and visible on the ward."
+      ],
+      steps: [
+        "Step 1 – Clinical Decision: Physician documents stability criteria and enters step-down order.",
+        "Step 2 – Bed Request: Ward bed assigned via Siratech Bed Management module; housekeeping alerted.",
+        "Step 3 – Medication Reconciliation: Pharmacist and physician reconcile ICU medications for floor appropriateness.",
+        "Step 4 – Patient Services: Billing encounter updated to reflect unit change.",
+        "Step 5 – ICU Nursing Handover: ICU nurse completes SBAR handover in HIS and signs off.",
+        "Step 6 – Transport: Patient transferred with escort; location updated in Siratech.",
+        "Step 7 – Ward Admission: Ward nurse completes receiving assessment; confirms all active orders."
+      ],
+      debriefTopics: [
+        "Were all ICU medications correctly reconciled for floor-level care?",
+        "Was the bed assignment and housekeeping notification workflow efficient?",
+        "Were there any order gaps or duplications identified after transfer?",
+        "How was the SBAR handover quality documented within Siratech?"
+      ]
+    }
+  },
+
+  // ── Scenario 9 ──────────────────────────────────────────────
+  {
+    id: "OPD-TO-ED",
+    code: "OPD-ED",
+    title: "OPD to ED",
+    department: "Outpatient / Emergency Department",
+    timing: { setup: 20, execution: 40, debrief: 20 },
+    groups: ["OPD Physicians & Nursing", "ED Physicians & Nursing", "Patient Services", "IT/Health IT (Siratech)"],
+    goal: "Validate the urgent referral workflow for a deteriorating patient from OPD clinic to ED, ensuring seamless HIS record transfer, allergy continuity, and immediate ED triage activation.",
+    content: {
+      vignette: "45-year-old male presents to OPD Internal Medicine clinic with chest pain 7/10 and diaphoresis. ECG reveals new ST-segment elevation. OPD physician determines need for immediate ED transfer.",
+      patient: { age: 45, pmh: "HTN, Dyslipidemia", allergies: "Aspirin (GI intolerance)", vitals: "HR 102 bpm | BP 158/94 | SpO2 95% RA | Diaphoretic" },
+      objectives: [
+        "Urgent Referral: Generate urgent ED referral via Siratech OPD-ED referral module with priority flag.",
+        "Allergy Transfer: Confirm allergy information (Aspirin) is carried forward into ED encounter.",
+        "Escort Order: Document nursing escort and transport instructions in HIS.",
+        "ED Triage: Validate immediate triage activation upon OPD referral patient arrival in ED.",
+        "Record Continuity: Confirm all OPD encounter data visible to ED physician in Siratech."
+      ],
+      steps: [
+        "Step 1 – OPD Assessment: Physician documents findings; ECG result entered; urgent referral to ED generated.",
+        "Step 2 – Allergy Review: OPD nurse verifies allergy flag present on referral.",
+        "Step 3 – Notification: ED charge nurse notified via Siratech referral alert.",
+        "Step 4 – Escort: Patient escorted by OPD nurse with printed referral summary.",
+        "Step 5 – ED Reception: ED triage nurse receives patient; confirms identity and reads OPD encounter.",
+        "Step 6 – ED Encounter: ED physician opens new encounter; OPD data visible; Cardiology consult initiated.",
+        "Step 7 – Escalation: ED activates STEMI protocol; documents activation time in Siratech."
+      ],
+      debriefTopics: [
+        "Was the OPD-to-ED referral generated and received without HIS delays?",
+        "Was the Aspirin allergy flag visible and acknowledged in the ED encounter?",
+        "Was ED triage immediate upon patient arrival, and was priority flagging effective?",
+        "Were all OPD documentation elements available to the ED physician?"
+      ]
+    }
+  },
+
+  // ── Scenario 10 ──────────────────────────────────────────────
+  {
+    id: "REVERSE-TRANSFER-AMH-KFSH",
+    code: "Rev-AMH-KF",
+    title: "Reverse Transfer — AMH to KFSH (Planned)",
+    department: "Medical-Surgical / Transfer Coordination",
+    timing: { setup: 25, execution: 50, debrief: 25 },
+    groups: ["Attending Physician", "Ward Nursing", "Patient Services", "Social Work", "Transfer Coordinator", "IT/Health IT (Siratech)"],
+    goal: "Validate the planned inter-hospital reverse transfer workflow from AMH to KFSH for higher-level care, ensuring complete Siratech documentation, clinical summary generation, and regulatory compliance.",
+    content: {
+      vignette: "71-year-old male admitted for CHF exacerbation requiring cardiac catheterisation not available at AMH. Attending physician plans non-urgent transfer to KFSH. Family consent required and complete clinical summary must be generated.",
+      patient: { age: 71, pmh: "CHF (EF 30%), Atrial Fibrillation, CKD Stage 3", allergies: "Contrast media (mild reaction)", vitals: "HR 76 bpm | BP 104/68 | SpO2 94% 3L NC | Bilateral ankle oedema" },
+      objectives: [
+        "Transfer Documentation: Complete inter-hospital transfer form in Siratech with receiving facility details.",
+        "Clinical Summary: Generate and print transfer summary / referral letter from HIS.",
+        "Allergy Flag: Confirm contrast allergy is prominently documented on all transfer paperwork.",
+        "Consent: Document patient and family consent for transfer in Siratech.",
+        "Coordination: Verify KFSH acceptance and log receiving physician name in HIS."
+      ],
+      steps: [
+        "Step 1 – Decision: Attending documents clinical decision and indication for transfer to KFSH.",
+        "Step 2 – Family Meeting: Social work and physician meet family; consent documented in Siratech.",
+        "Step 3 – Clinical Summary: HIS-generated transfer letter reviewed and signed by physician.",
+        "Step 4 – Allergy Review: Contrast allergy flag confirmed on transfer documentation.",
+        "Step 5 – Coordination: Transfer coordinator contacts KFSH; acceptance and receiving physician logged.",
+        "Step 6 – Medication: Discharge medication list generated; reconciled for transfer.",
+        "Step 7 – Departure: Patient transferred; Siratech encounter closed with transfer status."
+      ],
+      debriefTopics: [
+        "Was the transfer documentation complete and signed prior to patient departure?",
+        "Was the contrast media allergy clearly communicated on all transfer documents?",
+        "Was family consent documented appropriately within Siratech?",
+        "Were there any gaps in the inter-hospital coordination workflow?"
+      ]
+    }
+  },
+
+  // ── Scenario 11 ──────────────────────────────────────────────
+  {
+    id: "ED-TO-RADIOLOGY",
+    code: "ED-Rad",
+    title: "ED to Radiology",
+    department: "Emergency Department / Radiology",
+    timing: { setup: 15, execution: 35, debrief: 20 },
+    groups: ["ED Physicians & Nursing", "Radiology Technicians & Radiologists", "Patient Transport", "IT/Health IT (Siratech)"],
+    goal: "Validate the electronic imaging order, patient transport, and result reporting workflow between ED and Radiology through Siratech HIS/RIS integration.",
+    content: {
+      vignette: "33-year-old female presents to ED with acute abdominal pain 8/10, nausea, and vomiting. ED physician orders urgent CT abdomen/pelvis with IV contrast. Patient requires transport to Radiology.",
+      patient: { age: 33, pmh: "Nil significant", allergies: "NKDA", vitals: "HR 110 bpm | BP 98/60 | SpO2 98% RA | Pain 8/10 | Guarding on palpation" },
+      objectives: [
+        "Order Entry: Enter urgent CT request via Siratech with correct priority and clinical indication.",
+        "RIS Integration: Verify imaging order appears in Radiology Information System without manual re-entry.",
+        "Allergy Screening: Confirm allergy check performed prior to contrast administration.",
+        "Transport: Document patient transport order with monitoring requirements in HIS.",
+        "Result Reporting: Validate radiologist report appears in ED physician's Siratech worklist."
+      ],
+      steps: [
+        "Step 1 – Order Entry: ED physician enters urgent CT abdomen/pelvis order with contrast in Siratech.",
+        "Step 2 – RIS Visibility: Radiology technician confirms order visible in RIS queue.",
+        "Step 3 – Allergy Check: Technician performs pre-contrast allergy screening; documents result.",
+        "Step 4 – Transport: ED nurse initiates transport with monitoring; location updated in HIS.",
+        "Step 5 – Imaging: CT performed; images acquired and uploaded to PACS.",
+        "Step 6 – Reporting: Radiologist dictates and signs report in Siratech.",
+        "Step 7 – Result Review: ED physician receives alert; reads and acknowledges report in HIS."
+      ],
+      debriefTopics: [
+        "Was the imaging order visible in the RIS immediately after entry in Siratech?",
+        "Was contrast allergy screening completed and documented prior to administration?",
+        "How long was the turnaround from order entry to result acknowledgement?",
+        "Were any transport or monitoring documentation gaps identified?"
+      ]
+    }
+  },
+
+  // ── Scenario 12 ──────────────────────────────────────────────
+  {
+    id: "IP-TO-RADIOLOGY",
+    code: "IP-Rad",
+    title: "Inpatient to Radiology",
+    department: "Medical-Surgical Ward / Radiology",
+    timing: { setup: 15, execution: 35, debrief: 20 },
+    groups: ["Ward Physicians & Nursing", "Radiology Technicians", "Patient Transport", "IT/Health IT (Siratech)"],
+    goal: "Validate the inpatient imaging request, scheduling, safe patient transport, and radiology result reporting workflow within Siratech HIS/RIS.",
+    content: {
+      vignette: "55-year-old male inpatient, post right total knee replacement Day 2, develops right calf pain and swelling. Physician orders urgent Doppler ultrasound lower limbs to rule out DVT. Nursing coordinates transport.",
+      patient: { age: 55, pmh: "Post right TKR Day 2, HTN", allergies: "Penicillin", vitals: "HR 94 bpm | BP 138/84 | SpO2 97% RA | Right calf oedema and tenderness" },
+      objectives: [
+        "Imaging Order: Enter urgent Doppler ultrasound order in Siratech with correct priority.",
+        "Scheduling: Radiology confirms slot via RIS; estimated wait time communicated to ward.",
+        "Transport Preparation: Nursing documents transport requirements and pre-transport assessment.",
+        "Result Communication: Radiologist result auto-populates in physician's HIS worklist.",
+        "Clinical Action: Physician acknowledges result and documents clinical decision in Siratech."
+      ],
+      steps: [
+        "Step 1 – Order: Physician enters Doppler ultrasound order with DVT query as indication.",
+        "Step 2 – RIS Queue: Radiology confirms order in RIS; slot assigned.",
+        "Step 3 – Pre-transport: Nurse completes pre-transport assessment; documents in HIS.",
+        "Step 4 – Transport: Patient transported with porter; HIS location updated.",
+        "Step 5 – Examination: Ultrasound performed; images uploaded.",
+        "Step 6 – Report: Radiologist reports and signs in Siratech.",
+        "Step 7 – Result Action: Ward physician reads result; initiates anticoagulation order if positive."
+      ],
+      debriefTopics: [
+        "Was the imaging order correctly prioritised and reflected in the RIS queue?",
+        "Was the pre-transport assessment completed and documented before patient departure?",
+        "Was the result notification received promptly by the ordering physician?",
+        "Were any delays between imaging completion and physician notification identified?"
+      ]
+    }
+  },
+
+  // ── Scenario 13 ──────────────────────────────────────────────
+  {
+    id: "OPD-TO-RADIOLOGY",
+    code: "OPD-Rad",
+    title: "OPD to Radiology",
+    department: "Outpatient / Radiology",
+    timing: { setup: 15, execution: 30, debrief: 15 },
+    groups: ["OPD Physicians & Nursing", "Radiology Technicians", "Patient Services", "IT/Health IT (Siratech)"],
+    goal: "Validate the outpatient imaging referral, scheduling, and result reporting workflow from OPD clinic to Radiology using Siratech HIS/RIS integration.",
+    content: {
+      vignette: "48-year-old female presents to OPD Obstetrics & Gynaecology clinic for routine follow-up. Physician orders mammogram and pelvic ultrasound. Patient is directed to Radiology reception for scheduling and examination.",
+      patient: { age: 48, pmh: "Nil significant", allergies: "NKDA", vitals: "Stable | BMI 27" },
+      objectives: [
+        "Order Entry: OPD physician enters imaging orders in Siratech OPD module with correct modalities.",
+        "Patient Direction: Patient Services guides patient to Radiology with printed referral summary.",
+        "RIS Receipt: Radiology confirms both orders visible in RIS without manual entry.",
+        "Exam Performance: Both studies performed, images uploaded to PACS.",
+        "Result Return: Radiologist report auto-routes to OPD physician's Siratech worklist for review."
+      ],
+      steps: [
+        "Step 1 – OPD Order: Physician enters mammogram and pelvic ultrasound orders in Siratech.",
+        "Step 2 – Patient Guidance: Patient Services prints referral; directs patient to Radiology.",
+        "Step 3 – RIS Scheduling: Radiology reception confirms both orders; slots assigned.",
+        "Step 4 – Mammogram: Performed and images uploaded to PACS.",
+        "Step 5 – Pelvic Ultrasound: Performed and images uploaded to PACS.",
+        "Step 6 – Reporting: Radiologist reviews, reports, and signs both studies.",
+        "Step 7 – OPD Notification: OPD physician notified via Siratech; results acknowledged and documented."
+      ],
+      debriefTopics: [
+        "Were both imaging orders visible in the RIS immediately after OPD entry?",
+        "Was the patient successfully guided to Radiology without manual intervention?",
+        "Was the reporting turnaround time acceptable for OPD workflow?",
+        "Was result communication back to OPD seamless within Siratech?"
+      ]
+    }
+  },
+
+  // ── Scenario 14 ──────────────────────────────────────────────
+  {
+    id: "CODE-IN-RADIOLOGY",
+    code: "Code-Rad",
+    title: "Code in Radiology",
+    department: "Radiology / Emergency Response",
+    timing: { setup: 25, execution: 45, debrief: 30 },
+    groups: ["Radiology Technicians & Radiologists", "Code Blue Team (Physicians, Nursing, RT)", "ED Physicians", "IT/Health IT (Siratech)"],
+    goal: "Validate code blue activation, resuscitation team response, and emergency clinical documentation within a Radiology imaging suite environment.",
+    content: {
+      vignette: "67-year-old male undergoing contrast-enhanced CT scan suddenly becomes unresponsive and pulseless mid-examination. Radiology technician identifies cardiac arrest and activates code blue. Code team responds to CT suite.",
+      patient: { age: 67, pmh: "CAD, HTN, prior contrast reaction", allergies: "Contrast media (prior allergic reaction)", vitals: "Pulseless | Apnoeic | GCS 3 | Last recorded: HR 88 | BP 136/78" },
+      objectives: [
+        "Code Activation: Document code blue activation with time-stamp in Siratech immediately.",
+        "Space Management: Radiology team clears CT suite for resuscitation; imaging equipment safely parked.",
+        "Resuscitation: CPR initiated; defibrillator retrieved; ACLS protocol followed.",
+        "Medication Allergy: Code team identifies contrast allergy before administering any medications.",
+        "Documentation: Resuscitation events documented in real-time in Siratech code sheet.",
+        "Post-Resuscitation: ROSC documented; decision on ICU transfer entered in HIS."
+      ],
+      steps: [
+        "Step 1 – Recognition: Technician identifies unresponsive patient; calls for help; activates code blue.",
+        "Step 2 – Equipment: Radiology team clears room; code cart retrieved.",
+        "Step 3 – CPR: First responder initiates chest compressions; airway managed.",
+        "Step 4 – Code Team Arrival: Physician assumes team leader role; assigns roles.",
+        "Step 5 – ACLS: Defibrillation and medication administration per ACLS protocol; allergy flag checked.",
+        "Step 6 – Documentation: Nurse documents all interventions in Siratech code sheet in real-time.",
+        "Step 7 – Outcome: ROSC achieved; ICU transfer initiated; full handover documented in HIS."
+      ],
+      debriefTopics: [
+        "Was the code blue activation time-stamped accurately in Siratech?",
+        "Was the CT suite effectively cleared to allow resuscitation access?",
+        "Was the contrast allergy identified and acknowledged during medication administration?",
+        "Was real-time documentation maintained during active resuscitation?"
+      ]
+    }
+  },
+
+  // ── Scenario 15 ──────────────────────────────────────────────
+  {
+    id: "ED-TO-LD",
+    code: "ED-LD",
+    title: "ED to Labor & Delivery",
+    department: "Emergency Department / Labor & Delivery",
+    timing: { setup: 20, execution: 40, debrief: 20 },
+    groups: ["ED Physicians & Nursing", "OB/GYN Physicians", "L&D Nursing", "Patient Services", "IT/Health IT (Siratech)"],
+    goal: "Validate the urgent obstetric emergency transfer workflow from ED to Labor & Delivery, ensuring rapid assessment, HIS record continuity, and activation of obstetric emergency protocols.",
+    content: {
+      vignette: "29-year-old female, G2P1 at 36 weeks gestation, presents to ED with severe headache, visual disturbances, and BP 168/112. ED physician diagnoses severe pre-eclampsia and activates urgent L&D transfer.",
+      patient: { age: 29, pmh: "G2P1, 36 weeks gestation, Gestational Diabetes", allergies: "NKDA", vitals: "BP 168/112 | HR 96 bpm | SpO2 98% RA | Proteinuria 3+ | Fetal HR 148 bpm" },
+      objectives: [
+        "Obstetric Alert: Activate obstetric emergency flag in Siratech ED encounter.",
+        "Referral: Generate urgent L&D referral with fetal details and pre-eclampsia severity.",
+        "Medication: IV Magnesium Sulphate order entered; dose and rate verified in HIS.",
+        "Fetal Monitoring: Document baseline fetal heart rate in HIS prior to transfer.",
+        "L&D Receipt: L&D team confirms readiness via Siratech; obstetric encounter opened on arrival."
+      ],
+      steps: [
+        "Step 1 – ED Assessment: Physician documents findings; obstetric emergency flag activated.",
+        "Step 2 – OB Consult: OB/GYN notified; consult documented in Siratech.",
+        "Step 3 – Medication: MgSO4 order entered; pharmacist weight-based dosing confirmed.",
+        "Step 4 – Fetal Documentation: Fetal HR documented in HIS; CTG strip attached.",
+        "Step 5 – Referral: L&D referral generated via Siratech with all maternal-fetal data.",
+        "Step 6 – Transfer: Patient transferred with ED nurse escort; continuous monitoring.",
+        "Step 7 – L&D Handover: L&D nurse opens obstetric encounter; ED handover documented."
+      ],
+      debriefTopics: [
+        "Was the obstetric emergency flag visible and communicated promptly to L&D?",
+        "Was the MgSO4 dosing order correctly entered and verified in Siratech?",
+        "Was fetal monitoring documentation complete prior to transfer?",
+        "Was the L&D encounter opened and ED handover documented without delay?"
+      ]
+    }
+  },
+
+  // ── Scenario 16 ──────────────────────────────────────────────
+  {
+    id: "LD-TO-OR",
+    code: "LD-OR",
+    title: "L&D to OR — Emergency Caesarean",
+    department: "Labor & Delivery / Operating Room",
+    timing: { setup: 25, execution: 45, debrief: 25 },
+    groups: ["OB/GYN Physicians", "L&D Nursing", "OR Nursing & Anesthesia", "Neonatal Team (NICU)", "IT/Health IT (Siratech)"],
+    goal: "Validate the emergency Caesarean section activation, rapid OR preparation, and surgical team handover workflow within the Siratech HIS under time-critical obstetric conditions.",
+    content: {
+      vignette: "31-year-old female, G1P0 at 38 weeks gestation, presents with Category III fetal heart tracing (sustained bradycardia 80 bpm). OB/GYN determines emergency Caesarean section required. Decision-to-incision target: 30 minutes.",
+      patient: { age: 31, pmh: "G1P0, 38 weeks, GDM (diet-controlled)", allergies: "NKDA", vitals: "HR 104 bpm | BP 122/78 | SpO2 99% RA | FHR 80 bpm (Category III)" },
+      objectives: [
+        "Emergency OR Activation: Enter emergency C-section order in Siratech; OR activated via HIS.",
+        "Consent: Verbal consent documented in Siratech with witness; written to follow.",
+        "Anaesthesia Notification: Anaesthesia consult documented; spinal vs. GA decision recorded.",
+        "Neonatal Alert: NICU team notified via Siratech; neonatal resuscitation bay prepared.",
+        "Decision-to-Incision Time: Document and track D-to-I time within Siratech."
+      ],
+      steps: [
+        "Step 1 – Decision: OB/GYN documents Category III tracing and C-section indication.",
+        "Step 2 – OR Activation: Emergency OR order placed; OR charge nurse confirms room readiness.",
+        "Step 3 – Consent: Verbal consent documented; patient transferred to OR.",
+        "Step 4 – Anaesthesia: Anaesthesia completes pre-op assessment; spinal inserted.",
+        "Step 5 – NICU Alert: NICU team notified; resuscitation bay confirmed ready.",
+        "Step 6 – Surgery: C-section performed; neonate delivered; Apgar scores documented in HIS.",
+        "Step 7 – Post-op: Mother transferred to recovery; baby to NICU if required; all HIS entries completed."
+      ],
+      debriefTopics: [
+        "Was the decision-to-incision time within the 30-minute target and accurately recorded?",
+        "Was consent properly documented under emergency conditions in Siratech?",
+        "Was NICU team notification timely and confirmed in the HIS?",
+        "Were any HIS bottlenecks identified during the rapid OR activation sequence?"
+      ]
+    }
+  },
+
+  // ── Scenario 17 ──────────────────────────────────────────────
+  {
+    id: "BLOOD-TRANSFUSION",
+    code: "Blood-Tx",
+    title: "Blood Transfusion Workflow",
+    department: "Medical-Surgical Ward / Blood Bank / Laboratory",
+    timing: { setup: 20, execution: 45, debrief: 25 },
+    groups: ["Attending Physician", "Ward Nursing (×2)", "Blood Bank Technicians", "Laboratory", "Pharmacy", "IT/Health IT (Siratech)"],
+    goal: "Validate the complete blood transfusion workflow including electronic request, cross-match, blood bank dispensing, bedside two-nurse verification, and transfusion monitoring within Siratech HIS.",
+    content: {
+      vignette: "44-year-old female, post major abdominal surgery Day 1, with Hb 6.2 g/dL and haemodynamic instability. Physician orders 2 units packed Red Blood Cells. Nursing must complete request, laboratory cross-match, blood bank dispensing, and bedside verification.",
+      patient: { age: 44, pmh: "Post-laparotomy Day 1, no prior transfusion history", allergies: "NKDA", vitals: "HR 112 bpm | BP 94/58 | Hb 6.2 g/dL | SpO2 97% 2L NC | Pale and diaphoretic" },
+      objectives: [
+        "Transfusion Request: Enter packed RBC transfusion order in Siratech with blood group and Hb indication.",
+        "Sample Collection: Nursing collects and labels cross-match specimen; barcoded label verified in HIS.",
+        "Blood Bank: Cross-match completed; 2 units pRBC assigned and dispensed in Siratech.",
+        "Two-Nurse Verification: Bedside verification of blood product using Siratech barcode scan protocol.",
+        "Monitoring: Vital signs documented at 15-minute intervals in HIS during transfusion."
+      ],
+      steps: [
+        "Step 1 – Order Entry: Physician enters transfusion order with indication, blood group, and units required.",
+        "Step 2 – Specimen Collection: Nurse collects cross-match sample; HIS generates barcoded label; patient ID verified.",
+        "Step 3 – Lab Processing: Blood Bank processes cross-match; compatibility confirmed in Siratech.",
+        "Step 4 – Dispensing: Blood Bank dispenses 2 units pRBC; transaction recorded in HIS.",
+        "Step 5 – Bedside Verification: Two nurses scan product and patient wristband via Siratech; match confirmed.",
+        "Step 6 – Transfusion Start: First unit commenced; start time documented; nursing observations at 15 min intervals.",
+        "Step 7 – Completion: Transfusion completed; Hb recheck ordered; outcomes documented in HIS."
+      ],
+      debriefTopics: [
+        "Was patient identification and sample labelling completed without error in Siratech?",
+        "Was the two-nurse barcode verification workflow followed for both units?",
+        "Were 15-minute monitoring observations documented consistently in HIS?",
+        "Were there any delays in cross-match turnaround or blood bank dispensing?"
+      ]
+    }
+  },
+
+  // ── Scenario 18 ──────────────────────────────────────────────
+  {
+    id: "DEATH-NOTIFICATION",
+    code: "Death-Note",
+    title: "Death Notification Workflow",
+    department: "Medical-Surgical Ward / Administration",
+    timing: { setup: 20, execution: 40, debrief: 25 },
+    groups: ["Attending Physician", "Ward Nursing", "Patient Services", "Social Work", "Morgue Staff", "IT/Health IT (Siratech)"],
+    goal: "Validate the death notification, clinical documentation, family communication, and body transfer workflow within Siratech HIS in compliance with institutional and Saudi MOH regulatory requirements.",
+    content: {
+      vignette: "79-year-old male inpatient with end-stage COPD and a documented DNR order is declared deceased by the attending physician. Team must complete all required HIS documentation, notify the family, obtain necessary authorisations, and coordinate transfer to the morgue.",
+      patient: { age: 79, pmh: "End-stage COPD, Cor Pulmonale, documented DNR", allergies: "NKDA", vitals: "No spontaneous respirations | No pulse | Fixed dilated pupils | Time of death: documented" },
+      objectives: [
+        "Death Declaration: Physician documents time of death and clinical findings in Siratech.",
+        "DNR Verification: Confirm DNR order present and correctly documented in HIS prior to any intervention.",
+        "Family Notification: Social work and physician notify next of kin; communication documented in Siratech.",
+        "Death Certificate: Physician completes electronic death certificate within Siratech.",
+        "Morgue Transfer: Patient Services and morgue staff coordinate transfer; chain of custody documented in HIS."
+      ],
+      steps: [
+        "Step 1 – Declaration: Physician examines patient; declares and documents time of death in Siratech.",
+        "Step 2 – DNR Review: Nursing confirms DNR order visible and valid in HIS.",
+        "Step 3 – Family Notification: Social worker and physician contact next of kin; details documented.",
+        "Step 4 – Death Certificate: Physician completes and signs death certificate in Siratech.",
+        "Step 5 – Body Preparation: Nursing prepares body per protocol; documentation completed.",
+        "Step 6 – Morgue Coordination: Patient Services contacts morgue; transfer authorisation entered in HIS.",
+        "Step 7 – Encounter Closure: Billing encounter and HIS record closed with correct discharge disposition code."
+      ],
+      debriefTopics: [
+        "Was time of death documented immediately and accurately in Siratech?",
+        "Was the DNR order verified in HIS before any post-mortem interventions?",
+        "Was family notification documented with the name of next of kin and time of contact?",
+        "Was the morgue transfer and chain of custody properly recorded in the HIS?"
+      ]
+    }
+  },
+
+  // ── Scenario 19 ──────────────────────────────────────────────
+  {
+    id: "OR-TO-ICU",
+    code: "OR-ICU",
+    title: "OR to ICU — Post-operative Transfer",
+    department: "Operating Room / ICU",
+    timing: { setup: 20, execution: 40, debrief: 20 },
+    groups: ["Surgeon & Anaesthesiologist", "OR Nursing", "ICU Physicians & Nursing", "Pharmacy", "IT/Health IT (Siratech)"],
+    goal: "Validate the post-operative patient handover and transfer workflow from OR to ICU, including anaesthesia handover documentation, medication reconciliation, and ICU admission in Siratech HIS.",
+    content: {
+      vignette: "66-year-old male post-emergency laparotomy for bowel perforation and faecal peritonitis. Anaesthesiologist determines patient requires ICU admission post-operatively. OR team must complete comprehensive handover.",
+      patient: { age: 66, pmh: "T2DM, HTN, smoker", allergies: "NKDA", vitals: "HR 108 bpm | BP 88/54 (vasopressor-dependent) | SpO2 96% (mechanically ventilated) | Temp 36.1°C" },
+      objectives: [
+        "Operative Note: Surgeon completes and signs operative note in Siratech before OR exit.",
+        "Anaesthesia Handover: Anaesthesiologist documents ISBAR handover in HIS for ICU team.",
+        "Medication Reconciliation: OR and ICU pharmacy reconcile intraoperative and post-op medications.",
+        "ICU Admission: ICU nursing completes admission assessment in Siratech within 30 minutes.",
+        "Ventilator Orders: Mechanical ventilation settings entered and verified in HIS."
+      ],
+      steps: [
+        "Step 1 – Operative Note: Surgeon dictates and signs operative note in Siratech before patient leaves OR.",
+        "Step 2 – OR to ICU Handover: Anaesthesiologist provides ISBAR handover; ICU physician documents receipt.",
+        "Step 3 – Medication: Vasopressors and post-op medications reconciled by pharmacy.",
+        "Step 4 – Ventilator Settings: ICU physician enters ventilator orders in Siratech.",
+        "Step 5 – ICU Assessment: ICU nurse completes physical assessment and documents in HIS.",
+        "Step 6 – Lines and Monitoring: Invasive lines documented; monitoring parameters set in Siratech.",
+        "Step 7 – Family Update: Surgeon notifies family; communication documented in HIS."
+      ],
+      debriefTopics: [
+        "Was the operative note completed and signed before OR departure?",
+        "Was the anaesthesia-to-ICU handover documented clearly in Siratech?",
+        "Were vasopressor and post-op medication orders correctly reconciled?",
+        "Was the ICU admission assessment completed within 30 minutes of arrival?"
+      ]
+    }
+  },
+
+  // ── Scenario 20 ──────────────────────────────────────────────
+  {
+    id: "ICU-TO-OR",
+    code: "ICU-OR",
+    title: "ICU to OR — Emergency Surgery",
+    department: "ICU / Operating Room",
+    timing: { setup: 25, execution: 45, debrief: 25 },
+    groups: ["ICU Physicians & Anaesthesiologist", "ICU Nursing", "OR Nursing & Surgeon", "Pharmacy", "IT/Health IT (Siratech)"],
+    goal: "Validate the emergency transfer of a critically ill ICU patient to the OR for unplanned surgery, including rapid preparation, HIS documentation, and safe handover under time-critical conditions.",
+    content: {
+      vignette: "52-year-old male, ICU Day 3 post-abdominal aortic aneurysm repair, develops abdominal compartment syndrome with bladder pressure 28 mmHg. Surgeon determines emergency decompressive laparotomy required. ICU-to-OR transfer must be completed urgently.",
+      patient: { age: 52, pmh: "Post-AAA repair Day 3, CKD Stage 2, AF", allergies: "Heparin (HIT history)", vitals: "HR 124 bpm | BP 84/50 (on Noradrenaline) | SpO2 91% (FiO2 0.7) | Bladder pressure 28 mmHg" },
+      objectives: [
+        "HIT Alert: Confirm Heparin allergy/HIT flag active and visible in Siratech for OR team.",
+        "Emergency OR Booking: Surgeon enters emergency OR booking in Siratech; OR confirms availability.",
+        "ICU Preparation: ICU nurse documents pre-transfer preparation and current medication infusions.",
+        "Anaesthesia Briefing: ICU anaesthesiologist provides formal briefing; documented in HIS.",
+        "Intraoperative Anticoagulation: Alternative anticoagulant (Bivalirudin) ordered and verified given HIT history."
+      ],
+      steps: [
+        "Step 1 – Decision: Surgeon documents indication for emergency laparotomy; emergency OR booking entered.",
+        "Step 2 – HIT Alert: ICU nurse confirms HIT flag active; alerts OR pharmacist and anaesthesiologist.",
+        "Step 3 – Infusion Documentation: All current vasopressor and sedation infusions documented in Siratech.",
+        "Step 4 – Consent: Emergency consent documented by surgeon in HIS.",
+        "Step 5 – Transfer: Patient transferred on ICU ventilator with full monitoring; HIS location updated.",
+        "Step 6 – OR Handover: ICU anaesthesiologist hands over to OR anaesthesiologist via ISBAR in HIS.",
+        "Step 7 – Anticoagulation: Bivalirudin order verified by pharmacist; Heparin explicitly excluded in HIS."
+      ],
+      debriefTopics: [
+        "Was the HIT allergy flag clearly communicated to all OR team members via Siratech?",
+        "Was Heparin safely excluded and an alternative anticoagulant ordered and verified?",
+        "Was the emergency OR booking and ICU-to-OR transfer completed within an acceptable timeframe?",
+        "Were all ICU infusions documented and reconciled accurately for the OR team?"
+      ]
+    }
+  }
 ];
 
 // ── Storage helpers ──────────────────────────────────────────
@@ -276,6 +794,13 @@ async function initFirestore() {
       _store.gaps = d.gaps || [];
       _store.weekOffset = d.weekOffset || 0;
       _store.customScenarios = d.customScenarios || [];
+      // Auto-migrate: remove custom entries whose titles now exist as built-ins
+      const builtinTitles = new Set(SCENARIOS.map(s => s.title.toLowerCase().trim()));
+      const before = _store.customScenarios.length;
+      _store.customScenarios = _store.customScenarios.filter(s =>
+        s.isOverride || !builtinTitles.has((s.title || "").toLowerCase().trim())
+      );
+      if (_store.customScenarios.length !== before) _firestoreWrite();
     }
   } catch (e) {
     console.error("Firestore load error:", e);
