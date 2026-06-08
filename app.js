@@ -381,25 +381,62 @@ function updatePreGaps(scenarioId) {
     container.innerHTML = '<p class="empty-note">Select a repeated scenario to see pre-identified gaps.</p>';
     return;
   }
-  const gaps = getGapsForScenario(scenarioId);
-  if (gaps.length === 0) {
+  const allGaps = getGapsForScenario(scenarioId);
+  const activeGaps = allGaps.filter(g => g.status !== "resolved");
+
+  if (allGaps.length === 0) {
     container.innerHTML = '<p class="empty-note">No gaps from previous sessions for this scenario.</p>';
     return;
   }
+  if (activeGaps.length === 0) {
+    container.innerHTML = '<p class="empty-note" style="color:var(--green)">✓ All previously identified gaps have been resolved.</p>';
+    return;
+  }
+
   container.innerHTML = "";
-  gaps.forEach(g => {
+  activeGaps.forEach(g => {
+    const statusMeta = {
+      open:          { label: "Open",        cls: "pre-gap-status-open" },
+      "in-progress": { label: "In Progress", cls: "pre-gap-status-inprogress" },
+    };
+    const sm = statusMeta[g.status] || statusMeta["open"];
     const div = document.createElement("div");
     div.className = "pre-gap-item";
     div.dataset.gapId = g.id;
     div.innerHTML = `
-      <div style="flex:1">
+      <div style="flex:1;min-width:0">
         <div class="pre-gap-text" id="pgtext-${g.id}">${escHtml(g.description)}</div>
-        <div class="pre-gap-meta">${g.category || ""} • ${formatDate(g.date)} • ${g.sessionId || ""}</div>
+        <div class="pre-gap-meta">
+          ${g.category || ""} • ${formatDate(g.date)} • ${g.sessionId || ""}
+        </div>
       </div>
-      <button class="btn-xs" onclick="editPreGap('${g.id}')">Edit</button>
+      <div class="pre-gap-controls">
+        <span class="pre-gap-status-badge ${sm.cls}">${sm.label}</span>
+        <select class="pre-gap-status-select" onchange="changePreGapStatus('${g.id}', this.value, '${scenarioId}')">
+          <option value="open"${g.status==="open"?" selected":""}>Open</option>
+          <option value="in-progress"${g.status==="in-progress"?" selected":""}>In Progress</option>
+          <option value="resolved">Mark Resolved</option>
+        </select>
+      </div>
     `;
     container.appendChild(div);
   });
+}
+
+function changePreGapStatus(gapId, newStatus, scenarioId) {
+  updateGap(gapId, { status: newStatus });
+  renderGapsRegistry();
+  updatePreGaps(scenarioId);
+  if (newStatus === "resolved") showToast("Gap resolved — removed from pre-identified list.", "success");
+  else showToast("Gap status updated.", "success");
+}
+
+// Refresh pre-gaps panel if session modal is currently open
+function syncPreGapsIfOpen() {
+  const modal = document.getElementById("sessionModal");
+  if (!modal || !modal.classList.contains("open")) return;
+  const scenarioId = document.getElementById("sessionScenario").value;
+  if (scenarioId) updatePreGaps(scenarioId);
 }
 
 function editPreGap(gapId) {
@@ -689,7 +726,7 @@ function renderGapsRegistry() {
       <td style="font-size:12px;color:var(--text3);font-family:var(--font-mono)">${escHtml(g.sessionId || "—")}</td>
       <td><span class="badge badge-${g.priority}">${g.priority}</span></td>
       <td>
-        <select onchange="updateGap('${g.id}', {status: this.value}); renderGapsRegistry()"
+        <select onchange="updateGap('${g.id}', {status: this.value}); renderGapsRegistry(); syncPreGapsIfOpen()"
           style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:4px 8px;font-size:12px;width:auto">
           <option value="open"${g.status==="open"?" selected":""}>Open</option>
           <option value="in-progress"${g.status==="in-progress"?" selected":""}>In Progress</option>

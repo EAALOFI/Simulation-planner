@@ -1004,7 +1004,23 @@ select option { background: var(--bg2); }
   flex: 1; font-size: 13px;
 }
 .pre-gap-text { flex: 1; font-size: 13px; color: var(--text2); line-height: 1.45; }
-.pre-gap-meta { font-size: 10px; color: var(--text3); font-family: var(--font-mono); }
+.pre-gap-meta { font-size: 10px; color: var(--text3); font-family: var(--font-mono); margin-top: 3px; }
+.pre-gap-controls {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0;
+}
+.pre-gap-status-badge {
+  font-size: 10px; font-weight: 600; padding: 2px 7px;
+  border-radius: 10px; white-space: nowrap;
+}
+.pre-gap-status-open        { background: var(--red-dim);   color: var(--red);   }
+.pre-gap-status-inprogress  { background: var(--amber-dim); color: var(--amber); }
+.pre-gap-status-select {
+  font-size: 11px; padding: 3px 6px;
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 4px; color: var(--text2); cursor: pointer;
+}
+.pre-gap-status-select:hover { border-color: var(--teal); }
+body.dark .pre-gap-status-select { background: #1a2236; border-color: #2e3f58; color: #94a3b8; }
 
 /* ── CAPTURED GAPS ──────────────────────────────────────── */
 .captured-gaps-header {
