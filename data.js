@@ -987,6 +987,7 @@ function deleteGap(id) {
 // Get gaps linked to a scenario (for pre-identification)
 function getGapsForScenario(scenarioId) {
   return getGaps().filter(g => {
+    if (g.scenarioId === scenarioId) return true;
     if (!g.sessionId) return false;
     const session = getSessionById(g.sessionId);
     return session && session.scenarioId === scenarioId;

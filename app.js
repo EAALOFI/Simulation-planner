@@ -766,7 +766,7 @@ function renderGapsRegistry() {
     <div class="gap-stat"><div class="gap-stat-num" style="color:var(--red)">${high}</div><div class="gap-stat-label">High Priority</div></div>
   `;
 
-  populateGapSessionSelect();
+  populateGapScenarioSelect();
 
   const tbody = document.getElementById("gapsTableBody");
   if (gaps.length === 0) {
@@ -783,7 +783,7 @@ function renderGapsRegistry() {
       <td><span class="badge badge-${g.priority || "medium"}" style="font-size:10px">${g.id}</span></td>
       <td class="gap-desc">${escHtml(g.description)}${g.loggedBy ? `<div class="gap-logged-by">by ${escHtml(g.loggedBy)}</div>` : ""}</td>
       <td style="font-size:12px;color:var(--text3)">${escHtml(g.category || "—")}</td>
-      <td style="font-size:12px;color:var(--text3);font-family:var(--font-mono)">${escHtml(g.sessionId || "—")}</td>
+      <td style="font-size:12px;color:var(--text3);font-family:var(--font-mono)">${g.sessionId ? escHtml(g.sessionId) : g.scenarioId ? `<span title="${escHtml(getScenarioById(g.scenarioId)?.title || g.scenarioId)}" style="font-family:var(--font-sans);font-style:italic">${escHtml(getScenarioById(g.scenarioId)?.title || g.scenarioId)}</span>` : "—"}</td>
       <td><span class="badge badge-${g.priority}">${g.priority}</span></td>
       <td>
         <select onchange="updateGap('${g.id}', {status: this.value}); _syncRegistryGapRow('${g.id}', this.value); syncPreGapsIfOpen()"
@@ -802,8 +802,9 @@ function renderGapsRegistry() {
 }
 
 function openAddGapModal() {
-  populateGapSessionSelect();
+  populateGapScenarioSelect();
   document.getElementById("gapDesc").value = "";
+  document.getElementById("gapScenario").value = "";
   document.getElementById("gapPriority").value = "high";
   document.getElementById("gapStatus").value = "open";
   document.getElementById("addGapModal").classList.add("open");
@@ -816,7 +817,7 @@ function saveGap() {
     description,
     category: document.getElementById("gapCategory").value,
     priority: document.getElementById("gapPriority").value,
-    sessionId: document.getElementById("gapSession").value || null,
+    scenarioId: document.getElementById("gapScenario").value || null,
     status: document.getElementById("gapStatus").value,
     date: localDateStr(new Date()),
     loggedBy: loadIdentity()?.name || null
@@ -826,16 +827,15 @@ function saveGap() {
   if (currentView === "gaps") renderGapsRegistry();
 }
 
-function populateGapSessionSelect() {
-  const sel = document.getElementById("gapSession");
+function populateGapScenarioSelect() {
+  const sel = document.getElementById("gapScenario");
   if (!sel) return;
-  const sessions = getSessions().sort((a,b) => b.date?.localeCompare(a.date));
+  const scenarios = getAllScenarios().sort((a, b) => (a.title || "").localeCompare(b.title || ""));
   sel.innerHTML = '<option value="">— None —</option>';
-  sessions.forEach(s => {
+  scenarios.forEach(sc => {
     const opt = document.createElement("option");
-    opt.value = s.id;
-    const sc = getScenarioById(s.scenarioId);
-    opt.textContent = `${s.id} — ${sc?.title || s.scenarioId} (${formatDate(s.date)})`;
+    opt.value = sc.id;
+    opt.textContent = `${sc.title}${sc.department ? " — " + sc.department : ""}`;
     sel.appendChild(opt);
   });
 }
