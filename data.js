@@ -704,6 +704,44 @@ const SCENARIOS = [
 
   // ── Scenario 20 ──────────────────────────────────────────────
   {
+    id: "ED-TO-OR",
+    code: "ED-OR",
+    title: "ED to OR — Emergency Surgery",
+    department: "Emergency Department / Operating Room",
+    timing: { setup: 20, execution: 45, debrief: 25 },
+    groups: ["ED Physicians & Nursing", "Surgeon on Call", "OR Nursing & Anaesthesiologist", "Pharmacy", "Patient Services", "IT/Health IT (Siratech)"],
+    goal: "Validate the emergency direct-to-OR transfer workflow from the Emergency Department, including surgical consult documentation, rapid OR activation, anaesthesia assessment, and safe patient handover within Siratech HIS.",
+    content: {
+      vignette: "38-year-old male presents to ED via ambulance following a high-speed road traffic accident. Primary survey reveals blunt abdominal trauma with haemoperitoneum on FAST exam. Surgeon determines emergency exploratory laparotomy is required. Patient must go directly from ED to OR.",
+      patient: { age: 38, pmh: "Nil significant", allergies: "NKDA", vitals: "HR 132 bpm | BP 82/50 | SpO2 94% 15L NRB | GCS 13 | FAST: free fluid in Morrison's pouch and pelvis" },
+      objectives: [
+        "Trauma Activation: Document trauma team activation and time-stamp in Siratech ED encounter.",
+        "Surgical Consult: Surgeon documents consult findings and emergency OR indication in HIS.",
+        "Emergency OR Booking: OR booking entered in Siratech; OR team confirms room and team availability.",
+        "Consent: Emergency verbal consent documented in Siratech with witness; written to follow post-op.",
+        "Anaesthesia Pre-op: Anaesthesiologist completes rapid pre-op assessment and documents in HIS.",
+        "Handover: ED physician completes structured ISBAR handover to OR team documented in Siratech."
+      ],
+      steps: [
+        "Step 1 – Trauma Activation: ED physician activates trauma team; time-stamped in Siratech.",
+        "Step 2 – Primary Survey: ABCDE assessment performed and documented; FAST result entered in HIS.",
+        "Step 3 – Surgical Consult: Surgeon reviews patient; documents haemoperitoneum and OR indication.",
+        "Step 4 – OR Booking: Emergency OR booking entered; OR charge nurse confirms room ready.",
+        "Step 5 – Consent: Verbal consent obtained and documented; patient's next of kin notified.",
+        "Step 6 – Anaesthesia: Rapid anaesthesia pre-op assessment completed and signed in HIS.",
+        "Step 7 – Transfer & Handover: Patient transferred to OR; ED physician delivers ISBAR handover; all entries completed in Siratech."
+      ],
+      debriefTopics: [
+        "Was the trauma activation time-stamped accurately and was the team assembled within target time?",
+        "Was the FAST result and surgical indication clearly documented in Siratech before OR departure?",
+        "Was emergency consent obtained and documented appropriately under time pressure?",
+        "Was the ISBAR handover from ED to OR comprehensive and recorded in HIS?"
+      ]
+    }
+  },
+
+  // ── Scenario 21 ──────────────────────────────────────────────
+  {
     id: "ICU-TO-OR",
     code: "ICU-OR",
     title: "ICU to OR — Emergency Surgery",
