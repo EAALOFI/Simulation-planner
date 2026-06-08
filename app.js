@@ -775,7 +775,7 @@ function renderGapsRegistry() {
       <td style="font-size:12px;color:var(--text3);font-family:var(--font-mono)">${escHtml(g.sessionId || "—")}</td>
       <td><span class="badge badge-${g.priority}">${g.priority}</span></td>
       <td>
-        <select onchange="updateGap('${g.id}', {status: this.value}); renderGapsRegistry(); syncPreGapsIfOpen()"
+        <select onchange="updateGap('${g.id}', {status: this.value}); _syncRegistryGapRow('${g.id}', this.value); syncPreGapsIfOpen()"
           style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:4px 8px;font-size:12px;width:auto">
           <option value="open"${g.status==="open"?" selected":""}>Open</option>
           <option value="in-progress"${g.status==="in-progress"?" selected":""}>In Progress</option>
