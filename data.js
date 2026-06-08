@@ -219,7 +219,7 @@ const SCENARIOS = [
         "Were all paper records reconciled accurately when HIS was restored?"
       ]
     }
-  }
+  },
   // ── Scenario 7 ──────────────────────────────────────────────
   {
     id: "RRT-ICU-ADMISSION",
