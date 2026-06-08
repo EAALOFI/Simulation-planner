@@ -633,7 +633,7 @@ body {
 .session-card-title { font-size: 12.5px; font-weight: 600; color: var(--text); line-height: 1.35; }
 .session-card-meta { font-size: 11px; color: var(--text3); margin-top: 5px; display: flex; gap: 8px; flex-wrap: wrap; }
 .session-card-leader { font-size: 11px; color: var(--text2); margin-top: 3px; }
-.session-card-logged-by { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.session-card-logged-by { font-size: 10px; color: var(--text2); margin-top: 2px; }
 
 .session-card-actions {
   position: absolute; top: 6px; right: 6px;
@@ -746,7 +746,7 @@ body {
 .gaps-table tr:last-child td { border-bottom: none; }
 .gaps-table tr:hover td { background: var(--bg3); }
 .gaps-table .gap-desc { max-width: 300px; line-height: 1.5; color: var(--text); }
-.gap-logged-by { font-size: 10px; color: var(--text3); margin-top: 3px; }
+.gap-logged-by { font-size: 10px; color: var(--text2); margin-top: 3px; }
 .gap-row-resolved td { opacity: 0.45; }
 .gap-row-resolved:hover td { opacity: 0.7; }
 

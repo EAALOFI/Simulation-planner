@@ -679,7 +679,7 @@ function renderSessionsList() {
       <div>
         <div class="session-row-title">${escHtml(sc?.title || s.scenarioId)}</div>
         <div class="session-row-meta">${escHtml(sc?.department || "")}</div>
-        ${s.loggedBy ? `<div class="session-row-meta" style="font-size:11px;margin-top:2px">logged by ${escHtml(s.loggedBy)}</div>` : ""}
+        <div class="session-row-meta" style="font-size:11px;margin-top:2px">logged by ${escHtml(s.loggedBy || "—")}</div>
       </div>
       <div class="session-row-meta">${formatDate(s.date)} ${s.time ? "at " + s.time : ""}</div>
       <div class="session-row-leader">${escHtml(s.leader || "—")}</div>
@@ -715,7 +715,7 @@ function openDetailModal(sessionId) {
         <div class="detail-item"><label>Participants</label><span>${escHtml(s.participants || "—")}</span></div>
         <div class="detail-item"><label>Location</label><span>${escHtml(s.location || "—")}</span></div>
         <div class="detail-item"><label>Status</label><span><span class="badge badge-${s.status || "planned"}">${s.status || "planned"}</span></span></div>
-        ${s.loggedBy ? `<div class="detail-item"><label>Scheduled by</label><span>${escHtml(s.loggedBy)}</span></div>` : ""}
+        <div class="detail-item"><label>Scheduled by</label><span>${escHtml(s.loggedBy || "—")}</span></div>
       </div>
     </div>
     ${s.feedback ? `
@@ -781,7 +781,7 @@ function renderGapsRegistry() {
     const statusColor = g.status === "resolved" ? "var(--green)" : g.status === "in-progress" ? "var(--amber)" : "var(--red)";
     tr.innerHTML = `
       <td><span class="badge badge-${g.priority || "medium"}" style="font-size:10px">${g.id}</span></td>
-      <td class="gap-desc">${escHtml(g.description)}${g.loggedBy ? `<div class="gap-logged-by">by ${escHtml(g.loggedBy)}</div>` : ""}</td>
+      <td class="gap-desc">${escHtml(g.description)}<div class="gap-logged-by">by ${escHtml(g.loggedBy || "—")}</div></td>
       <td style="font-size:12px;color:var(--text3)">${escHtml(g.category || "—")}</td>
       <td style="font-size:12px;color:var(--text3);font-family:var(--font-mono)">${g.sessionId ? escHtml(g.sessionId) : g.scenarioId ? `<span title="${escHtml(getScenarioById(g.scenarioId)?.title || g.scenarioId)}" style="font-family:var(--font-sans);font-style:italic">${escHtml(getScenarioById(g.scenarioId)?.title || g.scenarioId)}</span>` : "—"}</td>
       <td><span class="badge badge-${g.priority}">${g.priority}</span></td>
