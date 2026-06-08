@@ -276,7 +276,7 @@ function buildSessionCard(s) {
       ${s.location ? `<span>📍 ${s.location}</span>` : ""}
     </div>
     ${s.leader ? `<div class="session-card-leader">👤 ${s.leader}</div>` : ""}
-    ${s.loggedBy ? `<div class="session-card-logged-by">logged by ${escHtml(s.loggedBy)}</div>` : ""}
+    <div class="session-card-logged-by">logged by ${escHtml(s.loggedBy || "—")}</div>
     <div class="session-card-actions">
       <button class="btn-icon" onclick="event.stopPropagation(); openEditSessionModal('${s.id}')" title="Edit">✎</button>
       <button class="btn-icon danger" onclick="event.stopPropagation(); confirmDeleteSession('${s.id}')" title="Delete">✕</button>
@@ -679,7 +679,7 @@ function renderSessionsList() {
       <div>
         <div class="session-row-title">${escHtml(sc?.title || s.scenarioId)}</div>
         <div class="session-row-meta">${escHtml(sc?.department || "")}</div>
-        <div class="session-row-meta" style="font-size:11px;margin-top:2px">logged by ${escHtml(s.loggedBy || "—")}</div>
+        <div class="session-row-meta" style="font-size:11px;margin-top:2px;color:var(--text2)">logged by ${escHtml(s.loggedBy || "—")}</div>
       </div>
       <div class="session-row-meta">${formatDate(s.date)} ${s.time ? "at " + s.time : ""}</div>
       <div class="session-row-leader">${escHtml(s.leader || "—")}</div>
