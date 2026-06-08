@@ -276,6 +276,7 @@ function buildSessionCard(s) {
       ${s.location ? `<span>📍 ${s.location}</span>` : ""}
     </div>
     ${s.leader ? `<div class="session-card-leader">👤 ${s.leader}</div>` : ""}
+    ${s.loggedBy ? `<div class="session-card-logged-by">logged by ${escHtml(s.loggedBy)}</div>` : ""}
     <div class="session-card-actions">
       <button class="btn-icon" onclick="event.stopPropagation(); openEditSessionModal('${s.id}')" title="Edit">✎</button>
       <button class="btn-icon danger" onclick="event.stopPropagation(); confirmDeleteSession('${s.id}')" title="Delete">✕</button>
@@ -460,7 +461,11 @@ function _syncRegistryGapRow(gapId, newStatus) {
   const regRow = document.querySelector(`#gapsTableBody tr[data-gap-id="${gapId}"]`);
   if (regRow) {
     const sel = regRow.querySelector("select");
-    if (sel) sel.value = newStatus;
+    if (sel) {
+      sel.value = newStatus;
+      sel.style.color = newStatus === "resolved" ? "var(--green)" : newStatus === "in-progress" ? "var(--amber)" : "var(--red)";
+    }
+    regRow.classList.toggle("gap-row-resolved", newStatus === "resolved");
   }
   // Recount and refresh the summary stats strip
   const summaryEl = document.getElementById("gapsSummary");
@@ -621,14 +626,16 @@ function saveSession() {
     showToast("Session updated.", "success");
   } else {
     const newId = document.getElementById("sessionId").value;
+    const loggedBy = loadIdentity()?.name || null;
     sessionData.id = newId;
     sessionData.createdAt = new Date().toISOString();
+    sessionData.loggedBy = loggedBy;
     addSession(sessionData);
     capturedGaps.forEach(g => {
-      addGap({ ...g, sessionId: newId, date, status: "open" });
+      addGap({ ...g, sessionId: newId, date, status: "open", loggedBy });
     });
     plannedGaps.forEach(g => {
-      addGap({ ...g, sessionId: newId, date, status: "open" });
+      addGap({ ...g, sessionId: newId, date, status: "open", loggedBy });
     });
     showToast("Session scheduled.", "success");
   }
@@ -672,6 +679,7 @@ function renderSessionsList() {
       <div>
         <div class="session-row-title">${escHtml(sc?.title || s.scenarioId)}</div>
         <div class="session-row-meta">${escHtml(sc?.department || "")}</div>
+        ${s.loggedBy ? `<div class="session-row-meta" style="font-size:11px;margin-top:2px">logged by ${escHtml(s.loggedBy)}</div>` : ""}
       </div>
       <div class="session-row-meta">${formatDate(s.date)} ${s.time ? "at " + s.time : ""}</div>
       <div class="session-row-leader">${escHtml(s.leader || "—")}</div>
@@ -707,6 +715,7 @@ function openDetailModal(sessionId) {
         <div class="detail-item"><label>Participants</label><span>${escHtml(s.participants || "—")}</span></div>
         <div class="detail-item"><label>Location</label><span>${escHtml(s.location || "—")}</span></div>
         <div class="detail-item"><label>Status</label><span><span class="badge badge-${s.status || "planned"}">${s.status || "planned"}</span></span></div>
+        ${s.loggedBy ? `<div class="detail-item"><label>Scheduled by</label><span>${escHtml(s.loggedBy)}</span></div>` : ""}
       </div>
     </div>
     ${s.feedback ? `
@@ -768,15 +777,17 @@ function renderGapsRegistry() {
   gaps.slice().reverse().forEach(g => {
     const tr = document.createElement("tr");
     tr.dataset.gapId = g.id;
+    if (g.status === "resolved") tr.classList.add("gap-row-resolved");
+    const statusColor = g.status === "resolved" ? "var(--green)" : g.status === "in-progress" ? "var(--amber)" : "var(--red)";
     tr.innerHTML = `
       <td><span class="badge badge-${g.priority || "medium"}" style="font-size:10px">${g.id}</span></td>
-      <td class="gap-desc">${escHtml(g.description)}</td>
+      <td class="gap-desc">${escHtml(g.description)}${g.loggedBy ? `<div class="gap-logged-by">by ${escHtml(g.loggedBy)}</div>` : ""}</td>
       <td style="font-size:12px;color:var(--text3)">${escHtml(g.category || "—")}</td>
       <td style="font-size:12px;color:var(--text3);font-family:var(--font-mono)">${escHtml(g.sessionId || "—")}</td>
       <td><span class="badge badge-${g.priority}">${g.priority}</span></td>
       <td>
         <select onchange="updateGap('${g.id}', {status: this.value}); _syncRegistryGapRow('${g.id}', this.value); syncPreGapsIfOpen()"
-          style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:4px 8px;font-size:12px;width:auto">
+          style="background:var(--bg3);border:1px solid var(--border);color:${statusColor};border-radius:4px;padding:4px 8px;font-size:12px;width:auto">
           <option value="open"${g.status==="open"?" selected":""}>Open</option>
           <option value="in-progress"${g.status==="in-progress"?" selected":""}>In Progress</option>
           <option value="resolved"${g.status==="resolved"?" selected":""}>Resolved</option>
@@ -807,7 +818,8 @@ function saveGap() {
     priority: document.getElementById("gapPriority").value,
     sessionId: document.getElementById("gapSession").value || null,
     status: document.getElementById("gapStatus").value,
-    date: localDateStr(new Date())
+    date: localDateStr(new Date()),
+    loggedBy: loadIdentity()?.name || null
   });
   showToast("Gap added.", "success");
   closeModal("addGapModal");
