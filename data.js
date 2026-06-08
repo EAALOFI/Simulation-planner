@@ -816,6 +816,64 @@ const SCENARIOS = [
         "Were all ICU infusions documented and reconciled accurately for the OR team?"
       ]
     }
+  },
+  {
+    id: "MASS-CASUALTY",
+    code: "MCI",
+    title: "Mass Casualty Drill",
+    department: "Emergency Department / Hospital-Wide",
+    timing: { setup: 30, execution: 90, debrief: 45 },
+    groups: [
+      "Emergency Department (Physicians, Nursing, Registration)",
+      "Patient Services & Administration",
+      "Security & Facilities Management",
+      "ICU & Operating Room Personnel",
+      "Pharmacy & Blood Bank",
+      "IT/Health IT (Siratech)",
+      "Hospital Command (HICS)"
+    ],
+    goal: "Validate the hospital's Mass Casualty Incident (MCI) response plan — activating HICS command, executing START triage, managing surge registration in Siratech under time pressure, and coordinating inter-departmental communication from ED arrival through definitive care.",
+    content: {
+      vignette: "A structural collapse at a construction site 400 m from the hospital generates 14 reported casualties. EMS notifies AMH ED by radio 6 minutes before the first ambulance arrives. Eight casualties are transported to AMH in two waves: Wave 1 (4 patients, T+6 min) and Wave 2 (4 patients, T+18 min). Acuity ranges from walking wounded to unconscious polytrauma. The remaining six are distributed to secondary facilities. Hospital Command activates Code Yellow.",
+      patient: {
+        age: "Multiple — ages 24–58",
+        pmh: "Wave 1: P1 unconscious polytrauma (Priority 1); P2 open femur fracture, GCS 14 (Priority 2); P3 laceration + rib fractures (Priority 2); P4 minor contusions, ambulatory (Priority 3). Wave 2: P5 tension pneumothorax (Priority 1); P6–P7 upper-limb fractures (Priority 2); P8 anxiety/hyperventilation (Priority 3).",
+        allergies: "Mixed — verify each patient via HIS at registration",
+        vitals: "P1: BP 80/50 | HR 138 | GCS 6 | SpO2 88%.  P5: BP 92/60 | HR 142 | absent breath sounds left.  Others: stable to moderate."
+      },
+      objectives: [
+        "HICS Activation: Confirm Code Yellow broadcast and HICS role assignments within 3 minutes of EMS notification.",
+        "START Triage: Apply START methodology to all arrivals; tag and track Priority 1/2/3 correctly before HIS registration.",
+        "Surge Registration: Register all Wave 1 patients in Siratech within 8 minutes of arrival under abbreviated MCI registration protocol.",
+        "Surge Capacity: Open MCI overflow area; document bed allocation and staffing reallocation in HICS log.",
+        "Critical Interventions: Needle decompression for P5 performed and documented in Siratech before OR notification.",
+        "Interdepartmental Coordination: Blood Bank, OR, and ICU notified and confirmed ready via documented Siratech consult or phone log.",
+        "Family Reception: Designated family reception area activated; liaison officer assigned and documented in HICS.",
+        "Deactivation: Census reconciled, Code Yellow downgraded, and after-action summary initiated in Siratech."
+      ],
+      steps: [
+        "Step 1 – Notification: EMS radio alert received by ED charge nurse; Code Yellow announced hospital-wide.",
+        "Step 2 – HICS Setup: Incident Commander, Medical Director, and Nursing Coordinator take positions; roles documented.",
+        "Step 3 – Triage Station: Ambulance bay cleared; START triage lead assigned; triage tags distributed.",
+        "Step 4 – Wave 1 Arrival: Four casualties triaged, tagged, and directed to Resus Bay (P1) or treatment zones (P2–P4).",
+        "Step 5 – Surge Registration: Patient Services activates MCI abbreviated registration; four MRNs created in Siratech within 8 minutes.",
+        "Step 6 – Overflow Activation: MCI overflow area opened; additional nursing deployed; bed count updated in HICS log.",
+        "Step 7 – Wave 2 Arrival: P5 identified as Priority 1; needle decompression performed; OR notified via Siratech consult.",
+        "Step 8 – Interdepartmental Actions: Blood Bank activated for P1/P5; ICU bed reserved; OR placed on standby; Pharmacy alerted for mass transfusion protocol.",
+        "Step 9 – Family Reception: Liaison officer meets family; information controlled through single point of contact per HICS.",
+        "Step 10 – Deactivation: When surge resolves, Incident Commander broadcasts Code Yellow downgrade; all MCI patients reconciled in HIS census; after-action documentation initiated."
+      ],
+      debriefTopics: [
+        "Was Code Yellow activated and HICS roles filled within the 3-minute target from EMS notification?",
+        "Were all casualties correctly triaged and tagged using START — any over- or under-triage identified?",
+        "How did Siratech HIS perform under surge registration load — were there bottlenecks or system delays?",
+        "Was the MCI abbreviated registration protocol sufficient, or did data gaps appear downstream?",
+        "Were Blood Bank, OR, and ICU notifications timely and documented — any communication breakdowns?",
+        "Was the family reception area activated promptly and information controlled effectively?",
+        "Identify supply, staffing, or physical space constraints revealed by the drill.",
+        "What changes to the MCI plan or Siratech workflows should be actioned before the next activation?"
+      ]
+    }
   }
 ];
 
@@ -873,13 +931,30 @@ async function initFirestore() {
       _store.gaps = d.gaps || [];
       _store.weekOffset = d.weekOffset || 0;
       _store.customScenarios = d.customScenarios || [];
-      // Auto-migrate: remove custom entries whose titles now exist as built-ins
-      const builtinTitles = new Set(SCENARIOS.map(s => s.title.toLowerCase().trim()));
+      // Auto-migrate: remove custom entries whose titles now exist as built-ins,
+      // and remap any session/gap scenarioId references to the new built-in ID.
+      const titleToBuiltinId = Object.fromEntries(
+        SCENARIOS.map(s => [s.title.toLowerCase().trim(), s.id])
+      );
+      const idRemap = {}; // oldCustomId -> newBuiltinId
+      _store.customScenarios.forEach(s => {
+        if (s.isOverride) return;
+        const builtinId = titleToBuiltinId[(s.title || "").toLowerCase().trim()];
+        if (builtinId) idRemap[s.id] = builtinId;
+      });
+      if (Object.keys(idRemap).length > 0) {
+        _store.sessions = _store.sessions.map(s =>
+          idRemap[s.scenarioId] ? { ...s, scenarioId: idRemap[s.scenarioId] } : s
+        );
+        _store.gaps = _store.gaps.map(g =>
+          idRemap[g.scenarioId] ? { ...g, scenarioId: idRemap[g.scenarioId] } : g
+        );
+      }
       const before = _store.customScenarios.length;
       _store.customScenarios = _store.customScenarios.filter(s =>
-        s.isOverride || !builtinTitles.has((s.title || "").toLowerCase().trim())
+        s.isOverride || !titleToBuiltinId[(s.title || "").toLowerCase().trim()]
       );
-      if (_store.customScenarios.length !== before) _firestoreWrite();
+      if (_store.customScenarios.length !== before || Object.keys(idRemap).length > 0) _firestoreWrite();
     }
   } catch (e) {
     console.error("Firestore load error:", e);
