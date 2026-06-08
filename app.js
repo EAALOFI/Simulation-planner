@@ -424,14 +424,62 @@ function updatePreGaps(scenarioId) {
 }
 
 function changePreGapStatus(gapId, newStatus, scenarioId) {
+  // 1. Update data store first
   updateGap(gapId, { status: newStatus });
-  renderGapsRegistry();
-  updatePreGaps(scenarioId);
+
+  // 2. Immediately update the pre-gap item in the DOM (no full re-render needed)
+  const item = document.querySelector(`.pre-gap-item[data-gap-id="${gapId}"]`);
+  if (item) {
+    if (newStatus === "resolved") {
+      item.remove();
+      // If no active items remain, show the all-resolved message
+      const container = document.getElementById("preGapsList");
+      if (container && !container.querySelector(".pre-gap-item")) {
+        container.innerHTML = '<p class="empty-note" style="color:var(--green)">✓ All previously identified gaps have been resolved.</p>';
+      }
+    } else {
+      // Update badge colour + label in place
+      const badge = item.querySelector(".pre-gap-status-badge");
+      if (badge) {
+        const isIP = newStatus === "in-progress";
+        badge.className = `pre-gap-status-badge ${isIP ? "pre-gap-status-inprogress" : "pre-gap-status-open"}`;
+        badge.textContent = isIP ? "In Progress" : "Open";
+      }
+    }
+  }
+
+  // 3. Sync the registry — update just the affected row's select + summary counts
+  _syncRegistryGapRow(gapId, newStatus);
+
   if (newStatus === "resolved") showToast("Gap resolved — removed from pre-identified list.", "success");
   else showToast("Gap status updated.", "success");
 }
 
-// Refresh pre-gaps panel if session modal is currently open
+function _syncRegistryGapRow(gapId, newStatus) {
+  // Update the matching select in the registry table if the row exists
+  const regRow = document.querySelector(`#gapsTableBody tr[data-gap-id="${gapId}"]`);
+  if (regRow) {
+    const sel = regRow.querySelector("select");
+    if (sel) sel.value = newStatus;
+  }
+  // Recount and refresh the summary stats strip
+  const summaryEl = document.getElementById("gapsSummary");
+  if (!summaryEl) return;
+  const gaps = getGaps();
+  const open = gaps.filter(g => g.status === "open").length;
+  const inProgress = gaps.filter(g => g.status === "in-progress").length;
+  const resolved = gaps.filter(g => g.status === "resolved").length;
+  const high = gaps.filter(g => g.priority === "high").length;
+  summaryEl.innerHTML = `
+    <div class="gap-stat"><div class="gap-stat-num">${gaps.length}</div><div class="gap-stat-label">Total Gaps</div></div>
+    <div class="gap-stat"><div class="gap-stat-num" style="color:var(--red)">${open}</div><div class="gap-stat-label">Open</div></div>
+    <div class="gap-stat"><div class="gap-stat-num" style="color:var(--amber)">${inProgress}</div><div class="gap-stat-label">In Progress</div></div>
+    <div class="gap-stat"><div class="gap-stat-num" style="color:var(--green)">${resolved}</div><div class="gap-stat-label">Resolved</div></div>
+    <div class="gap-stat"><div class="gap-stat-num" style="color:var(--red)">${high}</div><div class="gap-stat-label">High Priority</div></div>
+  `;
+}
+
+// Refresh pre-gaps panel if session modal is currently open (called from registry status change)
 function syncPreGapsIfOpen() {
   const modal = document.getElementById("sessionModal");
   if (!modal || !modal.classList.contains("open")) return;
@@ -719,6 +767,7 @@ function renderGapsRegistry() {
   tbody.innerHTML = "";
   gaps.slice().reverse().forEach(g => {
     const tr = document.createElement("tr");
+    tr.dataset.gapId = g.id;
     tr.innerHTML = `
       <td><span class="badge badge-${g.priority || "medium"}" style="font-size:10px">${g.id}</span></td>
       <td class="gap-desc">${escHtml(g.description)}</td>
