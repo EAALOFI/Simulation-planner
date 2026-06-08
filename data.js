@@ -742,6 +742,47 @@ const SCENARIOS = [
 
   // ── Scenario 21 ──────────────────────────────────────────────
   {
+    id: "EMERGENCY-OUTSIDE-CLINICAL",
+    code: "Ext-Emergency",
+    title: "Emergency Outside Clinical Areas",
+    department: "Hospital Grounds / AMH Paramedics / KFSHRC Emergency",
+    timing: { setup: 25, execution: 50, debrief: 30 },
+    groups: ["AMH Paramedics", "Security Team", "Duty Manager", "AMH Clinical First Responders", "KFSHRC Emergency Department", "IT/Health IT (Siratech)"],
+    goal: "Validate the response to a medical emergency occurring outside clinical areas during Phase 1 commissioning, when AMH Emergency Department is not yet operational. This includes first response activation, on-scene stabilisation, duty manager decision-making, advance notification of KFSHRC, and transfer by AMH paramedic ambulance with complete chain-of-custody documentation.",
+    content: {
+      vignette: "52-year-old male visitor collapses with witnessed cardiac arrest in the AMH main lobby. Security activates the emergency response. AMH clinical staff initiate BLS and retrieve the AED. AMH paramedics assume ACLS on scene. With the AMH Emergency Department non-operational and unable to receive the patient, the Duty Manager confirms diversion to KFSHRC Emergency. Patient must be stabilised, loaded into the AMH ambulance, and transferred to KFSHRC ED with a structured handover.",
+      patient: { age: 52, pmh: "Unknown (visitor — no prior records in Siratech)", allergies: "Unknown", vitals: "Pulseless | Apnoeic | GCS 3 | Witnessed collapse | AED on scene" },
+      objectives: [
+        "Emergency Activation: Security documents emergency call and activation time in Siratech duty log.",
+        "BLS / AED Response: First available clinical staff initiates CPR and applies AED within 3 minutes of collapse.",
+        "ACLS Handover: AMH paramedics assume team lead; airway secured; rhythm documented.",
+        "Duty Manager Decision: Duty Manager confirms AMH ED non-operational; authorises transfer to KFSHRC; documents decision in Siratech.",
+        "KFSHRC Pre-notification: KFSHRC ED notified by phone with patient status; acceptance confirmed and documented in Siratech.",
+        "Pre-hospital Record: AMH paramedic completes pre-hospital care report in Siratech before departure.",
+        "Transfer & Handover: Patient transferred by AMH ambulance; ISBAR handover delivered to KFSHRC ED team; chain of custody signed and recorded."
+      ],
+      steps: [
+        "Step 1 – Collapse Identified: Bystander alerts security; location and time documented in Siratech duty log.",
+        "Step 2 – First Response: Nearest clinical staff initiates CPR; AED retrieved from lobby station and applied; rhythm analysed.",
+        "Step 3 – Paramedic Arrival: AMH paramedics arrive on scene; assume ACLS; advanced airway and IV access established; interventions documented.",
+        "Step 4 – Duty Manager Activation: Duty Manager notified; confirms AMH ED non-operational; makes formal decision to transfer to KFSHRC; entry made in Siratech.",
+        "Step 5 – KFSHRC Notification: Duty Manager contacts KFSHRC ED; communicates patient age, arrest rhythm, interventions, ETA; KFSHRC acceptance confirmed and logged.",
+        "Step 6 – Pre-hospital Documentation: Paramedic completes Siratech pre-hospital care report: response time, CPR duration, shocks delivered, medications given, current status.",
+        "Step 7 – Transfer: Patient loaded into AMH ambulance with continuous monitoring; en route ACLS maintained; on arrival at KFSHRC, structured ISBAR handover delivered; chain of custody form signed by both teams."
+      ],
+      debriefTopics: [
+        "Was the emergency response activated promptly and was the first responder chain clearly understood by all staff?",
+        "Was the AED accessible and applied within the 3-minute target from time of collapse?",
+        "Was the Duty Manager's decision to divert to KFSHRC made efficiently and documented in Siratech?",
+        "Was KFSHRC notified in advance with sufficient clinical detail to prepare for the patient's arrival?",
+        "Was the pre-hospital care report completed in Siratech before the ambulance departed?",
+        "Was the ISBAR handover and chain of custody documentation complete and signed at KFSHRC?"
+      ]
+    }
+  },
+
+  // ── Scenario 22 ──────────────────────────────────────────────
+  {
     id: "ICU-TO-OR",
     code: "ICU-OR",
     title: "ICU to OR — Emergency Surgery",
