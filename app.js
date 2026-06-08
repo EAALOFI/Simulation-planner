@@ -743,10 +743,62 @@ function populateGapSessionSelect() {
 }
 
 // ── Scenario Library ──────────────────────────────────────────
+
+let scenarioActiveFilter = "All";
+
+const SCENARIO_TAGS_MAP = {
+  "Emergency":  d => /emergency|hospital grounds/i.test(d),
+  "OPD":        d => /outpatient/i.test(d),
+  "ICU":        d => /\bicu\b/i.test(d),
+  "Surgical":   d => /operating room/i.test(d),
+  "Imaging":    d => /radiology/i.test(d),
+  "Obstetrics": d => /labor.{0,5}delivery|l&d/i.test(d),
+  "Transfers":  d => /transfer|referral|kfshrc|paramedic/i.test(d),
+  "Inpatient":  d => /medical.surgical|inpatient|ward|blood bank/i.test(d),
+};
+
+function getScenarioTags(sc) {
+  const dept = sc.department || "";
+  const tags = Object.entries(SCENARIO_TAGS_MAP)
+    .filter(([, test]) => test(dept))
+    .map(([tag]) => tag);
+  return tags.length ? tags : ["General"];
+}
+
+function renderScenarioFilterBar() {
+  const bar = document.getElementById("scenarioFilterBar");
+  if (!bar) return;
+  const all = getAllScenarios();
+  const counts = { All: all.length };
+  Object.keys(SCENARIO_TAGS_MAP).forEach(t => {
+    counts[t] = all.filter(sc => getScenarioTags(sc).includes(t)).length;
+  });
+  const tags = ["All", ...Object.keys(SCENARIO_TAGS_MAP)];
+  bar.innerHTML = tags
+    .filter(t => counts[t] > 0)
+    .map(t => `<button class="scenario-filter-pill${t === scenarioActiveFilter ? " active" : ""}" onclick="setScenarioFilter('${t}')">${escHtml(t)} <span class="pill-count">${counts[t]}</span></button>`)
+    .join("");
+}
+
+function setScenarioFilter(tag) {
+  scenarioActiveFilter = tag;
+  renderScenarioFilterBar();
+  renderScenarioCards();
+}
+
 function renderScenarioCards() {
   const container = document.getElementById("scenarioCards");
   container.innerHTML = "";
-  getAllScenarios().forEach(sc => {
+  renderScenarioFilterBar();
+  let scenarios = getAllScenarios();
+  if (scenarioActiveFilter !== "All") {
+    scenarios = scenarios.filter(sc => getScenarioTags(sc).includes(scenarioActiveFilter));
+  }
+  if (scenarios.length === 0) {
+    container.innerHTML = `<div style="grid-column:1/-1;padding:32px;text-align:center;color:var(--text3);font-size:14px;">No scenarios in this category yet.</div>`;
+    return;
+  }
+  scenarios.forEach(sc => {
     const sessionCount = getSessions().filter(s => s.scenarioId === sc.id).length;
     const isCustom = !SCENARIOS.find(s => s.id === sc.id);
     const card = document.createElement("div");
