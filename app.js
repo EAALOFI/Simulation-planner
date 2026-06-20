@@ -1397,6 +1397,13 @@ function renderReadinessReport() {
   });
 
   document.getElementById("readinessContent").innerHTML = `
+    <div class="print-report-header print-only">
+      <img src="AMH logo.jpg" alt="Almather Hospital" class="print-logo" />
+      <div class="print-report-title">Operational Readiness Report</div>
+      <div class="print-report-sub">Almather Hospital (AMH) · Simulation Commissioning Programme</div>
+      <div class="print-report-date">Generated ${new Date().toLocaleString("en-GB")} · Readiness score ${readinessPct}%</div>
+    </div>
+
     <div class="readiness-section">
       <h3>Key Performance Indicators</h3>
       <div class="readiness-kpis">

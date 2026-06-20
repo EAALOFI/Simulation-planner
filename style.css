@@ -1248,11 +1248,69 @@ body.dark .pre-gap-status-select { background: #1a2236; border-color: #2e3f58; c
 .empty-state { padding: 40px; text-align: center; color: var(--text3); font-size: 14px; }
 
 /* ── PRINT ──────────────────────────────────────────────── */
+/* Print-only elements are hidden on screen */
+.print-only { display: none; }
+
 @media print {
-  .sidebar, .btn-primary, .btn-secondary, .btn-ghost { display: none !important; }
-  .main { margin-left: 0; }
-  body { background: #fff; }
-  .readiness-section { box-shadow: none; border: 1px solid #ddd; }
+  .sidebar, .mobile-header, .btn-primary, .btn-secondary, .btn-ghost,
+  .view-header > button, .view-sub { display: none !important; }
+  .main { margin-left: 0; padding: 0; }
+
+  /* Force the exported report to brand colours regardless of light/dark mode.
+     Redefining --teal here re-themes every existing var(--teal) accent to Sage
+     in the PDF ONLY — the on-screen page is untouched. */
+  :root, body.dark {
+    --bg: #ffffff; --bg2: #ffffff; --bg3: #EAF3EE; --bg4: #D5E6DD;
+    --border: #d9e2dc; --border2: #c2d3c9;
+    --text: #0F1E17; --text2: #3a4640; --text3: #6b7670;
+    --teal: #016B43; --teal2: #003825; --teal-dim: rgba(1,107,67,.08);
+  }
+  body { background: #fff !important; color: var(--text); }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+  .print-only { display: block; }
+
+  /* Branded report header */
+  .print-report-header {
+    text-align: center;
+    border-bottom: 3px solid #016B43;
+    padding-bottom: 16px;
+    margin-bottom: 22px;
+  }
+  .print-logo { height: 64px; width: auto; object-fit: contain; }
+  .print-report-title {
+    font-family: 'Noto Serif', Georgia, serif;
+    font-size: 22px; font-weight: 600; color: #003825;
+    margin-top: 10px;
+  }
+  .print-report-sub { font-size: 12px; color: #016B43; margin-top: 2px; }
+  .print-report-date {
+    font-size: 10px; color: #6b7670; margin-top: 6px;
+    font-family: var(--font-mono);
+  }
+
+  /* Section + table styling for the export */
+  .readiness-section {
+    box-shadow: none;
+    border: 1px solid #d9e2dc;
+    border-radius: 8px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .readiness-section h3 {
+    color: #003825;
+    border-left: 4px solid #016B43;
+    padding-left: 10px;
+  }
+  .readiness-table th {
+    background: #D5E6DD !important;
+    color: #003825 !important;
+  }
+  /* Repeat table headers on each printed page */
+  .readiness-table thead { display: table-header-group; }
+  .readiness-section { margin-bottom: 16px; }
+
+  @page { margin: 14mm; }
 }
 
 /* ── RESPONSIVE ─────────────────────────────────────────── */
