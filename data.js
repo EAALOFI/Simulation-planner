@@ -1013,6 +1013,30 @@ function addSession(session) {
   saveSessions(sessions);
 }
 
+// Re-create a session under a different scenario, remapping all gap references.
+// Returns the new session ID, or null if oldId not found.
+function reassignSession(oldId, newScenarioId) {
+  const sessions = _store.sessions;
+  const idx = sessions.findIndex(s => s.id === oldId);
+  if (idx === -1) { console.error("reassignSession: session not found:", oldId); return null; }
+
+  // Generate a new ID based on the new scenario and current count for that scenario
+  const newId = generateSessionId(newScenarioId, sessions.filter(s => s.id !== oldId));
+
+  // Update the session in place with new id + new scenarioId
+  sessions[idx] = { ...sessions[idx], id: newId, scenarioId: newScenarioId };
+
+  // Remap all gaps that referenced the old session ID
+  _store.gaps = _store.gaps.map(g =>
+    g.sessionId === oldId ? { ...g, sessionId: newId } : g
+  );
+
+  saveSessions(sessions);
+  _firestoreWrite();
+  console.log(`reassignSession: ${oldId} → ${newId} (scenario: ${newScenarioId})`);
+  return newId;
+}
+
 // ── Bulk Historical Import ────────────────────────────────────
 // importData: { sessions: [...], gaps: [...] }
 // Each session: { scenarioId, date, status, time?, leader?, participants?, location? }
