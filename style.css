@@ -798,6 +798,27 @@ body.dark .gap-comment-input { background: #111827; border-color: #2e3f58; color
 .gap-row-resolved td { opacity: 0.45; }
 .gap-row-resolved:hover td { opacity: 0.7; }
 
+/* ── GAP REGISTRY FILTER BAR ────────────────────────────── */
+#gapFilterBar { margin: 12px 0 8px; }
+.gap-filter-row {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+}
+.gap-filter-select {
+  background: var(--bg3); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text2);
+  font-size: 12.5px; padding: 5px 10px; cursor: pointer;
+  transition: border-color .15s;
+}
+.gap-filter-select:focus { border-color: var(--teal); outline: none; }
+.gap-filter-clear {
+  font-size: 12px; padding: 5px 10px; color: var(--red);
+  border: 1px solid var(--red); border-radius: var(--radius-sm);
+  background: transparent; cursor: pointer; opacity: .8;
+}
+.gap-filter-clear:hover { opacity: 1; background: rgba(239,68,68,.07); }
+body.dark .gap-filter-select { background: #1a2236; border-color: #2e3f58; color: #94a3b8; }
+body.dark .gap-filter-select:focus { border-color: var(--teal); }
+
 /* ── SCENARIO FILTER BAR ────────────────────────────────── */
 .scenario-filter-bar {
   display: flex;

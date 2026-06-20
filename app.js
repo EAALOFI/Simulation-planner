@@ -743,29 +743,35 @@ function editCurrentDetail() {
 
 // ── Gaps Registry ─────────────────────────────────────────────
 function renderGapsRegistry() {
-  const gaps = getGaps();
-  const open = gaps.filter(g => g.status === "open").length;
-  const inProgress = gaps.filter(g => g.status === "in-progress").length;
-  const resolved = gaps.filter(g => g.status === "resolved").length;
-  const high = gaps.filter(g => g.priority === "high").length;
+  const allGaps = getGaps();
+  const open = allGaps.filter(g => g.status === "open").length;
+  const inProgress = allGaps.filter(g => g.status === "in-progress").length;
+  const resolved = allGaps.filter(g => g.status === "resolved").length;
+  const high = allGaps.filter(g => g.priority === "high" || g.priority === "stopper").length;
 
   document.getElementById("gapsSummary").innerHTML = `
-    <div class="gap-stat"><div class="gap-stat-num">${gaps.length}</div><div class="gap-stat-label">Total Gaps</div></div>
+    <div class="gap-stat"><div class="gap-stat-num">${allGaps.length}</div><div class="gap-stat-label">Total Gaps</div></div>
     <div class="gap-stat"><div class="gap-stat-num" style="color:var(--red)">${open}</div><div class="gap-stat-label">Open</div></div>
     <div class="gap-stat"><div class="gap-stat-num" style="color:var(--amber)">${inProgress}</div><div class="gap-stat-label">In Progress</div></div>
     <div class="gap-stat"><div class="gap-stat-num" style="color:var(--green)">${resolved}</div><div class="gap-stat-label">Resolved</div></div>
-    <div class="gap-stat"><div class="gap-stat-num" style="color:var(--red)">${high}</div><div class="gap-stat-label">High Priority</div></div>
+    <div class="gap-stat"><div class="gap-stat-num" style="color:var(--red)">${high}</div><div class="gap-stat-label">High / Stopper</div></div>
   `;
 
   populateGapScenarioSelect();
+  _renderGapFilterBar();
 
+  const gaps = _applyGapFiltersAndSort(allGaps);
   const tbody = document.getElementById("gapsTableBody");
-  if (gaps.length === 0) {
+  if (allGaps.length === 0) {
     tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No gaps logged yet.</td></tr>';
     return;
   }
+  if (gaps.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state" style="color:var(--text3)">No gaps match the current filters.</td></tr>';
+    return;
+  }
   tbody.innerHTML = "";
-  gaps.slice().reverse().forEach(g => {
+  gaps.forEach(g => {
     const tr = document.createElement("tr");
     tr.dataset.gapId = g.id;
     if (g.status === "resolved") tr.classList.add("gap-row-resolved");
@@ -957,6 +963,80 @@ function populateGapScenarioSelect() {
 // ── Scenario Library ──────────────────────────────────────────
 
 let scenarioActiveFilter = "All";
+
+// ── Gap Registry Filters ──────────────────────────────────────
+let gapFilterStatus   = "all";
+let gapFilterPriority = "all";
+let gapFilterCategory = "all";
+let gapSortBy         = "default";
+
+function setGapFilter(type, value) {
+  if (type === "status")   gapFilterStatus   = value;
+  if (type === "priority") gapFilterPriority = value;
+  if (type === "category") gapFilterCategory = value;
+  if (type === "sort")     gapSortBy         = value;
+  renderGapsRegistry();
+}
+
+function _applyGapFiltersAndSort(gaps) {
+  let list = gaps.slice();
+  if (gapFilterStatus   !== "all") list = list.filter(g => g.status   === gapFilterStatus);
+  if (gapFilterPriority !== "all") list = list.filter(g => g.priority === gapFilterPriority);
+  if (gapFilterCategory !== "all") list = list.filter(g => g.category === gapFilterCategory);
+  const PRIO = { stopper: 0, high: 1, medium: 2, low: 3 };
+  if (gapSortBy === "priority")  list.sort((a, b) => (PRIO[a.priority] ?? 4) - (PRIO[b.priority] ?? 4));
+  else if (gapSortBy === "category") list.sort((a, b) => (a.category || "").localeCompare(b.category || ""));
+  else if (gapSortBy === "status")   list.sort((a, b) => (a.status || "").localeCompare(b.status || ""));
+  else if (gapSortBy === "session")  list.sort((a, b) => (a.sessionId || "").localeCompare(b.sessionId || ""));
+  else list.reverse(); // default: newest first
+  return list;
+}
+
+function _renderGapFilterBar() {
+  const allGaps = getGaps();
+  const categories = [...new Set(allGaps.map(g => g.category).filter(Boolean))].sort();
+
+  const statusOpts = [
+    ["all","All Statuses"], ["open","Open"], ["in-progress","In Progress"], ["resolved","Resolved"]
+  ];
+  const prioOpts = [
+    ["all","All Priorities"], ["stopper","Stopper"], ["high","High"], ["medium","Medium"], ["low","Low"]
+  ];
+
+  const makeSelect = (id, opts, currentVal, type) =>
+    `<select id="${id}" class="gap-filter-select" onchange="setGapFilter('${type}', this.value)">
+      ${opts.map(([v, l]) => `<option value="${v}"${v === currentVal ? " selected" : ""}>${escHtml(l)}</option>`).join("")}
+    </select>`;
+
+  const catSelect = `<select id="gapCatFilter" class="gap-filter-select" onchange="setGapFilter('category', this.value)">
+    <option value="all"${gapFilterCategory === "all" ? " selected" : ""}>All Categories</option>
+    ${categories.map(c => `<option value="${escHtml(c)}"${c === gapFilterCategory ? " selected" : ""}>${escHtml(c)}</option>`).join("")}
+  </select>`;
+
+  const sortOpts = [
+    ["default","Sort: Newest First"], ["priority","Sort: Priority"], ["category","Sort: Category"],
+    ["status","Sort: Status"], ["session","Sort: Session"]
+  ];
+
+  const activeFilters = [gapFilterStatus, gapFilterPriority, gapFilterCategory].filter(v => v !== "all").length;
+
+  const el = document.getElementById("gapFilterBar");
+  if (!el) return;
+  el.innerHTML = `
+    <div class="gap-filter-row">
+      ${makeSelect("gapStatusFilter", statusOpts, gapFilterStatus, "status")}
+      ${makeSelect("gapPrioFilter",   prioOpts,   gapFilterPriority, "priority")}
+      ${catSelect}
+      ${makeSelect("gapSortSelect", sortOpts, gapSortBy, "sort")}
+      ${activeFilters > 0 ? `<button class="btn-ghost gap-filter-clear" onclick="clearGapFilters()">✕ Clear filters</button>` : ""}
+    </div>
+  `;
+}
+
+function clearGapFilters() {
+  gapFilterStatus = "all"; gapFilterPriority = "all"; gapFilterCategory = "all"; gapSortBy = "default";
+  renderGapsRegistry();
+}
 
 const SCENARIO_TAGS_MAP = {
   "Emergency":  d => /emergency|hospital grounds/i.test(d),
