@@ -817,6 +817,47 @@ const SCENARIOS = [
       ]
     }
   },
+
+  // ── Scenario 24 ──────────────────────────────────────────────
+  {
+    id: "OPD-CASH-PAYMENT",
+    code: "OPD-Cash",
+    title: "OPD Cash Payment — Non-Insured & Copay Patients",
+    department: "Outpatient / Patient Services / Billing & Registration",
+    timing: { setup: 15, execution: 35, debrief: 20 },
+    groups: ["OPD Receptionist / Patient Services", "OPD Nurse", "OPD Physician", "Cashier / Finance", "IT/Health IT (Siratech)"],
+    goal: "Validate the end-to-end cash payment workflow for non-insured patients and insured patients with copayment obligations presenting for simple OPD clinic visits, including registration, billing, payment collection, receipt issuance, and Siratech documentation.",
+    content: {
+      vignette: "A 34-year-old non-insured walk-in patient presents to the OPD reception requesting a general practice consultation. A second scenario strand involves an insured patient with a 20% copayment liability for a specialist visit. Both patients require registration, service pricing, cash collection, receipt generation, and Siratech financial closure before they are seen by the physician.",
+      patient: { age: 34, pmh: "None", allergies: "NKDA", vitals: "Stable — not acutely unwell" },
+      objectives: [
+        "Registration: OPD receptionist registers non-insured and copay patients accurately in Siratech, selecting correct payer type (cash / self-pay / copay).",
+        "Service Pricing: Correct consultation and applicable service fees are identified and communicated to the patient prior to service delivery.",
+        "Cash Collection: Cashier receives payment, issues a system-generated receipt with correct patient and service details.",
+        "Copay Calculation: For insured patients, the system correctly calculates and isolates the copay amount due from the patient.",
+        "Receipt & Documentation: Receipt is printed with hospital logo, patient identifier, itemised charges, and payment method; transaction recorded and closed in Siratech.",
+        "POS / Cashier Handoff: Workflow between reception, nurse, physician, and cashier is sequenced correctly with no dead-ends or handover gaps."
+      ],
+      steps: [
+        "Step 1 – Patient Arrival: Patient presents at OPD reception; receptionist confirms insurance status and selects correct payer category in Siratech.",
+        "Step 2 – Service Selection & Pricing: Receptionist or cashier identifies applicable services; fee schedule is confirmed in the system and communicated to the patient.",
+        "Step 3 – Pre-Payment / Copay Collection: Cashier collects the required amount (full cash or copay); payment is entered in Siratech and POS system.",
+        "Step 4 – Receipt Issuance: System generates and prints itemised receipt with hospital logo, patient name, MRN/barcode, service details, and amount paid.",
+        "Step 5 – Physician Visit: Patient proceeds to clinic after payment is confirmed; physician documents the encounter and any orders in Siratech.",
+        "Step 6 – Financial Closure: All charges are posted and reconciled in Siratech; cashier confirms end-of-transaction report matches collected amounts."
+      ],
+      debriefTopics: [
+        "Was the correct payer type (cash / copay) selected at registration without confusion?",
+        "Was the fee communicated to the patient before service delivery?",
+        "Was the POS or cashier system available and functioning, and was the receipt generated correctly?",
+        "For copay patients, did the system correctly calculate the patient-due portion?",
+        "Were there any handover gaps between reception, cashier, and clinical team?",
+        "Was the Siratech financial transaction posted, closed, and reconcilable?"
+      ]
+    }
+  },
+
+  // ── Scenario 25 ──────────────────────────────────────────────
   {
     id: "MASS-CASUALTY",
     code: "MCI",
