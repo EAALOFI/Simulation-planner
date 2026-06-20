@@ -799,25 +799,57 @@ body.dark .gap-comment-input { background: #111827; border-color: #2e3f58; color
 .gap-row-resolved:hover td { opacity: 0.7; }
 
 /* ── GAP REGISTRY FILTER BAR ────────────────────────────── */
-#gapFilterBar { margin: 12px 0 8px; }
-.gap-filter-row {
-  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+#gapFilterBar { margin: 14px 0 10px; }
+.gf-bar { display: flex; flex-direction: column; gap: 10px; }
+.gf-group { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+.gf-label {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11.5px; font-weight: 600; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .04em;
+  white-space: nowrap; padding-top: 8px; min-width: 82px;
 }
-.gap-filter-select {
-  background: var(--bg3); border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm); color: var(--text2);
-  font-size: 12.5px; padding: 5px 10px; cursor: pointer;
-  transition: border-color .15s;
+.gf-label i { font-size: 13px; }
+.gf-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.gf-chips-wrap { flex-wrap: wrap; }
+.gf-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: 999px;
+  border: 1.5px solid transparent;
+  font-size: 12.5px; font-weight: 500; cursor: pointer;
+  background: var(--bg3); color: var(--text2);
+  transition: transform .05s, border-color .1s, background .1s, color .1s;
+  white-space: nowrap;
 }
-.gap-filter-select:focus { border-color: var(--teal); outline: none; }
-.gap-filter-clear {
-  font-size: 12px; padding: 5px 10px; color: var(--red);
-  border: 1px solid var(--red); border-radius: var(--radius-sm);
-  background: transparent; cursor: pointer; opacity: .8;
+.gf-chip i { font-size: 13px; }
+.gf-chip:hover { background: var(--border); }
+.gf-chip:active { transform: scale(0.96); }
+
+/* colour variants — idle */
+.gf-red   { }
+.gf-amber { }
+.gf-green { }
+.gf-blue  { }
+.gf-teal  { }
+.gf-gray  { }
+
+/* active states */
+.gf-red.gf-active   { background: var(--red-dim);   color: var(--red);   border-color: var(--red); }
+.gf-amber.gf-active { background: var(--amber-dim); color: var(--amber); border-color: var(--amber); }
+.gf-green.gf-active { background: var(--green-dim); color: var(--green); border-color: var(--green); }
+.gf-blue.gf-active  { background: rgba(59,130,246,.1); color: #3b82f6; border-color: #3b82f6; }
+.gf-teal.gf-active  { background: var(--teal-dim);  color: var(--teal);  border-color: var(--teal); }
+.gf-gray.gf-active  { background: var(--border);    color: var(--text);  border-color: var(--border2); }
+
+.gf-clear {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: 999px;
+  border: 1.5px solid var(--red); background: transparent;
+  color: var(--red); font-size: 12px; font-weight: 500;
+  cursor: pointer; opacity: .75; transition: opacity .15s, background .1s;
+  margin-top: 4px;
 }
-.gap-filter-clear:hover { opacity: 1; background: rgba(239,68,68,.07); }
-body.dark .gap-filter-select { background: #1a2236; border-color: #2e3f58; color: #94a3b8; }
-body.dark .gap-filter-select:focus { border-color: var(--teal); }
+.gf-clear:hover { opacity: 1; background: var(--red-dim); }
+.gf-clear i { font-size: 12px; }
 
 /* ── SCENARIO FILTER BAR ────────────────────────────────── */
 .scenario-filter-bar {

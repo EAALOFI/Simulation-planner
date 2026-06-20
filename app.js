@@ -996,39 +996,76 @@ function _renderGapFilterBar() {
   const allGaps = getGaps();
   const categories = [...new Set(allGaps.map(g => g.category).filter(Boolean))].sort();
 
-  const statusOpts = [
-    ["all","All Statuses"], ["open","Open"], ["in-progress","In Progress"], ["resolved","Resolved"]
-  ];
-  const prioOpts = [
-    ["all","All Priorities"], ["stopper","Stopper"], ["high","High"], ["medium","Medium"], ["low","Low"]
-  ];
+  const chip = (type, value, label, icon, colorClass) => {
+    const active = (type === "status" ? gapFilterStatus : type === "priority" ? gapFilterPriority : type === "category" ? gapFilterCategory : gapSortBy) === value;
+    return `<button class="gf-chip ${colorClass}${active ? " gf-active" : ""}" onclick="setGapFilter('${type}','${value}')"><i class="ti ${icon}"></i>${label}</button>`;
+  };
 
-  const makeSelect = (id, opts, currentVal, type) =>
-    `<select id="${id}" class="gap-filter-select" onchange="setGapFilter('${type}', this.value)">
-      ${opts.map(([v, l]) => `<option value="${v}"${v === currentVal ? " selected" : ""}>${escHtml(l)}</option>`).join("")}
-    </select>`;
+  const catIcons = {
+    "IT & Systems":           "ti-device-desktop",
+    "Billing & Registration": "ti-receipt",
+    "Clinical & Nursing":     "ti-stethoscope",
+    "Medical Team (Physicians)": "ti-user-md",
+    "Pharmacy":               "ti-pill",
+    "Laboratory":             "ti-test-pipe",
+    "Radiology":              "ti-scan",
+    "FMS (Facilities)":       "ti-building",
+    "Patient Safety & Quality": "ti-shield-check",
+    "Patient Services":       "ti-users",
+    "Signage & Wayfinding":   "ti-sign-right",
+    "Infection Control":      "ti-virus",
+    "Clinical Engineering":   "ti-tool",
+    "Food Service":           "ti-tools-kitchen-2",
+    "Security":               "ti-shield",
+    "Parking & Transport":    "ti-car",
+    "Environmental":          "ti-leaf",
+    "Morgue":                 "ti-building-hospital",
+    "General / Other":        "ti-dots-circle-horizontal",
+  };
 
-  const catSelect = `<select id="gapCatFilter" class="gap-filter-select" onchange="setGapFilter('category', this.value)">
-    <option value="all"${gapFilterCategory === "all" ? " selected" : ""}>All Categories</option>
-    ${categories.map(c => `<option value="${escHtml(c)}"${c === gapFilterCategory ? " selected" : ""}>${escHtml(c)}</option>`).join("")}
-  </select>`;
-
-  const sortOpts = [
-    ["default","Sort: Newest First"], ["priority","Sort: Priority"], ["category","Sort: Category"],
-    ["status","Sort: Status"], ["session","Sort: Session"]
-  ];
-
-  const activeFilters = [gapFilterStatus, gapFilterPriority, gapFilterCategory].filter(v => v !== "all").length;
+  const activeCount = [gapFilterStatus, gapFilterPriority, gapFilterCategory].filter(v => v !== "all").length;
 
   const el = document.getElementById("gapFilterBar");
   if (!el) return;
   el.innerHTML = `
-    <div class="gap-filter-row">
-      ${makeSelect("gapStatusFilter", statusOpts, gapFilterStatus, "status")}
-      ${makeSelect("gapPrioFilter",   prioOpts,   gapFilterPriority, "priority")}
-      ${catSelect}
-      ${makeSelect("gapSortSelect", sortOpts, gapSortBy, "sort")}
-      ${activeFilters > 0 ? `<button class="btn-ghost gap-filter-clear" onclick="clearGapFilters()">✕ Clear filters</button>` : ""}
+    <div class="gf-bar">
+      <div class="gf-group">
+        <span class="gf-label"><i class="ti ti-circle-dot"></i> Status</span>
+        <div class="gf-chips">
+          ${chip("status","all","All","ti-list","gf-gray")}
+          ${chip("status","open","Open","ti-circle","gf-red")}
+          ${chip("status","in-progress","In Progress","ti-clock","gf-amber")}
+          ${chip("status","resolved","Resolved","ti-circle-check","gf-green")}
+        </div>
+      </div>
+      <div class="gf-group">
+        <span class="gf-label"><i class="ti ti-flag"></i> Priority</span>
+        <div class="gf-chips">
+          ${chip("priority","all","All","ti-list","gf-gray")}
+          ${chip("priority","stopper","Stopper","ti-octagon","gf-red")}
+          ${chip("priority","high","High","ti-arrow-up","gf-amber")}
+          ${chip("priority","medium","Medium","ti-minus","gf-blue")}
+          ${chip("priority","low","Low","ti-arrow-down","gf-gray")}
+        </div>
+      </div>
+      <div class="gf-group">
+        <span class="gf-label"><i class="ti ti-tag"></i> Category</span>
+        <div class="gf-chips gf-chips-wrap">
+          ${chip("category","all","All","ti-layout-grid","gf-gray")}
+          ${categories.map(c => chip("category", c, c, catIcons[c] || "ti-point", "gf-teal")).join("")}
+        </div>
+      </div>
+      <div class="gf-group">
+        <span class="gf-label"><i class="ti ti-arrows-sort"></i> Sort</span>
+        <div class="gf-chips">
+          ${chip("sort","default","Newest","ti-clock-down","gf-gray")}
+          ${chip("sort","priority","Priority","ti-flag-3","gf-gray")}
+          ${chip("sort","category","Category","ti-tag","gf-gray")}
+          ${chip("sort","status","Status","ti-circle-dot","gf-gray")}
+          ${chip("sort","session","Session","ti-id","gf-gray")}
+        </div>
+      </div>
+      ${activeCount > 0 ? `<button class="gf-clear" onclick="clearGapFilters()"><i class="ti ti-x"></i> Clear filters</button>` : ""}
     </div>
   `;
 }
