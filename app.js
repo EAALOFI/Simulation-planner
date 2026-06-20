@@ -457,24 +457,15 @@ function changePreGapStatus(gapId, newStatus, scenarioId) {
 }
 
 function _syncRegistryGapRow(gapId, newStatus) {
-  // Update the matching select in the registry table if the row exists
-  const regRow = document.querySelector(`#gapsTableBody tr[data-gap-id="${gapId}"]`);
-  if (regRow) {
-    const sel = regRow.querySelector("select");
-    if (sel) {
-      sel.value = newStatus;
-      sel.style.color = newStatus === "resolved" ? "var(--green)" : newStatus === "in-progress" ? "var(--amber)" : "var(--red)";
-    }
-    regRow.classList.toggle("gap-row-resolved", newStatus === "resolved");
-  }
-  // Recount and refresh the summary stats strip
+  // Update only the summary stats strip (the select element itself is NOT touched —
+  // the user already changed it; querying by DOM risks hitting the wrong row)
   const summaryEl = document.getElementById("gapsSummary");
   if (!summaryEl) return;
   const gaps = getGaps();
-  const open = gaps.filter(g => g.status === "open").length;
+  const open       = gaps.filter(g => g.status === "open").length;
   const inProgress = gaps.filter(g => g.status === "in-progress").length;
-  const resolved = gaps.filter(g => g.status === "resolved").length;
-  const high = gaps.filter(g => g.priority === "high").length;
+  const resolved   = gaps.filter(g => g.status === "resolved").length;
+  const high       = gaps.filter(g => g.priority === "high").length;
   summaryEl.innerHTML = `
     <div class="gap-stat"><div class="gap-stat-num">${gaps.length}</div><div class="gap-stat-label">Total Gaps</div></div>
     <div class="gap-stat"><div class="gap-stat-num" style="color:var(--red)">${open}</div><div class="gap-stat-label">Open</div></div>
@@ -779,26 +770,100 @@ function renderGapsRegistry() {
     tr.dataset.gapId = g.id;
     if (g.status === "resolved") tr.classList.add("gap-row-resolved");
     const statusColor = g.status === "resolved" ? "var(--green)" : g.status === "in-progress" ? "var(--amber)" : "var(--red)";
+    const hasComment = !!(g.comment && g.comment.trim());
     tr.innerHTML = `
       <td><span class="badge badge-${g.priority || "medium"}" style="font-size:10px">${g.id}</span></td>
-      <td class="gap-desc">${escHtml(g.description)}<div class="gap-logged-by">by ${escHtml(g.loggedBy || "—")}</div></td>
+      <td class="gap-desc">
+        ${escHtml(g.description)}
+        <div class="gap-logged-by">by ${escHtml(g.loggedBy || "—")}</div>
+        ${hasComment ? `<div class="gap-comment-preview">💬 ${escHtml(g.comment)}</div>` : ""}
+      </td>
       <td style="font-size:12px;color:var(--text3)">${escHtml(g.category || "—")}</td>
       <td style="font-size:12px;color:var(--text3);font-family:var(--font-mono)">${g.sessionId ? escHtml(g.sessionId) : g.scenarioId ? `<span title="${escHtml(getScenarioById(g.scenarioId)?.title || g.scenarioId)}" style="font-family:var(--font-sans);font-style:italic">${escHtml(getScenarioById(g.scenarioId)?.title || g.scenarioId)}</span>` : "—"}</td>
       <td><span class="badge badge-${g.priority}">${g.priority}</span></td>
       <td>
-        <select onchange="updateGap('${g.id}', {status: this.value}); _syncRegistryGapRow('${g.id}', this.value); syncPreGapsIfOpen()"
+        <select onchange="onRegistryStatusChange(this, '${g.id}')"
           style="background:var(--bg3);border:1px solid var(--border);color:${statusColor};border-radius:4px;padding:4px 8px;font-size:12px;width:auto">
           <option value="open"${g.status==="open"?" selected":""}>Open</option>
           <option value="in-progress"${g.status==="in-progress"?" selected":""}>In Progress</option>
           <option value="resolved"${g.status==="resolved"?" selected":""}>Resolved</option>
         </select>
       </td>
-      <td>
+      <td style="white-space:nowrap">
+        <button class="btn-icon${hasComment ? " has-comment" : ""}" onclick="toggleGapComment('${g.id}')" title="${hasComment ? "Edit comment" : "Add comment"}">💬</button>
         <button class="btn-icon danger" onclick="deleteGap('${g.id}'); renderGapsRegistry()" title="Delete">✕</button>
       </td>
     `;
+    // Comment editor row (hidden by default)
+    const commentRow = document.createElement("tr");
+    commentRow.className = "gap-comment-row";
+    commentRow.dataset.commentFor = g.id;
+    commentRow.style.display = "none";
+    commentRow.innerHTML = `
+      <td colspan="7" class="gap-comment-cell">
+        <div class="gap-comment-editor">
+          <textarea class="gap-comment-input" placeholder="Add a comment — resolution details, root cause, follow-up action…" rows="2">${escHtml(g.comment || "")}</textarea>
+          <div class="gap-comment-actions">
+            <button class="btn-secondary" onclick="saveGapComment('${g.id}')">Save</button>
+            <button class="btn-ghost" onclick="toggleGapComment('${g.id}')">Cancel</button>
+          </div>
+        </div>
+      </td>
+    `;
     tbody.appendChild(tr);
+    tbody.appendChild(commentRow);
   });
+}
+
+// Called from registry status select — uses the element reference directly to avoid wrong-row DOM queries
+function onRegistryStatusChange(selectEl, gapId) {
+  const newStatus = selectEl.value;
+  updateGap(gapId, { status: newStatus });
+  // Update select colour in place (no DOM query needed — we have the element)
+  const color = newStatus === "resolved" ? "var(--green)" : newStatus === "in-progress" ? "var(--amber)" : "var(--red)";
+  selectEl.style.color = color;
+  // Toggle resolved row styling
+  const row = selectEl.closest("tr");
+  if (row) row.classList.toggle("gap-row-resolved", newStatus === "resolved");
+  // Refresh summary counts
+  _syncRegistryGapRow(gapId, newStatus);
+  // Keep pre-gaps panel in sync if session modal is open
+  syncPreGapsIfOpen();
+}
+
+function toggleGapComment(gapId) {
+  const commentRow = document.querySelector(`.gap-comment-row[data-comment-for="${gapId}"]`);
+  if (!commentRow) return;
+  const isOpen = commentRow.style.display !== "none";
+  commentRow.style.display = isOpen ? "none" : "table-row";
+  if (!isOpen) commentRow.querySelector("textarea").focus();
+}
+
+function saveGapComment(gapId) {
+  const commentRow = document.querySelector(`.gap-comment-row[data-comment-for="${gapId}"]`);
+  if (!commentRow) return;
+  const text = commentRow.querySelector("textarea").value.trim();
+  updateGap(gapId, { comment: text });
+  commentRow.style.display = "none";
+  // Refresh the preview in the description cell
+  const mainRow = document.querySelector(`#gapsTableBody tr[data-gap-id="${gapId}"]`);
+  if (mainRow) {
+    let preview = mainRow.querySelector(".gap-comment-preview");
+    const commentBtn = mainRow.querySelector(".btn-icon:not(.danger)");
+    if (text) {
+      if (!preview) {
+        preview = document.createElement("div");
+        preview.className = "gap-comment-preview";
+        mainRow.querySelector(".gap-desc").appendChild(preview);
+      }
+      preview.textContent = "💬 " + text;
+      if (commentBtn) commentBtn.classList.add("has-comment");
+    } else {
+      if (preview) preview.remove();
+      if (commentBtn) commentBtn.classList.remove("has-comment");
+    }
+  }
+  showToast(text ? "Comment saved." : "Comment removed.", "success");
 }
 
 function openAddGapModal() {

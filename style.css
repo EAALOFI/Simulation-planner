@@ -747,6 +747,28 @@ body {
 .gaps-table tr:hover td { background: var(--bg3); }
 .gaps-table .gap-desc { max-width: 300px; line-height: 1.5; color: var(--text); }
 .gap-logged-by { font-size: 10px; color: var(--text2); margin-top: 3px; }
+.gap-comment-preview {
+  font-size: 11px; color: var(--teal); margin-top: 4px;
+  font-style: italic; line-height: 1.4;
+}
+.btn-icon.has-comment { color: var(--teal) !important; }
+.gap-comment-row td { padding: 0 !important; }
+.gap-comment-cell { padding: 0 8px 10px 8px !important; }
+.gap-comment-editor {
+  display: flex; gap: 8px; align-items: flex-start;
+  background: var(--bg3); border-radius: var(--radius-sm);
+  padding: 10px; border: 1px solid var(--border);
+}
+.gap-comment-input {
+  flex: 1; font-size: 12.5px; resize: vertical; min-height: 48px;
+  background: var(--bg2); border: 1.5px solid var(--border);
+  border-radius: 4px; padding: 7px 10px; color: var(--text);
+  font-family: var(--font-sans); line-height: 1.5;
+}
+.gap-comment-input:focus { border-color: var(--teal); outline: none; }
+.gap-comment-actions { display: flex; flex-direction: column; gap: 6px; }
+body.dark .gap-comment-editor { background: #1a2236; border-color: #2e3f58; }
+body.dark .gap-comment-input { background: #111827; border-color: #2e3f58; color: #e2e8f0; }
 .gap-row-resolved td { opacity: 0.45; }
 .gap-row-resolved:hover td { opacity: 0.7; }
 
