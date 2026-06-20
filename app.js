@@ -776,6 +776,7 @@ function renderGapsRegistry() {
     tr.dataset.gapId = g.id;
     if (g.status === "resolved") tr.classList.add("gap-row-resolved");
     const statusColor = g.status === "resolved" ? "var(--green)" : g.status === "in-progress" ? "var(--amber)" : "var(--red)";
+    const prioColor = g.priority === "stopper" ? "var(--red)" : g.priority === "high" ? "var(--amber)" : g.priority === "medium" ? "var(--teal)" : "var(--text3)";
     const hasComment = !!(g.comment && g.comment.trim());
     tr.innerHTML = `
       <td><span class="badge badge-${g.priority || "medium"}" style="font-size:10px">${g.id}</span></td>
@@ -786,7 +787,15 @@ function renderGapsRegistry() {
       </td>
       <td style="font-size:12px;color:var(--text3)">${escHtml(g.category || "—")}</td>
       <td style="font-size:12px;color:var(--text3);font-family:var(--font-mono)">${g.sessionId ? escHtml(g.sessionId) : g.scenarioId ? `<span title="${escHtml(getScenarioById(g.scenarioId)?.title || g.scenarioId)}" style="font-family:var(--font-sans);font-style:italic">${escHtml(getScenarioById(g.scenarioId)?.title || g.scenarioId)}</span>` : "—"}</td>
-      <td><span class="badge badge-${g.priority}">${g.priority}</span></td>
+      <td>
+        <select onchange="onRegistryPriorityChange(this, '${g.id}')"
+          style="background:var(--bg3);border:1px solid var(--border);color:${prioColor};border-radius:4px;padding:4px 8px;font-size:12px;font-weight:600;width:auto">
+          <option value="stopper"${g.priority==="stopper"?" selected":""}>🔴 Stopper</option>
+          <option value="high"${g.priority==="high"?" selected":""}>🟠 High</option>
+          <option value="medium"${g.priority==="medium"?" selected":""}>🔵 Medium</option>
+          <option value="low"${g.priority==="low"?" selected":""}>⬇ Low</option>
+        </select>
+      </td>
       <td>
         <select onchange="onRegistryStatusChange(this, '${g.id}')"
           style="background:var(--bg3);border:1px solid var(--border);color:${statusColor};border-radius:4px;padding:4px 8px;font-size:12px;width:auto">
@@ -819,6 +828,25 @@ function renderGapsRegistry() {
     tbody.appendChild(tr);
     tbody.appendChild(commentRow);
   });
+}
+
+// Called from registry priority select — uses element reference directly to avoid wrong-row DOM queries
+function onRegistryPriorityChange(selectEl, gapId) {
+  const newPriority = selectEl.value;
+  updateGap(gapId, { priority: newPriority });
+  const color = newPriority === "stopper" ? "var(--red)" : newPriority === "high" ? "var(--amber)" : newPriority === "medium" ? "var(--teal)" : "var(--text3)";
+  selectEl.style.color = color;
+  // Update the Gap ID badge colour in the same row
+  const row = selectEl.closest("tr");
+  if (row) {
+    const badge = row.querySelector(".badge");
+    if (badge) {
+      badge.className = `badge badge-${newPriority}`;
+    }
+  }
+  // Refresh summary counts and filter bar (priority filter chips may change)
+  _syncRegistryGapRow(gapId, null);
+  showToast("Priority updated.", "success");
 }
 
 // Called from registry status select — uses the element reference directly to avoid wrong-row DOM queries
