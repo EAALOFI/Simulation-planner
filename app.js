@@ -449,7 +449,17 @@ function changePreGapStatus(gapId, newStatus, scenarioId) {
     }
   }
 
-  // 3. Sync the registry — update just the affected row's select + summary counts
+  // 3. Sync the registry row's select + row styling directly
+  // (safe to query by data-gap-id here — change originates from pre-gap panel, not the registry select)
+  const regRow = document.querySelector(`#gapsTableBody tr[data-gap-id="${gapId}"]`);
+  if (regRow) {
+    const statusSel = regRow.querySelectorAll('select')[1];
+    if (statusSel) {
+      statusSel.value = newStatus;
+      statusSel.style.color = newStatus === "resolved" ? "var(--green)" : newStatus === "in-progress" ? "var(--amber)" : "var(--red)";
+    }
+    regRow.classList.toggle("gap-row-resolved", newStatus === "resolved");
+  }
   _syncRegistryGapRow(gapId, newStatus);
 
   if (newStatus === "resolved") showToast("Gap resolved — removed from pre-identified list.", "success");
@@ -457,22 +467,24 @@ function changePreGapStatus(gapId, newStatus, scenarioId) {
 }
 
 function _syncRegistryGapRow(gapId, newStatus) {
-  // Update only the summary stats strip (the select element itself is NOT touched —
-  // the user already changed it; querying by DOM risks hitting the wrong row)
+  // Update the summary stats strip only — never touch select elements via DOM query
   const summaryEl = document.getElementById("gapsSummary");
   if (!summaryEl) return;
   const gaps = getGaps();
   const open       = gaps.filter(g => g.status === "open").length;
   const inProgress = gaps.filter(g => g.status === "in-progress").length;
   const resolved   = gaps.filter(g => g.status === "resolved").length;
-  const high       = gaps.filter(g => g.priority === "high").length;
+  const critical   = gaps.filter(g => g.priority === "high" || g.priority === "stopper").length;
   summaryEl.innerHTML = `
     <div class="gap-stat"><div class="gap-stat-num">${gaps.length}</div><div class="gap-stat-label">Total Gaps</div></div>
     <div class="gap-stat"><div class="gap-stat-num" style="color:var(--red)">${open}</div><div class="gap-stat-label">Open</div></div>
     <div class="gap-stat"><div class="gap-stat-num" style="color:var(--amber)">${inProgress}</div><div class="gap-stat-label">In Progress</div></div>
     <div class="gap-stat"><div class="gap-stat-num" style="color:var(--green)">${resolved}</div><div class="gap-stat-label">Resolved</div></div>
-    <div class="gap-stat"><div class="gap-stat-num" style="color:var(--red)">${high}</div><div class="gap-stat-label">High Priority</div></div>
+    <div class="gap-stat"><div class="gap-stat-num" style="color:var(--red)">${critical}</div><div class="gap-stat-label">High / Stopper</div></div>
   `;
+  // If any filter is active, re-render the table so the changed row is hidden/shown correctly
+  const hasActiveFilter = gapFilterStatus !== "all" || gapFilterPriority !== "all" || gapFilterCategory !== "all";
+  if (hasActiveFilter) renderGapsRegistry();
 }
 
 // Refresh pre-gaps panel if session modal is currently open (called from registry status change)
