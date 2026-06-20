@@ -866,6 +866,55 @@ function saveGapComment(gapId) {
   showToast(text ? "Comment saved." : "Comment removed.", "success");
 }
 
+// ── Bulk Import ───────────────────────────────────────────────
+function openImportModal() {
+  document.getElementById("importJson").value = "";
+  document.getElementById("importPreview").style.display = "none";
+  document.getElementById("importConfirmBtn").disabled = true;
+  document.getElementById("importModal").classList.add("open");
+}
+
+function previewImport() {
+  const raw = document.getElementById("importJson").value.trim();
+  const preview = document.getElementById("importPreview");
+  if (!raw) { showToast("Paste the import JSON first.", "error"); return; }
+  let data;
+  try { data = JSON.parse(raw); } catch(e) {
+    preview.style.display = "none";
+    document.getElementById("importConfirmBtn").disabled = true;
+    showToast("Invalid JSON — check for syntax errors.", "error"); return;
+  }
+  const sessions = data.sessions || [];
+  const gaps = data.gaps || [];
+  const scenarioBreakdown = {};
+  sessions.forEach(s => { scenarioBreakdown[s.scenarioId] = (scenarioBreakdown[s.scenarioId] || 0) + 1; });
+  const rows = Object.entries(scenarioBreakdown)
+    .map(([id, n]) => `<tr><td>${escHtml(getScenarioById(id)?.title || id)}</td><td>${n}</td></tr>`)
+    .join("");
+  preview.innerHTML = `
+    <div class="import-summary">
+      <span>📋 <strong>${sessions.length}</strong> sessions to import</span>
+      <span>⚠ <strong>${gaps.length}</strong> gaps to import</span>
+      <span>🔁 <strong>${getSessions().length}</strong> existing sessions will be re-numbered</span>
+    </div>
+    <table class="import-breakdown"><thead><tr><th>Scenario</th><th>Sessions</th></tr></thead><tbody>${rows}</tbody></table>
+  `;
+  preview.style.display = "block";
+  document.getElementById("importConfirmBtn").disabled = false;
+}
+
+function runBulkImport() {
+  const raw = document.getElementById("importJson").value.trim();
+  let data;
+  try { data = JSON.parse(raw); } catch(e) { showToast("Invalid JSON.", "error"); return; }
+  if (!confirm(`This will import ${(data.sessions||[]).length} sessions and ${(data.gaps||[]).length} gaps, and re-number all existing sessions. This cannot be undone. Proceed?`)) return;
+  const result = bulkImport(data);
+  closeModal("importModal");
+  renderGapsRegistry();
+  renderWeekPlanner();
+  showToast(`Imported ${result.sessionsImported} sessions and ${result.gapsImported} gaps successfully.`, "success");
+}
+
 function openAddGapModal() {
   populateGapScenarioSelect();
   document.getElementById("gapDesc").value = "";

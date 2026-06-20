@@ -1013,6 +1013,79 @@ function addSession(session) {
   saveSessions(sessions);
 }
 
+// ── Bulk Historical Import ────────────────────────────────────
+// importData: { sessions: [...], gaps: [...] }
+// Each session: { scenarioId, date, status, time?, leader?, participants?, location? }
+// Each gap:     { sessionIdx (index into importData.sessions), description, category, priority, status }
+function bulkImport(importData) {
+  const now = new Date().toISOString();
+
+  // 1. Tag existing sessions with a tempId equal to their current id
+  const existing = _store.sessions.map(s => ({ ...s, _tid: s.id }));
+
+  // 2. Tag imported sessions with a unique tempId
+  const incoming = (importData.sessions || []).map((s, i) => ({
+    scenarioId: s.scenarioId,
+    date: s.date,
+    status: s.status || "completed",
+    time: s.time || "",
+    leader: s.leader || "",
+    participants: s.participants || "",
+    location: s.location || "",
+    loggedBy: "Historical Import",
+    createdAt: now,
+    _tid: `__IMP_${i}`
+  }));
+
+  // 3. Merge and sort chronologically by date (stable: existing order preserved within same date)
+  const merged = [...existing, ...incoming];
+  merged.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+
+  // 4. Re-generate IDs within each scenario group in date order
+  const scenarioCounts = {};
+  const idMap = {}; // _tid -> new id
+  merged.forEach(s => {
+    const n = (scenarioCounts[s.scenarioId] || 0) + 1;
+    scenarioCounts[s.scenarioId] = n;
+    const sc = getScenarioById(s.scenarioId);
+    const code = sc?.code || s.scenarioId.replace(/-/g, "_");
+    const newId = `${code}-${String(n).padStart(2, "0")}`;
+    idMap[s._tid] = newId;
+    s.id = newId;
+    delete s._tid;
+  });
+
+  // 5. Remap existing gap sessionId references to new ids
+  const updatedGaps = _store.gaps.map(g => ({
+    ...g,
+    sessionId: idMap[g.sessionId] || g.sessionId
+  }));
+
+  // 6. Build new gaps from import payload
+  let gapSeq = updatedGaps.length + 1;
+  const newGaps = (importData.gaps || []).map(g => ({
+    id: `GAP-H${String(gapSeq++).padStart(3, "0")}`,
+    description: g.description,
+    category: g.category || "General / Other",
+    priority: g.priority || "medium",
+    status: g.status || "open",
+    sessionId: idMap[`__IMP_${g.sessionIdx}`] || null,
+    date: (importData.sessions[g.sessionIdx] || {}).date || "",
+    loggedBy: "Historical Import",
+    comment: g.comment || ""
+  }));
+
+  _store.sessions = merged;
+  _store.gaps = [...updatedGaps, ...newGaps];
+  _firestoreWrite();
+
+  return {
+    sessionsImported: incoming.length,
+    gapsImported: newGaps.length,
+    idMap
+  };
+}
+
 function updateSession(id, updates) {
   const sessions = getSessions();
   const idx = sessions.findIndex(s => s.id === id);

@@ -767,6 +767,32 @@ body {
 }
 .gap-comment-input:focus { border-color: var(--teal); outline: none; }
 .gap-comment-actions { display: flex; flex-direction: column; gap: 6px; }
+
+/* ── BULK IMPORT MODAL ──────────────────────────────────────── */
+.import-textarea {
+  width: 100%; font-family: var(--font-mono); font-size: 11.5px;
+  background: var(--bg3); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 12px;
+  color: var(--text); resize: vertical; box-sizing: border-box;
+}
+.import-textarea:focus { border-color: var(--teal); outline: none; }
+.import-preview { margin-bottom: 12px; }
+.import-summary {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  background: var(--teal-dim); border: 1px solid var(--teal);
+  border-radius: var(--radius-sm); padding: 10px 14px;
+  font-size: 13px; color: var(--text); margin-bottom: 10px;
+}
+.import-breakdown {
+  width: 100%; border-collapse: collapse; font-size: 12px;
+}
+.import-breakdown th, .import-breakdown td {
+  text-align: left; padding: 5px 10px;
+  border-bottom: 1px solid var(--border); color: var(--text2);
+}
+.import-breakdown th { font-weight: 600; color: var(--text3); font-size: 11px; text-transform: uppercase; }
+body.dark .import-textarea { background: #111827; border-color: #2e3f58; color: #e2e8f0; }
+body.dark .import-summary { background: rgba(8,145,178,.15); border-color: rgba(8,145,178,.4); }
 body.dark .gap-comment-editor { background: #1a2236; border-color: #2e3f58; }
 body.dark .gap-comment-input { background: #111827; border-color: #2e3f58; color: #e2e8f0; }
 .gap-row-resolved td { opacity: 0.45; }
