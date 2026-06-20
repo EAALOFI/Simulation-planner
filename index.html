@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>SimTrack — Hospital Operational Readiness</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=20260608d" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,500;0,600;1,400&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=20260623" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
 </head>
 <body>
 
   <!-- Loading overlay -->
-  <div id="loadingOverlay" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,0.92);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:12px;font-family:'DM Sans',sans-serif;color:#0891b2;font-size:15px;font-weight:500;">
-    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" style="animation:spin 1s linear infinite"><circle cx="18" cy="18" r="15" stroke="#e2e8f0" stroke-width="3"/><path d="M18 3a15 15 0 0 1 15 15" stroke="#0891b2" stroke-width="3" stroke-linecap="round"/></svg>
+  <div id="loadingOverlay" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,0.92);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:12px;font-family:'DM Sans',sans-serif;color:#016B43;font-size:15px;font-weight:500;">
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" style="animation:spin 1s linear infinite"><circle cx="18" cy="18" r="15" stroke="#D5E6DD" stroke-width="3"/><path d="M18 3a15 15 0 0 1 15 15" stroke="#016B43" stroke-width="3" stroke-linecap="round"/></svg>
     Connecting to cloud…
   </div>
   <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
@@ -55,7 +55,7 @@
   <!-- Mobile top bar -->
   <div class="mobile-header" id="mobileHeader">
     <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">☰</button>
-    <img src="AMH logo.jpg" alt="Almather Hospital" class="mobile-logo" id="mobileHeaderLogo" />
+    <img src="Almather_Logo_White.png" alt="Almather Hospital" class="mobile-logo" id="mobileHeaderLogo" />
     <div style="display:flex;align-items:center;gap:6px;">
       <button class="theme-toggle" id="themeToggleMobile" aria-label="Toggle dark mode">☀️</button>
     </div>
@@ -68,7 +68,7 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="logo">
-        <img src="AMH logo.jpg" alt="Almather Hospital" class="brand-logo" id="brandLogo" />
+        <img src="Almather_Logo_White.png" alt="Almather Hospital" class="brand-logo" id="brandLogo" />
       </div>
     </div>
     <div class="sidebar-toggle-row">
@@ -455,7 +455,7 @@
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="data.js?v=20260622b"></script>
-  <script src="app.js?v=20260622b"></script>
+  <script src="data.js?v=20260623"></script>
+  <script src="app.js?v=20260623"></script>
 </body>
 </html>

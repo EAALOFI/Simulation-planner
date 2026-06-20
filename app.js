@@ -38,6 +38,40 @@ function workstreamOptions(selected = "") {
   ).join("");
 }
 
+// ── Wayfinding zones (Almather brand) ─────────────────────────
+// Each workstream maps to a hospital wayfinding zone; the registry shows
+// a small colour dot per gap so leaders can scan by zone at a glance.
+const WAYFINDING_ZONES = {
+  "Clinical & Nursing":        "medical",
+  "Medical Team (Physicians)": "medical",
+  "Pharmacy":                  "medical",
+  "Laboratory":                "medical",
+  "Radiology":                 "medical",
+  "Patient Safety & Quality":  "medical",
+  "Infection Control":         "medical",
+  "Billing & Registration":    "admin",
+  "IT & Systems":              "admin",
+  "FMS (Facilities)":          "admin",
+  "Clinical Engineering":      "admin",
+  "Security":                  "admin",
+  "Patient Services":          "nonmedical",
+  "Food Service":              "nonmedical",
+  "Environmental":             "nonmedical",
+  "Morgue":                    "nonmedical",
+  "Signage & Wayfinding":      "nonmedical",
+  "Parking & Transport":       "nonmedical",
+  "General / Other":           "neutral",
+};
+const ZONE_META = {
+  medical:    { color: "#016B43", label: "Medical zone" },
+  admin:      { color: "#8C91AA", label: "Administrative zone" },
+  nonmedical: { color: "#7A3590", label: "Non-medical zone" },
+  neutral:    { color: "#B7C3CC", label: "General" },
+};
+function getZoneMeta(category) {
+  return ZONE_META[WAYFINDING_ZONES[category] || "neutral"];
+}
+
 // ── Access Gate & Identity ────────────────────────────────────
 const SIMTRACK_PASSWORD = "AMHSIM2026";
 
@@ -132,8 +166,10 @@ function applyTheme(dark) {
   const mobileHeaderLogo = document.getElementById("mobileHeaderLogo");
   if (themeToggle) { themeToggle.textContent = icon; themeToggle.title = title; }
   if (themeToggleMobile) { themeToggleMobile.textContent = icon; themeToggleMobile.title = title; }
-  if (brandLogo) brandLogo.src = dark ? "Almather_Logo_Black.png" : "AMH logo.jpg";
-  if (mobileHeaderLogo) mobileHeaderLogo.src = dark ? "Almather_Logo_Black.png" : "AMH logo.jpg";
+  // Sidebar & mobile header are constant Palm-green brand bars in both modes,
+  // so the white logo lockup is always used regardless of theme.
+  if (brandLogo) brandLogo.src = "Almather_Logo_White.png";
+  if (mobileHeaderLogo) mobileHeaderLogo.src = "Almather_Logo_White.png";
   localStorage.setItem("simtrack_theme", dark ? "dark" : "light");
 }
 
@@ -797,7 +833,9 @@ function renderGapsRegistry() {
         <div class="gap-logged-by">by ${escHtml(g.loggedBy || "—")}</div>
         ${hasComment ? `<div class="gap-comment-preview">💬 ${escHtml(g.comment)}</div>` : ""}
       </td>
-      <td style="font-size:12px;color:var(--text3)">${escHtml(g.category || "—")}</td>
+      <td style="font-size:12px;color:var(--text3)">
+        <span class="zone-dot" style="background:${getZoneMeta(g.category).color}" title="${getZoneMeta(g.category).label}"></span>${escHtml(g.category || "—")}
+      </td>
       <td style="font-size:12px;color:var(--text3);font-family:var(--font-mono)">${g.sessionId ? escHtml(g.sessionId) : g.scenarioId ? `<span title="${escHtml(getScenarioById(g.scenarioId)?.title || g.scenarioId)}" style="font-family:var(--font-sans);font-style:italic">${escHtml(getScenarioById(g.scenarioId)?.title || g.scenarioId)}</span>` : "—"}</td>
       <td>
         <select onchange="onRegistryPriorityChange(this, '${g.id}')"
@@ -1106,6 +1144,12 @@ function _renderGapFilterBar() {
         </div>
       </div>
       ${activeCount > 0 ? `<button class="gf-clear" onclick="clearGapFilters()"><i class="ti ti-x"></i> Clear filters</button>` : ""}
+    </div>
+    <div class="zone-legend">
+      <span style="font-weight:500;color:var(--text2)">Zones:</span>
+      <span class="zl-item"><span class="zone-dot" style="background:#016B43"></span>Medical</span>
+      <span class="zl-item"><span class="zone-dot" style="background:#8C91AA"></span>Administrative</span>
+      <span class="zl-item"><span class="zone-dot" style="background:#7A3590"></span>Non-medical</span>
     </div>
   `;
 }
