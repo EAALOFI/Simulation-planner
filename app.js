@@ -502,13 +502,13 @@ function _syncRegistryGapRow(gapId, newStatus) {
   const open       = gaps.filter(g => g.status === "open").length;
   const inProgress = gaps.filter(g => g.status === "in-progress").length;
   const resolved   = gaps.filter(g => g.status === "resolved").length;
-  const critical   = gaps.filter(g => g.priority === "high" || g.priority === "stopper").length;
+  const stoppers   = gaps.filter(g => g.priority === "stopper").length;
   summaryEl.innerHTML = `
     <div class="gap-stat"><div class="gap-stat-num">${gaps.length}</div><div class="gap-stat-label">Total Gaps</div></div>
     <div class="gap-stat"><div class="gap-stat-num" style="color:var(--red)">${open}</div><div class="gap-stat-label">Open</div></div>
     <div class="gap-stat"><div class="gap-stat-num" style="color:var(--amber)">${inProgress}</div><div class="gap-stat-label">In Progress</div></div>
     <div class="gap-stat"><div class="gap-stat-num" style="color:var(--green)">${resolved}</div><div class="gap-stat-label">Resolved</div></div>
-    <div class="gap-stat"><div class="gap-stat-num" style="color:var(--red)">${critical}</div><div class="gap-stat-label">High / Stopper</div></div>
+    <div class="gap-stat"><div class="gap-stat-num" style="color:var(--red)">${stoppers}</div><div class="gap-stat-label">Stoppers</div></div>
   `;
   // If any filter is active, re-render the table so the changed row is hidden/shown correctly
   const hasActiveFilter = gapFilterStatus !== "all" || gapFilterPriority !== "all" || gapFilterCategory !== "all";
@@ -787,14 +787,14 @@ function renderGapsRegistry() {
   const open = allGaps.filter(g => g.status === "open").length;
   const inProgress = allGaps.filter(g => g.status === "in-progress").length;
   const resolved = allGaps.filter(g => g.status === "resolved").length;
-  const high = allGaps.filter(g => g.priority === "high" || g.priority === "stopper").length;
+  const stoppers = allGaps.filter(g => g.priority === "stopper").length;
 
   document.getElementById("gapsSummary").innerHTML = `
     <div class="gap-stat"><div class="gap-stat-num">${allGaps.length}</div><div class="gap-stat-label">Total Gaps</div></div>
     <div class="gap-stat"><div class="gap-stat-num" style="color:var(--red)">${open}</div><div class="gap-stat-label">Open</div></div>
     <div class="gap-stat"><div class="gap-stat-num" style="color:var(--amber)">${inProgress}</div><div class="gap-stat-label">In Progress</div></div>
     <div class="gap-stat"><div class="gap-stat-num" style="color:var(--green)">${resolved}</div><div class="gap-stat-label">Resolved</div></div>
-    <div class="gap-stat"><div class="gap-stat-num" style="color:var(--red)">${high}</div><div class="gap-stat-label">High / Stopper</div></div>
+    <div class="gap-stat"><div class="gap-stat-num" style="color:var(--red)">${stoppers}</div><div class="gap-stat-label">Stoppers</div></div>
   `;
 
   populateGapScenarioSelect();
