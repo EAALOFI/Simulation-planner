@@ -859,60 +859,42 @@ const SCENARIOS = [
 
   // ── Scenario 25 ──────────────────────────────────────────────
   {
-    id: "MASS-CASUALTY",
-    code: "MCI",
-    title: "Mass Casualty Drill",
-    department: "Emergency Department / Hospital-Wide",
-    timing: { setup: 30, execution: 90, debrief: 45 },
-    groups: [
-      "Emergency Department (Physicians, Nursing, Registration)",
-      "Patient Services & Administration",
-      "Security & Facilities Management",
-      "ICU & Operating Room Personnel",
-      "Pharmacy & Blood Bank",
-      "IT/Health IT (Siratech)",
-      "Hospital Command (HICS)"
-    ],
-    goal: "Validate the hospital's Mass Casualty Incident (MCI) response plan — activating HICS command, executing START triage, managing surge registration in Siratech under time pressure, and coordinating inter-departmental communication from ED arrival through definitive care.",
+    id: "ICU-TO-RADIOLOGY",
+    code: "ICU-Rad",
+    title: "ICU to Radiology Transfer",
+    department: "Intensive Care Unit / Radiology",
+    timing: { setup: 20, execution: 40, debrief: 20 },
+    groups: ["ICU Physicians & Nursing", "Respiratory Therapy", "Radiology Technicians", "Patient Transport", "IT/Health IT (Siratech)"],
+    goal: "Validate the safe transfer of a critically ill, monitored ICU patient to Radiology for urgent imaging — including imaging order and prioritisation, pre-transport risk assessment, continuous monitoring and airway management during transport, image acquisition, and result reporting within Siratech HIS/RIS.",
     content: {
-      vignette: "A structural collapse at a construction site 400 m from the hospital generates 14 reported casualties. EMS notifies AMH ED by radio 6 minutes before the first ambulance arrives. Eight casualties are transported to AMH in two waves: Wave 1 (4 patients, T+6 min) and Wave 2 (4 patients, T+18 min). Acuity ranges from walking wounded to unconscious polytrauma. The remaining six are distributed to secondary facilities. Hospital Command activates Code Yellow.",
-      patient: {
-        age: "Multiple — ages 24–58",
-        pmh: "Wave 1: P1 unconscious polytrauma (Priority 1); P2 open femur fracture, GCS 14 (Priority 2); P3 laceration + rib fractures (Priority 2); P4 minor contusions, ambulatory (Priority 3). Wave 2: P5 tension pneumothorax (Priority 1); P6–P7 upper-limb fractures (Priority 2); P8 anxiety/hyperventilation (Priority 3).",
-        allergies: "Mixed — verify each patient via HIS at registration",
-        vitals: "P1: BP 80/50 | HR 138 | GCS 6 | SpO2 88%.  P5: BP 92/60 | HR 142 | absent breath sounds left.  Others: stable to moderate."
-      },
+      vignette: "61-year-old male in the ICU, intubated and mechanically ventilated following severe community-acquired pneumonia, develops an acute fall in oxygen saturation with asymmetric chest expansion. The intensivist orders an urgent CT chest to exclude a large pneumothorax or worsening consolidation. As CT cannot be performed at the bedside, the patient must be transferred to Radiology with full monitoring, ventilator support, and an accompanying ICU team.",
+      patient: { age: 61, pmh: "Severe community-acquired pneumonia, intubated & ventilated, septic shock on noradrenaline", allergies: "NKDA", vitals: "HR 121 bpm | BP 96/54 (on noradrenaline) | SpO2 88% on FiO2 0.8 | Ventilated (SIMV) | Sedated RASS -4" },
       objectives: [
-        "HICS Activation: Confirm Code Yellow broadcast and HICS role assignments within 3 minutes of EMS notification.",
-        "START Triage: Apply START methodology to all arrivals; tag and track Priority 1/2/3 correctly before HIS registration.",
-        "Surge Registration: Register all Wave 1 patients in Siratech within 8 minutes of arrival under abbreviated MCI registration protocol.",
-        "Surge Capacity: Open MCI overflow area; document bed allocation and staffing reallocation in HICS log.",
-        "Critical Interventions: Needle decompression for P5 performed and documented in Siratech before OR notification.",
-        "Interdepartmental Coordination: Blood Bank, OR, and ICU notified and confirmed ready via documented Siratech consult or phone log.",
-        "Family Reception: Designated family reception area activated; liaison officer assigned and documented in HICS.",
-        "Deactivation: Census reconciled, Code Yellow downgraded, and after-action summary initiated in Siratech."
+        "Imaging Order: Intensivist enters the urgent CT chest order in Siratech with correct priority and clinical indication.",
+        "Transport Risk Assessment: ICU nurse completes and documents a pre-transport risk assessment (airway, haemodynamics, infusions, oxygen reserve).",
+        "Team & Equipment: Transport ventilator, full monitoring, emergency airway kit, and infusion pumps confirmed; accompanying physician/RT assigned.",
+        "Continuous Monitoring: Vital signs and ventilator settings maintained and documented throughout transfer with no monitoring gaps.",
+        "Radiology Handover: Structured ISBAR handover to the radiology team; contrast/renal status and isolation needs communicated.",
+        "Result Communication: Radiologist report auto-populates the intensivist's Siratech worklist; critical findings escalated immediately.",
+        "Safe Return: Patient returned to ICU; post-transport reassessment and documentation completed."
       ],
       steps: [
-        "Step 1 – Notification: EMS radio alert received by ED charge nurse; Code Yellow announced hospital-wide.",
-        "Step 2 – HICS Setup: Incident Commander, Medical Director, and Nursing Coordinator take positions; roles documented.",
-        "Step 3 – Triage Station: Ambulance bay cleared; START triage lead assigned; triage tags distributed.",
-        "Step 4 – Wave 1 Arrival: Four casualties triaged, tagged, and directed to Resus Bay (P1) or treatment zones (P2–P4).",
-        "Step 5 – Surge Registration: Patient Services activates MCI abbreviated registration; four MRNs created in Siratech within 8 minutes.",
-        "Step 6 – Overflow Activation: MCI overflow area opened; additional nursing deployed; bed count updated in HICS log.",
-        "Step 7 – Wave 2 Arrival: P5 identified as Priority 1; needle decompression performed; OR notified via Siratech consult.",
-        "Step 8 – Interdepartmental Actions: Blood Bank activated for P1/P5; ICU bed reserved; OR placed on standby; Pharmacy alerted for mass transfusion protocol.",
-        "Step 9 – Family Reception: Liaison officer meets family; information controlled through single point of contact per HICS.",
-        "Step 10 – Deactivation: When surge resolves, Incident Commander broadcasts Code Yellow downgrade; all MCI patients reconciled in HIS census; after-action documentation initiated."
+        "Step 1 – Order: Intensivist enters the urgent CT chest order with indication (desaturation, query pneumothorax) and priority in Siratech.",
+        "Step 2 – RIS Scheduling: Radiology acknowledges the urgent order in RIS; slot confirmed and ETA communicated to ICU.",
+        "Step 3 – Pre-transport Assessment: ICU nurse documents airway, haemodynamic stability, infusion list, and oxygen calculation; intensivist signs off fitness for transfer.",
+        "Step 4 – Preparation: Transport ventilator and monitor connected; emergency drugs and airway kit checked; accompanying ICU physician/RT assigned.",
+        "Step 5 – Transport: Patient transferred with continuous monitoring; HIS patient location updated; vitals documented en route.",
+        "Step 6 – Imaging: CT performed; ICU team maintains airway and haemodynamics; images uploaded to PACS.",
+        "Step 7 – Report: Radiologist reviews and signs the report in Siratech; any critical finding phoned to the intensivist and logged.",
+        "Step 8 – Return & Reassess: Patient returned to ICU; post-transport reassessment, ventilator reconnection, and documentation completed."
       ],
       debriefTopics: [
-        "Was Code Yellow activated and HICS roles filled within the 3-minute target from EMS notification?",
-        "Were all casualties correctly triaged and tagged using START — any over- or under-triage identified?",
-        "How did Siratech HIS perform under surge registration load — were there bottlenecks or system delays?",
-        "Was the MCI abbreviated registration protocol sufficient, or did data gaps appear downstream?",
-        "Were Blood Bank, OR, and ICU notifications timely and documented — any communication breakdowns?",
-        "Was the family reception area activated promptly and information controlled effectively?",
-        "Identify supply, staffing, or physical space constraints revealed by the drill.",
-        "What changes to the MCI plan or Siratech workflows should be actioned before the next activation?"
+        "Was the imaging order correctly prioritised and acknowledged in the RIS without delay?",
+        "Was a documented pre-transport risk assessment completed before the patient left the ICU?",
+        "Was monitoring and ventilation continuous and documented throughout the transfer, with no gaps?",
+        "Was the ISBAR handover to Radiology complete (infusions, airway, contrast/renal status, isolation)?",
+        "Were critical results escalated to the intensivist promptly and logged in Siratech?",
+        "Were any equipment, staffing, lift/route, or system constraints identified during transport?"
       ]
     }
   }
