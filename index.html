@@ -6,7 +6,7 @@
   <title>SimTrack — Hospital Operational Readiness</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=20260623f" />
+  <link rel="stylesheet" href="style.css?v=20260623g" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
 </head>
 <body>
@@ -192,7 +192,12 @@
           <h1 class="view-title">Readiness Report</h1>
           <p class="view-sub">Operational readiness log &amp; proof of validation</p>
         </div>
-        <button class="btn-secondary" onclick="printReport()">⬇ Export Report</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-ghost" onclick="downloadBackup()" title="Download a full backup of all data as a JSON file" style="font-size:12px">⬇ Backup data</button>
+          <button class="btn-ghost" onclick="triggerRestore()" title="Restore all data from a backup file" style="font-size:12px">⬆ Restore</button>
+          <button class="btn-secondary" onclick="printReport()">⬇ Export Report</button>
+        </div>
+        <input type="file" id="restoreFileInput" accept="application/json,.json" style="display:none" onchange="handleRestoreFile(this)" />
       </div>
       <div class="readiness-content" id="readinessContent"><!-- filled by JS --></div>
     </section>
@@ -455,7 +460,7 @@
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="data.js?v=20260623f"></script>
-  <script src="app.js?v=20260623f"></script>
+  <script src="data.js?v=20260623g"></script>
+  <script src="app.js?v=20260623g"></script>
 </body>
 </html>

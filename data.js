@@ -961,6 +961,48 @@ function _firestoreWrite() {
     weekOffset: _store.weekOffset,
     customScenarios: _store.customScenarios
   }).catch(e => console.error("Firestore write error:", e));
+  autoSnapshot();
+}
+
+// ── Backup & Restore ──────────────────────────────────────────
+function exportBackupObject() {
+  return {
+    app: "SimTrack", version: 1,
+    exportedAt: new Date().toISOString(),
+    sessions: _store.sessions,
+    gaps: _store.gaps,
+    customScenarios: _store.customScenarios,
+    weekOffset: _store.weekOffset
+  };
+}
+
+function restoreFromBackup(obj) {
+  if (!obj || !Array.isArray(obj.gaps) || !Array.isArray(obj.sessions)) {
+    throw new Error("Not a valid SimTrack backup file.");
+  }
+  _store.sessions = obj.sessions || [];
+  _store.gaps = obj.gaps || [];
+  _store.customScenarios = obj.customScenarios || [];
+  _store.weekOffset = obj.weekOffset || 0;
+  _firestoreWrite(); // guarded by _loaded
+  return { sessions: _store.sessions.length, gaps: _store.gaps.length, customScenarios: _store.customScenarios.length };
+}
+
+// Keeps a local last-known-good copy on every save, and writes one off-device
+// cloud backup per day. Never snapshots an empty store.
+function autoSnapshot() {
+  if (!_loaded) return;
+  if ((_store.gaps.length + _store.sessions.length) === 0) return;
+  const snap = exportBackupObject();
+  try { localStorage.setItem("simtrack_snapshot", JSON.stringify(snap)); } catch (e) {}
+  const today = new Date().toISOString().slice(0, 10);
+  try {
+    if (_db && localStorage.getItem("simtrack_lastBackupDay") !== today) {
+      _db.collection("simtrack").doc("backup-" + today).set(snap)
+        .then(() => localStorage.setItem("simtrack_lastBackupDay", today))
+        .catch(e => console.warn("Daily cloud backup failed:", e));
+    }
+  } catch (e) {}
 }
 
 async function initFirestore() {
@@ -1015,6 +1057,7 @@ async function initFirestore() {
       );
       if (_store.customScenarios.length !== before || Object.keys(idRemap).length > 0) _firestoreWrite();
 
+      autoSnapshot(); // capture last-known-good + once-daily off-device backup
       return true; // loaded OK
     } catch (e) {
       console.error(`Firestore load attempt ${attempt} failed:`, e);

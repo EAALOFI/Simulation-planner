@@ -1569,6 +1569,54 @@ function printReport() {
   window.print();
 }
 
+// ── Backup & Restore ──────────────────────────────────────────
+function downloadBackup() {
+  const data = exportBackupObject();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const d = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `SimTrack-backup-${d}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  showToast(`Backup downloaded — ${data.gaps.length} gaps, ${data.sessions.length} sessions.`, "success");
+}
+
+function triggerRestore() {
+  document.getElementById("restoreFileInput").click();
+}
+
+function handleRestoreFile(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const obj = JSON.parse(reader.result);
+      const s = (obj.sessions || []).length, g = (obj.gaps || []).length;
+      if (!Array.isArray(obj.gaps) || !Array.isArray(obj.sessions)) {
+        showToast("That file isn't a valid SimTrack backup.", "error"); input.value = ""; return;
+      }
+      const when = obj.exportedAt ? new Date(obj.exportedAt).toLocaleString("en-GB") : "unknown date";
+      if (!confirm(`Restore this backup (from ${when})?\n\nThis REPLACES all current data with:\n  • ${s} sessions\n  • ${g} gaps\n\nTip: download a backup of the current data first if unsure.`)) {
+        input.value = ""; return;
+      }
+      const res = restoreFromBackup(obj);
+      if (currentView === "planner") renderWeekPlanner();
+      else if (currentView === "sessions") renderSessionsList();
+      else if (currentView === "gaps") renderGapsRegistry();
+      else if (currentView === "scenarios") renderScenarioCards();
+      else if (currentView === "readiness") renderReadinessReport();
+      showToast(`Restored ${res.gaps} gaps and ${res.sessions} sessions.`, "success");
+    } catch (e) {
+      showToast("Restore failed: " + e.message, "error");
+    }
+    input.value = "";
+  };
+  reader.readAsText(file);
+}
+
 // ── Scenario Select Population ────────────────────────────────
 function populateScenarioSelects() {
   const sel = document.getElementById("sessionScenario");
