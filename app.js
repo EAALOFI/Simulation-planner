@@ -788,7 +788,6 @@ function renderGapsRegistry() {
     tr.dataset.gapId = g.id;
     if (g.status === "resolved") tr.classList.add("gap-row-resolved");
     const statusColor = g.status === "resolved" ? "var(--green)" : g.status === "in-progress" ? "var(--amber)" : "var(--red)";
-    const prioColor = g.priority === "stopper" ? "var(--red)" : g.priority === "high" ? "var(--amber)" : g.priority === "medium" ? "var(--teal)" : "var(--text3)";
     const hasComment = !!(g.comment && g.comment.trim());
     tr.innerHTML = `
       <td><span class="badge badge-${g.priority || "medium"}" style="font-size:10px">${g.id}</span></td>
@@ -799,15 +798,7 @@ function renderGapsRegistry() {
       </td>
       <td style="font-size:12px;color:var(--text3)">${escHtml(g.category || "—")}</td>
       <td style="font-size:12px;color:var(--text3);font-family:var(--font-mono)">${g.sessionId ? escHtml(g.sessionId) : g.scenarioId ? `<span title="${escHtml(getScenarioById(g.scenarioId)?.title || g.scenarioId)}" style="font-family:var(--font-sans);font-style:italic">${escHtml(getScenarioById(g.scenarioId)?.title || g.scenarioId)}</span>` : "—"}</td>
-      <td>
-        <select onchange="onRegistryPriorityChange(this, '${g.id}')"
-          style="background:var(--bg3);border:1px solid var(--border);color:${prioColor};border-radius:4px;padding:4px 8px;font-size:12px;font-weight:600;width:auto">
-          <option value="stopper"${g.priority==="stopper"?" selected":""}>🔴 Stopper</option>
-          <option value="high"${g.priority==="high"?" selected":""}>🟠 High</option>
-          <option value="medium"${g.priority==="medium"?" selected":""}>🔵 Medium</option>
-          <option value="low"${g.priority==="low"?" selected":""}>⬇ Low</option>
-        </select>
-      </td>
+      <td><span class="badge badge-${g.priority}">${escHtml(g.priority || "—")}</span></td>
       <td>
         <select onchange="onRegistryStatusChange(this, '${g.id}')"
           style="background:var(--bg3);border:1px solid var(--border);color:${statusColor};border-radius:4px;padding:4px 8px;font-size:12px;width:auto">
@@ -817,8 +808,41 @@ function renderGapsRegistry() {
         </select>
       </td>
       <td style="white-space:nowrap">
+        <button class="btn-icon" onclick="toggleGapEdit('${g.id}')" title="Edit gap">✎</button>
         <button class="btn-icon${hasComment ? " has-comment" : ""}" onclick="toggleGapComment('${g.id}')" title="${hasComment ? "Edit comment" : "Add comment"}">💬</button>
         <button class="btn-icon danger" onclick="deleteGap('${g.id}'); renderGapsRegistry()" title="Delete">✕</button>
+      </td>
+    `;
+    // Edit editor row (hidden by default) — edits description, category, priority
+    const editRow = document.createElement("tr");
+    editRow.className = "gap-edit-row";
+    editRow.dataset.editFor = g.id;
+    editRow.style.display = "none";
+    editRow.innerHTML = `
+      <td colspan="7" class="gap-edit-cell">
+        <div class="gap-edit-editor">
+          <label class="gap-edit-label">Description</label>
+          <textarea class="gap-edit-desc" rows="2">${escHtml(g.description || "")}</textarea>
+          <div class="gap-edit-fields">
+            <div class="gap-edit-field">
+              <label class="gap-edit-label">Category</label>
+              <select class="gap-edit-category">${workstreamOptions(g.category || "")}</select>
+            </div>
+            <div class="gap-edit-field">
+              <label class="gap-edit-label">Priority</label>
+              <select class="gap-edit-priority">
+                <option value="stopper"${g.priority==="stopper"?" selected":""}>Stopper</option>
+                <option value="high"${g.priority==="high"?" selected":""}>High</option>
+                <option value="medium"${g.priority==="medium"?" selected":""}>Medium</option>
+                <option value="low"${g.priority==="low"?" selected":""}>Low</option>
+              </select>
+            </div>
+          </div>
+          <div class="gap-edit-actions">
+            <button class="btn-secondary" onclick="saveGapEdit('${g.id}')">Save changes</button>
+            <button class="btn-ghost" onclick="toggleGapEdit('${g.id}')">Cancel</button>
+          </div>
+        </div>
       </td>
     `;
     // Comment editor row (hidden by default)
@@ -838,27 +862,39 @@ function renderGapsRegistry() {
       </td>
     `;
     tbody.appendChild(tr);
+    tbody.appendChild(editRow);
     tbody.appendChild(commentRow);
   });
 }
 
-// Called from registry priority select — uses element reference directly to avoid wrong-row DOM queries
-function onRegistryPriorityChange(selectEl, gapId) {
-  const newPriority = selectEl.value;
-  updateGap(gapId, { priority: newPriority });
-  const color = newPriority === "stopper" ? "var(--red)" : newPriority === "high" ? "var(--amber)" : newPriority === "medium" ? "var(--teal)" : "var(--text3)";
-  selectEl.style.color = color;
-  // Update the Gap ID badge colour in the same row
-  const row = selectEl.closest("tr");
-  if (row) {
-    const badge = row.querySelector(".badge");
-    if (badge) {
-      badge.className = `badge badge-${newPriority}`;
-    }
+// Show/hide the inline edit editor for a gap. Closes the comment editor if open.
+function toggleGapEdit(gapId) {
+  const editRow = document.querySelector(`.gap-edit-row[data-edit-for="${gapId}"]`);
+  if (!editRow) return;
+  const isOpen = editRow.style.display !== "none";
+  // Close any other open editors first to avoid confusion
+  document.querySelectorAll(".gap-edit-row, .gap-comment-row").forEach(r => { r.style.display = "none"; });
+  if (!isOpen) {
+    editRow.style.display = "table-row";
+    const ta = editRow.querySelector(".gap-edit-desc");
+    if (ta) ta.focus();
   }
-  // Refresh summary counts and filter bar (priority filter chips may change)
-  _syncRegistryGapRow(gapId, null);
-  showToast("Priority updated.", "success");
+}
+
+// Save edits to description, category, priority. Full re-render from the data
+// store keeps everything in sync — no risk of stale/wrong-row DOM state.
+function saveGapEdit(gapId) {
+  const editRow = document.querySelector(`.gap-edit-row[data-edit-for="${gapId}"]`);
+  if (!editRow) return;
+  const description = editRow.querySelector(".gap-edit-desc").value.trim();
+  const category = editRow.querySelector(".gap-edit-category").value;
+  const priority = editRow.querySelector(".gap-edit-priority").value;
+  if (!description) { showToast("Description can't be empty.", "error"); return; }
+
+  updateGap(gapId, { description, category, priority });
+  renderGapsRegistry();          // rebuild table from source of truth (sync-safe)
+  syncPreGapsIfOpen();           // reflect changes in the pre-gaps panel if open
+  showToast("Gap updated.", "success");
 }
 
 // Called from registry status select — uses the element reference directly to avoid wrong-row DOM queries
@@ -881,8 +917,12 @@ function toggleGapComment(gapId) {
   const commentRow = document.querySelector(`.gap-comment-row[data-comment-for="${gapId}"]`);
   if (!commentRow) return;
   const isOpen = commentRow.style.display !== "none";
-  commentRow.style.display = isOpen ? "none" : "table-row";
-  if (!isOpen) commentRow.querySelector("textarea").focus();
+  // Close any other open editors first (one editor open at a time)
+  document.querySelectorAll(".gap-edit-row, .gap-comment-row").forEach(r => { r.style.display = "none"; });
+  if (!isOpen) {
+    commentRow.style.display = "table-row";
+    commentRow.querySelector("textarea").focus();
+  }
 }
 
 function saveGapComment(gapId) {
