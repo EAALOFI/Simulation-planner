@@ -928,6 +928,10 @@ const KEYS = {
 // In-memory store — loaded from Firestore on startup
 const _store = { sessions: [], gaps: [], weekOffset: 0, customScenarios: [] };
 let _db = null;
+// SAFETY FLAG: only becomes true after a successful cloud read. No write to the
+// cloud is permitted until then — this prevents an empty/half-loaded app from
+// overwriting (wiping) the real data when the initial load fails or is slow.
+let _loaded = false;
 
 function loadData(key, fallback = []) {
   if (key === KEYS.sessions) return _store.sessions;
@@ -945,6 +949,12 @@ function saveData(key, data) {
 
 function _firestoreWrite() {
   if (!_db) return;
+  if (!_loaded) {
+    // Refuse to write before a confirmed successful load — guards against
+    // overwriting good cloud data with an empty/half-initialised _store.
+    console.warn("SimTrack: write blocked — data not loaded from cloud yet.");
+    return;
+  }
   _db.collection("simtrack").doc("data").set({
     sessions: _store.sessions,
     gaps: _store.gaps,
@@ -964,14 +974,22 @@ async function initFirestore() {
   };
   firebase.initializeApp(firebaseConfig);
   _db = firebase.firestore();
-  try {
-    const doc = await _db.collection("simtrack").doc("data").get();
-    if (doc.exists) {
-      const d = doc.data();
-      _store.sessions = d.sessions || [];
-      _store.gaps = d.gaps || [];
-      _store.weekOffset = d.weekOffset || 0;
-      _store.customScenarios = d.customScenarios || [];
+
+  // Try up to 3 times before giving up — a transient network hiccup must NOT
+  // be allowed to drop us into an empty, write-enabled state.
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const doc = await _db.collection("simtrack").doc("data").get();
+      if (doc.exists) {
+        const d = doc.data();
+        _store.sessions = d.sessions || [];
+        _store.gaps = d.gaps || [];
+        _store.weekOffset = d.weekOffset || 0;
+        _store.customScenarios = d.customScenarios || [];
+      }
+      // Successful read (even a brand-new install with no doc) — safe to write now.
+      _loaded = true;
+
       // Auto-migrate: remove custom entries whose titles now exist as built-ins,
       // and remap any session/gap scenarioId references to the new built-in ID.
       const titleToBuiltinId = Object.fromEntries(
@@ -996,10 +1014,15 @@ async function initFirestore() {
         s.isOverride || !titleToBuiltinId[(s.title || "").toLowerCase().trim()]
       );
       if (_store.customScenarios.length !== before || Object.keys(idRemap).length > 0) _firestoreWrite();
+
+      return true; // loaded OK
+    } catch (e) {
+      console.error(`Firestore load attempt ${attempt} failed:`, e);
+      if (attempt < 3) await new Promise(r => setTimeout(r, 1200 * attempt));
     }
-  } catch (e) {
-    console.error("Firestore load error:", e);
   }
+  // All attempts failed: leave _loaded = false so writes stay blocked.
+  return false;
 }
 
 // ── Custom Scenarios ──────────────────────────────────────────

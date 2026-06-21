@@ -121,6 +121,27 @@ function bootAfterAccess() {
   }
 }
 
+// Shown when the cloud data could not be loaded — blocks all data entry so an
+// empty app can never overwrite the real cloud record.
+function showLoadFailure() {
+  const o = document.getElementById("loadingOverlay");
+  o.innerHTML = `
+    <div style="max-width:420px;text-align:center;font-family:'DM Sans',sans-serif;color:#1a1f2e">
+      <div style="font-size:40px;margin-bottom:12px">⚠️</div>
+      <h2 style="font-size:20px;margin-bottom:10px;font-family:'DM Serif Display',serif">Couldn't load your data</h2>
+      <p style="font-size:14px;color:#4b5568;line-height:1.6;margin-bottom:18px">
+        SimTrack could not reach the cloud, so it has <b>not</b> loaded your sessions and gaps.
+        Your saved data is safe — to protect it, data entry is disabled until the connection works.
+        Please check your internet and try again.
+      </p>
+      <button onclick="window.location.reload()"
+        style="background:#0891b2;color:#fff;border:none;border-radius:6px;padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer">
+        Reload
+      </button>
+    </div>`;
+  o.style.display = "flex";
+}
+
 // ── Theme (runs immediately, before any gate) ─────────────────
 function applyTheme(dark) {
   document.body.classList.toggle("dark", dark);
@@ -147,8 +168,15 @@ window.addEventListener("DOMContentLoaded", async () => {
     () => applyTheme(!document.body.classList.contains("dark")));
 
   document.getElementById("loadingOverlay").style.display = "flex";
-  await initFirestore();
+  const loadedOk = await initFirestore();
   document.getElementById("loadingOverlay").style.display = "none";
+
+  // If the cloud load failed, DO NOT boot — entering data now would risk
+  // overwriting the real cloud data with an empty set. Show a blocking notice.
+  if (!loadedOk) {
+    showLoadFailure();
+    return;
+  }
 
   // Show password gate if not yet authenticated this session
   if (!checkAccessGate()) {
