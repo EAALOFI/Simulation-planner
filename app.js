@@ -1440,6 +1440,102 @@ function downloadCurrentScenario() {
   a.click();
 }
 
+// ── Readiness analysis engine ─────────────────────────────────
+// Pure on-device synthesis of the readiness data → structured result the
+// report renders. CLAUDE-READY SEAM: a future async version could POST these
+// same inputs to a serverless Claude proxy and return the same shape; only
+// this function changes, the report stays identical.
+function buildReadinessAnalysis(sessions, gaps, scTable, allScen) {
+  const completed = sessions.filter(s => s.status === "completed").length;
+  const totalGaps = gaps.length;
+  const resolvedGaps = gaps.filter(g => g.status === "resolved").length;
+  const unresolved = gaps.filter(g => g.status !== "resolved");
+  const openStoppers = unresolved.filter(g => g.priority === "stopper");
+  const openHigh = unresolved.filter(g => g.priority === "high");
+  const readinessPct = totalGaps === 0 ? 100 : Math.round(resolvedGaps / totalGaps * 100);
+  const validated = scTable.filter(r => r.status === "Validated ✓");
+  const inProg = scTable.filter(r => r.status === "In Progress");
+  const notStarted = scTable.filter(r => r.status === "Not Started");
+
+  // Category concentration of unresolved gaps
+  const byCat = {};
+  unresolved.forEach(g => { const c = g.category || "Other"; byCat[c] = (byCat[c] || 0) + 1; });
+  const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+  const dominant = cats[0] || null;
+  const dominantPct = dominant && unresolved.length ? Math.round(dominant[1] / unresolved.length * 100) : 0;
+
+  // Theme detection across unresolved gap descriptions
+  const THEMES = [
+    ["Siratech / HIS access & integration", /siratech|\bhis\b|\bris\b|pacs|integration|interface|module|privilege|access|login|\brole\b|account|auto-?populate/i],
+    ["Printing, labels & forms", /print|printer|label|\bform\b|receipt|invoice/i],
+    ["Communication & paging", /overhead|speaker|announce|ascom|paging|landline|\bphone\b|call system|\bsms\b|notif/i],
+    ["Pricing, billing & cashiering", /pric|payment|billing|\bcash\b|charge|\bpos\b|cashier|refund|copay/i],
+    ["Equipment & consumables", /equipment|consumable|supply|stock|device|machine|drawer|trolley|ambo|monitor|\btube/i],
+    ["Process clarity & workflow", /unclear|workflow|process|pathway|responsib|not defined|not assigned|escalation|\bsla\b|guideline/i],
+    ["Consent, documentation & handover", /consent|document|\bscan\b|template|handover|isbar/i],
+    ["Facilities & infrastructure", /power|backup|outage|network|cctv|\bdoor\b|shutter|elevator|\blift\b|\bclock|congestion|layout/i],
+    ["Signage & wayfinding", /signage|wayfinding|direction|\bsign\b/i],
+    ["Safety & clinical alerts", /allergy|alert|\bflag\b|infection|hand hygiene|sanitiz|safety/i],
+  ];
+  const themes = THEMES
+    .map(([name, re]) => [name, unresolved.filter(g => re.test(g.description || "")).length])
+    .filter(t => t[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 4)
+    .map(([name, count]) => ({ name, count }));
+  const stopperCats = [...new Set(openStoppers.map(g => g.category || "Other"))];
+
+  // Open-gaps synthesis paragraph
+  let gapsLead;
+  if (unresolved.length === 0) {
+    gapsLead = "All identified gaps have been resolved — no open operational issues remain across the simulation programme.";
+  } else {
+    const parts = [];
+    parts.push(`There are <strong>${unresolved.length} unresolved gaps</strong> — ${openStoppers.length} go-live stopper${openStoppers.length === 1 ? "" : "s"} and ${openHigh.length} high priority.`);
+    if (dominant) parts.push(`The burden concentrates in <strong>${dominant[0]}</strong> (${dominantPct}% of open items)${cats[1] ? `, then ${cats[1][0]} (${cats[1][1]})` : ""}.`);
+    if (themes.length) parts.push(`Recurring patterns: ${themes.map(t => `${t.name} (${t.count})`).join(", ")}.`);
+    if (openStoppers.length) parts.push(`The stopper${openStoppers.length === 1 ? "" : "s"} sit in ${stopperCats.join(", ")} and must clear before go-live.`);
+    if (themes.length) parts.push(`Tackling the '${themes[0].name}' cluster alone would close roughly ${themes[0].count} of the open gaps.`);
+    gapsLead = parts.join(" ");
+  }
+
+  // Validation plan: quick wins (in-progress nearest done) + new coverage
+  const planItems = [];
+  const inProgRanked = inProg.map(r => {
+    const openN = r.scGaps.length - r.scResolved.length;
+    const pct = r.scGaps.length ? Math.round(r.scResolved.length / r.scGaps.length * 100) : 0;
+    return { title: r.sc.title, openN, pct };
+  }).sort((a, b) => a.openN - b.openN || b.pct - a.pct);
+  inProgRanked.slice(0, 2).forEach(r => planItems.push({
+    title: r.title,
+    reason: `${r.pct}% of its gaps already resolved — close the last ${r.openN} and re-run to validate.`,
+    tag: "Quick win"
+  }));
+  notStarted.slice(0, 2).forEach(r => planItems.push({
+    title: r.sc.title,
+    reason: "Not yet simulated — a first run will surface and begin validating this pathway.",
+    tag: "New coverage"
+  }));
+  const planTop = planItems.slice(0, 3);
+  const covNow = allScen.length ? Math.round(validated.length / allScen.length * 100) : 0;
+  const covProj = allScen.length ? Math.round((validated.length + planTop.length) / allScen.length * 100) : 0;
+  let planIntro, projection;
+  if (planTop.length === 0) {
+    planIntro = "Every scenario has been validated — focus now shifts to closing the remaining gaps and re-confirming fixes.";
+    projection = "";
+  } else {
+    planIntro = `To raise readiness at a steady pace, run these ${planTop.length} session${planTop.length === 1 ? "" : "s"} next:`;
+    projection = `Completing this set would move scenario validation from ${validated.length}/${allScen.length} (${covNow}%) toward ~${covProj}%, while steadily retiring the open-gap backlog.`;
+  }
+
+  const proof = `Almather Hospital has completed <strong>${completed}</strong> simulation session${completed === 1 ? "" : "s"} across <strong>${allScen.length}</strong> clinical scenarios, validating <strong>${validated.length}</strong> end-to-end. Of <strong>${totalGaps}</strong> operational gaps surfaced, <strong>${resolvedGaps}</strong> are resolved (<strong>${readinessPct}%</strong>)${openStoppers.length ? `, with ${openStoppers.length} go-live blocker${openStoppers.length === 1 ? "" : "s"} under active remediation` : " and no go-live blockers outstanding"}. Every gap was identified in simulation rather than live operation — evidence of a controlled, defensible commissioning process.`;
+
+  return {
+    kpis: { readinessPct, completed, validated: validated.length, scenTotal: allScen.length, resolvedGaps, totalGaps, openStoppers: openStoppers.length, openHigh: openHigh.length, openTotal: unresolved.length },
+    gapsLead, themes,
+    plan: { intro: planIntro, items: planTop, projection },
+    proof
+  };
+}
+
 // ── Readiness Report ──────────────────────────────────────────
 function renderReadinessReport() {
   const sessions = getSessions();
@@ -1464,23 +1560,7 @@ function renderReadinessReport() {
     return { sc, scSessions, scCompleted, scGaps, scResolved, status };
   });
 
-  // ── Concise export metrics ──
-  const allScen = getAllScenarios();
-  const validatedN = scTable.filter(r => r.status === "Validated ✓").length;
-  const inProgScenN = scTable.filter(r => r.status === "In Progress").length;
-  const notStartedN = scTable.filter(r => r.status === "Not Started").length;
-  const inProgGapsN = gaps.filter(g => g.status === "in-progress").length;
-  const _PRIO = { stopper: 0, high: 1, medium: 2, low: 3 };
-  const openSorted = gaps.filter(g => g.status !== "resolved").sort((a, b) => (_PRIO[a.priority] ?? 4) - (_PRIO[b.priority] ?? 4));
-  const openStoppersN = openSorted.filter(g => g.priority === "stopper").length;
-  const critical = openSorted.filter(g => g.priority === "stopper" || g.priority === "high");
-  const criticalShown = critical.slice(0, 14);
-  const criticalMore = critical.length - criticalShown.length;
-  const _areaCount = {};
-  gaps.filter(g => g.status !== "resolved").forEach(g => { const c = g.category || "Other"; _areaCount[c] = (_areaCount[c] || 0) + 1; });
-  const areas = Object.entries(_areaCount).sort((a, b) => b[1] - a[1]).slice(0, 6);
-  const areaMax = areas.length ? areas[0][1] : 1;
-  const _prioColor = p => p === "stopper" ? "#C0392B" : p === "high" ? "#E07800" : p === "medium" ? "#016B43" : "#8C91AA";
+  const A = buildReadinessAnalysis(sessions, gaps, scTable, getAllScenarios());
 
   document.getElementById("readinessContent").innerHTML = `
     <div class="print-report-header print-only">
@@ -1490,65 +1570,46 @@ function renderReadinessReport() {
       <div class="print-report-date">Generated ${new Date().toLocaleString("en-GB")} · Readiness score ${readinessPct}%</div>
     </div>
 
-    <!-- ===== CONCISE EXECUTIVE EXPORT (print only) ===== -->
-    <div class="pr2 print-only">
-      <div class="pr-hero">
-        <div class="pr-score">
-          <div class="pr-score-num">${readinessPct}<span>%</span></div>
-          <div class="pr-score-lbl">Operational readiness</div>
-          <div class="pr-gauge"><div class="pr-gauge-fill" style="width:${readinessPct}%"></div></div>
-          <div class="pr-score-sub">${resolvedGaps} of ${totalGaps} gaps resolved</div>
+    <!-- ===== AI ANALYTICAL REPORT (screen + export) ===== -->
+    <div class="ra">
+      <div class="ra-kpis">
+        <div class="ra-kpi big">
+          <div class="v">${A.kpis.readinessPct}%</div>
+          <div class="k">Operational readiness</div>
+          <div class="ra-gauge"><i style="width:${A.kpis.readinessPct}%"></i></div>
         </div>
-        <div class="pr-stats">
-          <div class="pr-stat"><div class="n">${completed.length}</div><div class="l">Sessions completed</div></div>
-          <div class="pr-stat"><div class="n">${validatedN}<span>/${allScen.length}</span></div><div class="l">Scenarios validated</div></div>
-          <div class="pr-stat"><div class="n">${inProgGapsN}</div><div class="l">Gaps in progress</div></div>
-          <div class="pr-stat ${openStoppersN ? "danger" : ""}"><div class="n">${openStoppersN}</div><div class="l">Open stoppers</div></div>
-        </div>
+        <div class="ra-kpi"><div class="v">${A.kpis.completed}</div><div class="k">Sessions completed</div></div>
+        <div class="ra-kpi"><div class="v">${A.kpis.validated}<span>/${A.kpis.scenTotal}</span></div><div class="k">Scenarios validated</div></div>
+        <div class="ra-kpi"><div class="v">${A.kpis.resolvedGaps}<span>/${A.kpis.totalGaps}</span></div><div class="k">Gaps resolved</div></div>
+        <div class="ra-kpi ${A.kpis.openStoppers ? "danger" : ""}"><div class="v">${A.kpis.openStoppers}</div><div class="k">Open stoppers</div></div>
       </div>
 
-      <div class="pr-block">
-        <div class="pr-h">Scenario validation status</div>
-        <div class="pr-chips">
-          <span class="pr-chip green">Validated · ${validatedN}</span>
-          <span class="pr-chip amber">In progress · ${inProgScenN}</span>
-          <span class="pr-chip grey">Not started · ${notStartedN}</span>
-        </div>
+      <div class="ra-card">
+        <div class="ra-h"><span class="ra-ai">AI</span> Open gaps &mdash; analysis</div>
+        <p class="ra-text">${A.gapsLead}</p>
+        ${A.themes.length ? `<div class="ra-themes">${A.themes.map(t => `
+          <div class="ra-theme">
+            <span class="ra-theme-name">${escHtml(t.name)}</span>
+            <span class="ra-theme-n">${t.count}</span>
+            <span class="ra-theme-bar"><i style="width:${Math.round(t.count / A.themes[0].count * 100)}%"></i></span>
+          </div>`).join("")}</div>` : ""}
       </div>
 
-      <div class="pr-cols">
-        <div class="pr-block pr-grow">
-          <div class="pr-h">Critical open items <span class="pr-h-sub">stoppers &amp; high priority</span></div>
-          ${critical.length === 0
-            ? `<div class="pr-allclear">✓ No critical items outstanding</div>`
-            : `<table class="pr-table"><tbody>${criticalShown.map(g => `
-                <tr>
-                  <td class="pr-pri"><span class="pr-dot" style="background:${_prioColor(g.priority)}"></span>${g.priority}</td>
-                  <td class="pr-desc">${escHtml(g.description)}</td>
-                  <td class="pr-area">${escHtml(g.category || "—")}</td>
-                </tr>`).join("")}</tbody></table>${criticalMore > 0 ? `<div class="pr-more">+ ${criticalMore} more critical item${criticalMore > 1 ? "s" : ""} in the registry</div>` : ""}`}
-        </div>
-        <div class="pr-block">
-          <div class="pr-h">Open gaps by area</div>
-          ${areas.length === 0
-            ? `<div class="pr-allclear">✓ None open</div>`
-            : areas.map(([name, v]) => `
-              <div class="pr-bar">
-                <div class="pr-bar-name">${escHtml(name)}</div>
-                <div class="pr-bar-track"><div class="pr-bar-fill" style="width:${Math.max(8, Math.round(v / areaMax * 100))}%"></div></div>
-                <div class="pr-bar-v">${v}</div>
-              </div>`).join("")}
-        </div>
+      <div class="ra-card">
+        <div class="ra-h"><span class="ra-ai">AI</span> What to validate next</div>
+        <p class="ra-text">${A.plan.intro}</p>
+        ${A.plan.items.length ? `<ol class="ra-plan">${A.plan.items.map(it => `
+          <li>
+            <div class="ra-plan-top"><span class="ra-plan-title">${escHtml(it.title)}</span><span class="ra-tag ${it.tag === "Quick win" ? "qw" : "nc"}">${it.tag}</span></div>
+            <div class="ra-plan-reason">${escHtml(it.reason)}</div>
+          </li>`).join("")}</ol>` : ""}
+        ${A.plan.projection ? `<p class="ra-proj">${A.plan.projection}</p>` : ""}
       </div>
 
-      <div class="pr-statement">
-        <div class="pr-h">Readiness statement</div>
-        <p>Almather Hospital has completed <strong>${completed.length}</strong> simulation session${completed.length === 1 ? "" : "s"} across <strong>${allScen.length}</strong> clinical scenarios, with <strong>${validatedN}</strong> scenario${validatedN === 1 ? "" : "s"} fully validated. Of <strong>${totalGaps}</strong> operational gaps identified, <strong>${resolvedGaps}</strong> are resolved (${readinessPct}%)${openStoppersN ? `, with <strong>${openStoppersN}</strong> go-live blocker${openStoppersN > 1 ? "s" : ""} remaining` : ` with no go-live blockers outstanding`}.</p>
-        <div class="pr-sign">
-          <div><span class="pr-sign-line"></span>Prepared by</div>
-          <div><span class="pr-sign-line"></span>Approved by</div>
-          <div><span class="pr-sign-line"></span>Date</div>
-        </div>
+      <div class="ra-proof">
+        <div class="ra-h">Proof of operational readiness</div>
+        <p class="ra-text">${A.proof}</p>
+        <div class="ra-sign"><div><span></span>Prepared by</div><div><span></span>Approved by</div><div><span></span>Date</div></div>
       </div>
     </div>
 
