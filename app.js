@@ -1464,24 +1464,6 @@ function renderReadinessReport() {
     return { sc, scSessions, scCompleted, scGaps, scResolved, status };
   });
 
-  // ── Concise export metrics ──
-  const allScen = getAllScenarios();
-  const validatedN = scTable.filter(r => r.status === "Validated ✓").length;
-  const inProgScenN = scTable.filter(r => r.status === "In Progress").length;
-  const notStartedN = scTable.filter(r => r.status === "Not Started").length;
-  const inProgGapsN = gaps.filter(g => g.status === "in-progress").length;
-  const _PRIO = { stopper: 0, high: 1, medium: 2, low: 3 };
-  const openSorted = gaps.filter(g => g.status !== "resolved").sort((a, b) => (_PRIO[a.priority] ?? 4) - (_PRIO[b.priority] ?? 4));
-  const openStoppersN = openSorted.filter(g => g.priority === "stopper").length;
-  const critical = openSorted.filter(g => g.priority === "stopper" || g.priority === "high");
-  const criticalShown = critical.slice(0, 14);
-  const criticalMore = critical.length - criticalShown.length;
-  const _areaCount = {};
-  gaps.filter(g => g.status !== "resolved").forEach(g => { const c = g.category || "Other"; _areaCount[c] = (_areaCount[c] || 0) + 1; });
-  const areas = Object.entries(_areaCount).sort((a, b) => b[1] - a[1]).slice(0, 6);
-  const areaMax = areas.length ? areas[0][1] : 1;
-  const _prioColor = p => p === "stopper" ? "#C0392B" : p === "high" ? "#E07800" : p === "medium" ? "#016B43" : "#8C91AA";
-
   document.getElementById("readinessContent").innerHTML = `
     <div class="print-report-header print-only">
       <img src="AMH logo.jpg" alt="Almather Hospital" class="print-logo" />
@@ -1490,70 +1472,6 @@ function renderReadinessReport() {
       <div class="print-report-date">Generated ${new Date().toLocaleString("en-GB")} · Readiness score ${readinessPct}%</div>
     </div>
 
-    <!-- ===== CONCISE EXECUTIVE EXPORT (print only) ===== -->
-    <div class="pr2 print-only">
-      <div class="pr-hero">
-        <div class="pr-score">
-          <div class="pr-score-num">${readinessPct}<span>%</span></div>
-          <div class="pr-score-lbl">Operational readiness</div>
-          <div class="pr-gauge"><div class="pr-gauge-fill" style="width:${readinessPct}%"></div></div>
-          <div class="pr-score-sub">${resolvedGaps} of ${totalGaps} gaps resolved</div>
-        </div>
-        <div class="pr-stats">
-          <div class="pr-stat"><div class="n">${completed.length}</div><div class="l">Sessions completed</div></div>
-          <div class="pr-stat"><div class="n">${validatedN}<span>/${allScen.length}</span></div><div class="l">Scenarios validated</div></div>
-          <div class="pr-stat"><div class="n">${inProgGapsN}</div><div class="l">Gaps in progress</div></div>
-          <div class="pr-stat ${openStoppersN ? "danger" : ""}"><div class="n">${openStoppersN}</div><div class="l">Open stoppers</div></div>
-        </div>
-      </div>
-
-      <div class="pr-block">
-        <div class="pr-h">Scenario validation status</div>
-        <div class="pr-chips">
-          <span class="pr-chip green">Validated · ${validatedN}</span>
-          <span class="pr-chip amber">In progress · ${inProgScenN}</span>
-          <span class="pr-chip grey">Not started · ${notStartedN}</span>
-        </div>
-      </div>
-
-      <div class="pr-cols">
-        <div class="pr-block pr-grow">
-          <div class="pr-h">Critical open items <span class="pr-h-sub">stoppers &amp; high priority</span></div>
-          ${critical.length === 0
-            ? `<div class="pr-allclear">✓ No critical items outstanding</div>`
-            : `<table class="pr-table"><tbody>${criticalShown.map(g => `
-                <tr>
-                  <td class="pr-pri"><span class="pr-dot" style="background:${_prioColor(g.priority)}"></span>${g.priority}</td>
-                  <td class="pr-desc">${escHtml(g.description)}</td>
-                  <td class="pr-area">${escHtml(g.category || "—")}</td>
-                </tr>`).join("")}</tbody></table>${criticalMore > 0 ? `<div class="pr-more">+ ${criticalMore} more critical item${criticalMore > 1 ? "s" : ""} in the registry</div>` : ""}`}
-        </div>
-        <div class="pr-block">
-          <div class="pr-h">Open gaps by area</div>
-          ${areas.length === 0
-            ? `<div class="pr-allclear">✓ None open</div>`
-            : areas.map(([name, v]) => `
-              <div class="pr-bar">
-                <div class="pr-bar-name">${escHtml(name)}</div>
-                <div class="pr-bar-track"><div class="pr-bar-fill" style="width:${Math.max(8, Math.round(v / areaMax * 100))}%"></div></div>
-                <div class="pr-bar-v">${v}</div>
-              </div>`).join("")}
-        </div>
-      </div>
-
-      <div class="pr-statement">
-        <div class="pr-h">Readiness statement</div>
-        <p>Almather Hospital has completed <strong>${completed.length}</strong> simulation session${completed.length === 1 ? "" : "s"} across <strong>${allScen.length}</strong> clinical scenarios, with <strong>${validatedN}</strong> scenario${validatedN === 1 ? "" : "s"} fully validated. Of <strong>${totalGaps}</strong> operational gaps identified, <strong>${resolvedGaps}</strong> are resolved (${readinessPct}%)${openStoppersN ? `, with <strong>${openStoppersN}</strong> go-live blocker${openStoppersN > 1 ? "s" : ""} remaining` : ` with no go-live blockers outstanding`}.</p>
-        <div class="pr-sign">
-          <div><span class="pr-sign-line"></span>Prepared by</div>
-          <div><span class="pr-sign-line"></span>Approved by</div>
-          <div><span class="pr-sign-line"></span>Date</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== DETAILED ON-SCREEN VIEW (hidden in export) ===== -->
-    <div class="screen-only">
     <div class="readiness-section">
       <h3>Key Performance Indicators</h3>
       <div class="readiness-kpis">
@@ -1642,7 +1560,6 @@ function renderReadinessReport() {
       <p style="font-size:12px;color:var(--text3);margin-top:10px;font-family:var(--font-mono)">
         Report generated: ${new Date().toLocaleString("en-GB")} · SimTrack v1.0
       </p>
-    </div>
     </div>
   `;
 }
