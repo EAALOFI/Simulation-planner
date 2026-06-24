@@ -897,6 +897,82 @@ const SCENARIOS = [
         "Were any equipment, staffing, lift/route, or system constraints identified during transport?"
       ]
     }
+  },
+
+  // ── Scenario 26 ──────────────────────────────────────────────
+  {
+    id: "IP-CONSULT-TO-OR",
+    code: "IP-OR",
+    title: "Inpatient Surgical Consult to Emergency OR",
+    department: "Medical-Surgical Ward / Operating Room",
+    timing: { setup: 20, execution: 45, debrief: 25 },
+    groups: ["Internal Medicine Team", "Surgery Team", "Anaesthesiology", "Ward & OR Nursing", "Pharmacy", "IT/Health IT (Siratech)"],
+    goal: "Validate the operational pathway from an inpatient surgical consult request to emergency OR execution — testing system readiness, interdepartmental communication, and HIS documentation at each handover point.",
+    content: {
+      vignette: "48-year-old female, Day 2 of an Internal Medicine admission for pneumonia, develops worsening abdominal pain and distension with fever and a rising white-cell count. CT shows a closed-loop bowel obstruction. The surgical team is consulted and the surgeon decides an emergency laparotomy is required, triggering an urgent ward-to-OR pathway.",
+      patient: { age: 48, pmh: "Day 2 admission under Internal Medicine for pneumonia", allergies: "NKDA", vitals: "HR 112 bpm | BP 104/62 | Temp 38.6 C | abdominal distension and guarding | WBC rising" },
+      objectives: [
+        "Consult Workflow: Internal Medicine raises a surgical consult in Siratech; Surgery and Anaesthesia respond and document within target time.",
+        "Emergency OR Booking: Surgeon enters the emergency OR booking in Siratech; OR confirms room and team readiness.",
+        "Consent & Pre-op: Informed consent obtained and pre-operative documentation completed in HIS.",
+        "Ward-OR Nursing Workflow: Pre-op preparation and nursing handover between ward and OR completed and documented.",
+        "Safe Transfer: Patient transferred ward-to-OR with a structured ISBAR handover recorded in Siratech."
+      ],
+      steps: [
+        "Step 1 - Deterioration & Assessment: Ward team reviews the patient; abdominal findings and rising WBC documented; CT result reviewed in Siratech.",
+        "Step 2 - Surgical Consult: IM raises a surgical consult in Siratech; surgeon reviews and documents findings and the decision for emergency laparotomy.",
+        "Step 3 - Anaesthesia Review: Anaesthesia consulted; rapid pre-operative assessment completed and documented.",
+        "Step 4 - Emergency OR Booking: Surgeon enters emergency OR booking; OR charge nurse confirms room, team, and instrument readiness.",
+        "Step 5 - Consent & Pre-op: Informed consent obtained and scanned; pre-op checklist, labs, and group-and-save completed in HIS.",
+        "Step 6 - Ward Preparation: Ward nursing completes pre-op preparation; medications reconciled; site and identity confirmed.",
+        "Step 7 - Transfer & Handover: Patient transferred to OR; ISBAR handover from ward to OR nursing and anaesthesia documented in Siratech."
+      ],
+      debriefTopics: [
+        "Was the surgical consult raised and responded to within an acceptable time, with clear documentation?",
+        "Was the emergency OR booking completed in Siratech and confirmed by the OR team without delay?",
+        "Was consent and pre-operative documentation complete before transfer?",
+        "Was the ward-to-OR ISBAR handover structured and recorded?",
+        "Were any interdepartmental communication or system gaps identified between IM, Surgery, Anaesthesia, and OR?"
+      ]
+    }
+  },
+
+  // ── Scenario 27 ──────────────────────────────────────────────
+  {
+    id: "OPD-TO-INPATIENT",
+    code: "OPD-IP",
+    title: "OPD to Inpatient Admission",
+    department: "Outpatient / Admissions / Inpatient Ward",
+    timing: { setup: 15, execution: 35, debrief: 20 },
+    groups: ["OPD Physician & Nursing", "Admission Office / Patient Services", "Inpatient Ward Nursing", "Bed Management", "IT/Health IT (Siratech)"],
+    goal: "Test the workflow and readiness to transfer an outpatient to the inpatient ward through the admission office — ensuring a clear pathway and that all required logistics are in place.",
+    content: {
+      vignette: "31-year-old female presents to the OB-GYN outpatient clinic with vaginal discharge and mild bleeding. After examination, the clinic physician decides she requires a direct admission to the inpatient ward. The admission must flow from OPD through the admission office to an allocated ward bed.",
+      patient: { age: 31, pmh: "Nil significant", allergies: "NKDA", vitals: "Haemodynamically stable | mild PV bleeding" },
+      objectives: [
+        "Admission Decision: OPD physician documents the admission decision and diagnosis in Siratech and initiates the admission request.",
+        "Admission Office Workflow: Admission office processes the request, registers the inpatient encounter, and assigns admission type.",
+        "Bed & Logistics Readiness: Ward bed, nursing, and required logistics confirmed available before transfer.",
+        "Orders & Handover: Admission orders entered; OPD-to-ward clinical handover completed and documented.",
+        "Safe Transfer: Patient transferred from OPD to the ward with identity and documentation reconciled in HIS."
+      ],
+      steps: [
+        "Step 1 - Clinical Decision: OPD physician documents findings and the decision to admit in Siratech.",
+        "Step 2 - Admission Request: Admission request raised in the system with admitting service and provisional diagnosis.",
+        "Step 3 - Admission Office: Admission office verifies details, registers the inpatient encounter, and assigns admission type.",
+        "Step 4 - Bed Allocation: Bed management allocates a ward bed; ward nursing notified and confirms readiness.",
+        "Step 5 - Orders: Admitting team enters admission orders (investigations, medications, observations) in HIS.",
+        "Step 6 - Handover: OPD nurse gives ISBAR handover to ward nursing; documentation transferred.",
+        "Step 7 - Transfer: Patient escorted to the ward; identity, wristband, and HIS location updated."
+      ],
+      debriefTopics: [
+        "Was the admission decision and request raised clearly and promptly in Siratech?",
+        "Was the admission office workflow smooth, with correct encounter registration and admission type?",
+        "Was a ward bed allocated and confirmed ready before the patient was transferred?",
+        "Were admission orders entered and the OPD-to-ward handover documented?",
+        "Were any logistics, bed-availability, or system gaps identified in the OPD-to-inpatient pathway?"
+      ]
+    }
   }
 ];
 
