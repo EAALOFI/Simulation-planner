@@ -973,6 +973,51 @@ const SCENARIOS = [
         "Were any logistics, bed-availability, or system gaps identified in the OPD-to-inpatient pathway?"
       ]
     }
+  },
+
+  // ── Scenario 28 ──────────────────────────────────────────────
+  {
+    id: "STEMI-PATHWAY",
+    code: "STEMI",
+    title: "STEMI Pathway",
+    department: "Emergency Department / Inpatient / Inter-facility Transfer",
+    file: "STEMI_Transfer_Pathway_AMH_to_KFSHRC.pdf",
+    timing: { setup: 30, execution: 60, debrief: 30 },
+    groups: ["Emergency Department (Physicians, Nursing)", "Inpatient Ward & On-call Team", "MRP (Emergency / Inpatient)", "EMS & Transfer Escort", "KFSHRC Interventionist (simulated)", "IT/Health IT (Siratech)"],
+    goal: "Validate the agreed AMH-to-KFSHRC STEMI transfer pathway for primary PCI — testing recognition, MRP escalation, interventionist communication, cath lab activation, EMS transfer, and structured DEM handover against time-critical reperfusion targets.",
+    content: {
+      vignette: "A patient with suspected STEMI is identified at Almathar Hospital. AMH does not perform primary PCI, so the pathway requires rapid recognition, MRP confirmation, direct escalation to the KFSHRC on-call interventionist with the ECG shared to the agreed WhatsApp group, acceptance for primary PCI, and EMS transfer to the KFSHRC DEM under continuous monitoring. The scenario may be run from either entry point — Emergency Department or Inpatient ward — to test both arms of the pathway.",
+      patient: { age: "Adult", pmh: "Cardiac risk factors", allergies: "NKDA", vitals: "Ischaemic chest pain | 12-lead ECG showing ST elevation | haemodynamics to be documented at first medical contact" },
+      objectives: [
+        "Recognition & First ECG: Suspected STEMI identified and a 12-lead ECG acquired and interpreted within the pathway target; patient moved to a monitored bed.",
+        "MRP Confirmation & Escalation: Emergency or Inpatient MRP confirms STEMI, calls the KFSHRC on-call interventionist, and posts the ECG to the agreed WhatsApp group.",
+        "Interventionist Decision: Acceptance for primary PCI obtained and time-stamped from the moment the ECG was posted.",
+        "Parallel Activation: Cath lab activation, stabilisation and STEMI medications, IV access, monitoring, and EMS activation proceed in parallel rather than in sequence.",
+        "Transfer & DIDO: Door-in door-out achieved within target, with EMS transfer to KFSHRC DEM under continuous monitoring and appropriate escort.",
+        "Handover & Close-out: Structured handover at DEM to the cath lab per established KFSHRC workflow; all pathway time-stamps captured for the QI feedback loop."
+      ],
+      steps: [
+        "Step 1 - Identification: Suspected STEMI recognised at the entry point (ED presentation, or ward / on-call team for an inpatient).",
+        "Step 2 - ECG: 12-lead ECG obtained; for the inpatient arm the patient is moved to a monitored bed.",
+        "Step 3 - MRP Confirmation: Emergency or Inpatient MRP reviews and confirms STEMI.",
+        "Step 4 - Interventionist Communication: MRP calls the KFSHRC on-call interventionist and posts the ECG to the WhatsApp group; decision time-stamp starts.",
+        "Step 5 - Decision: Interventionist accepts for primary PCI. (If not accepted, the case follows the fallback protocol — see debrief; this branch is still pending CMO definition.)",
+        "Step 6 - Parallel Activation & Prep: Interventionist activates the KFSHRC cath lab while the MRP completes stabilisation, STEMI medications, IV access, and monitoring; EMS activated.",
+        "Step 7 - EMS Transfer: Patient transferred to KFSHRC DEM with continuous monitoring and escort.",
+        "Step 8 - Handover: Structured handover at DEM to cath lab per established KFSHRC workflow.",
+        "Step 9 - Close-out: Pathway time-stamps captured and documented; QI feedback loop closed."
+      ],
+      debriefTopics: [
+        "Was the first ECG acquired and interpreted within target from first medical contact, in both the ED and inpatient arms?",
+        "How long did the interventionist decision take from the moment the ECG was posted, and was the WhatsApp escalation reliable?",
+        "Was door-in door-out (DIDO) achieved within target, and where did the time actually go?",
+        "Did cath lab activation, stabilisation, and EMS activation genuinely run in parallel, or did they queue behind one another?",
+        "Was EMS activation-to-departure timely, and was monitoring and escort appropriate throughout transfer?",
+        "Was the DEM handover structured and complete, and were all pathway time-stamps captured for QI?",
+        "The fallback branch for a non-accepted case is undefined — what should happen, and who decides? (Open item pending CMO definition.)",
+        "Were KPI targets (first ECG, decision time, DIDO, EMS activation-to-departure, FMC-to-device) realistic for AMH, and do they need adjusting from the standard reperfusion benchmarks?"
+      ]
+    }
   }
 ];
 
