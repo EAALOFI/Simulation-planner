@@ -1018,6 +1018,53 @@ const SCENARIOS = [
         "Were KPI targets (first ECG, decision time, DIDO, EMS activation-to-departure, FMC-to-device) realistic for AMH, and do they need adjusting from the standard reperfusion benchmarks?"
       ]
     }
+  },
+
+  // ── Scenario 29 ──────────────────────────────────────────────
+  {
+    id: "OR-ENDO-ELECTIVE",
+    code: "OR-ELECT",
+    title: "OPD Clinic to OR — Elective Laparoscopic Cholecystectomy",
+    department: "Outpatient / Operating Room / Surgical Ward",
+    file: "OR-Endoscopy_Simulation_Aug4.docx",
+    timing: { setup: 30, execution: 90, debrief: 30 },
+    groups: ["OPD Reception & Registration", "General Surgery Consultants & Clinic Nurses", "Anaesthesia Pre-Assessment Clinic", "Case Manager / Scheduler (RCM)", "OR Charge Nurse & OR Team", "Floor Manager", "Admission / Registration Office", "Surgical Ward Nursing", "PACU", "IT/Health IT (HIS / Siratech)"],
+    goal: "Validate the complete operational workflow for scheduling and admitting an elective surgical patient — from outpatient clinic booking through to discharge — ahead of Almather Hospital's OR & Endoscopy Phase 1 commissioning. Two-phase run: Phase 1 clinic booking (10:00 AM) and Phase 2 admission-to-discharge (2:00 PM, OR 3), including a targeted HIS test for a lap-to-open procedure change.",
+    content: {
+      vignette: "A 45-year-old female presents to the General Surgery Outpatient Clinic with recurrent right-upper-quadrant pain after meals. A previous ultrasound confirms symptomatic gallstones without acute cholecystitis. The surgeon decides to proceed with an elective laparoscopic cholecystectomy. The simulation evaluates the operational workflow — booking, scheduling, admission, OR, PACU, ward return, and discharge — rather than the clinical management.",
+      patient: { age: 45, pmh: "Symptomatic cholelithiasis; recurrent post-prandial RUQ pain; ultrasound-confirmed gallstones, no acute cholecystitis. ASA II.", allergies: "NKDA", vitals: "Elective admission — haemodynamically stable, ASA II" },
+      objectives: [
+        "Role Clarity: Every participant knows who initiates, confirms, and hands off each step of the elective surgical pathway.",
+        "Elective Booking Process: OR order, anaesthesia referral, pre-op labs (type & screen, grouping), consent, and financial approval are completed and correctly sequenced at clinic booking.",
+        "Interdepartmental Communication: Closed-loop communication between clinic, scheduling, admission, ward, and OR, with confirmations at each handoff.",
+        "Admission Planning: OR availability, PAC clearance, bed reservation, and staffing/equipment readiness confirmed before the patient arrives.",
+        "HIS Documentation: The order is reflected correctly end-to-end in the HIS, and a lap-to-open procedure change updates correctly when tested.",
+        "Patient Education: Patient contacted with fasting instructions, admission time, and discharge instructions with follow-up booking."
+      ],
+      steps: [
+        "Phase 1 (10:00 AM, General Surgery Clinic) — Step 1: Registration; patient registered at OPD reception.",
+        "Phase 1 — Step 2: Surgical consult; OR order placed, anaesthesia referral made, pre-op labs (type & screen) and grouping ordered, consent signed.",
+        "Phase 1 — Step 3: Lab visit; patient attends lab for pre-op tests as ordered.",
+        "Phase 1 — Step 4: Anaesthesia pre-assessment; patient reviewed and optimised in the Pre-Anaesthesia Clinic (labs, clearance).",
+        "Phase 1 — Step 5: Case manager confirmation; OR availability confirmed, PAC cleared, financial approval (RCM) obtained.",
+        "Phase 1 — Step 6: Scheduling; OR slot confirmed with OR charge nurse and floor manager, patient contacted to confirm time, schedule built; OR prepared, admission office notified, and the order verified end-to-end in the HIS.",
+        "Phase 2 (2:00 PM, OR 3) — Step 7: Contact & admission; patient contacted with fasting instructions and admission time, then registered on arrival (patient access).",
+        "Phase 2 — Step 8: Ward preparation; bed reserved, physician H&P reassessment, consent and site marking, pharmacy orders, and pre-op nursing care (IV line, dressing) completed.",
+        "Phase 2 — Step 9: OR readiness & procedure; ward called when OR ready, pre-op medications administered, consumables and instruments verified, surgery performed.",
+        "Phase 2 — Step 10: PACU; operative notes completed, mandatory post-op orders entered, final billing completed by OR nurse, recovery and handover.",
+        "Phase 2 — Step 11: Return to ward & discharge; patient returned to inpatient bed, discharge summary, instructions and follow-up booking completed, financial clearance and visit closure.",
+        "Phase 2 — Step 12: HIS test; simulate a procedure change (lap converted to open) and confirm the HIS updates correctly."
+      ],
+      debriefTopics: [
+        "Who initiates the OR booking, who assigns the operation date, and who informs the patient?",
+        "Who informs the Floor Manager, when is the ward notified, and who confirms bed and equipment availability?",
+        "When is Anaesthesia involved, and when is the patient officially admitted in the HIS?",
+        "Was communication between clinic, ward, and OR effective and closed-loop?",
+        "Did the handoff from Phase 1 (10:00 AM booking) to Phase 2 (2:00 PM admission) run without gaps or blocked handoffs?",
+        "Did the HIS correctly handle the lap-to-open procedure change test?",
+        "Were all Auditor Checklist items confirmed complete, and were any stopper-level gaps identified that would gate OR opening?"
+      ]
+    }
   }
 ];
 
