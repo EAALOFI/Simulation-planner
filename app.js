@@ -644,16 +644,10 @@ function saveSession() {
 
   if (editingSessionId) {
     updateSession(editingSessionId, sessionData);
-    // Sync captured gaps to global registry:
-    // remove gaps previously linked to this session, then re-add current ones
-    const existing = getGaps().filter(g => g.sessionId === editingSessionId);
-    existing.forEach(g => deleteGap(g.id));
-    capturedGaps.forEach(g => {
-      addGap({ ...g, sessionId: editingSessionId, date, status: "open" });
-    });
-    plannedGaps.forEach(g => {
-      addGap({ ...g, sessionId: editingSessionId, date, status: "open" });
-    });
+    // Reconcile registry gaps by description so existing status/comment survive
+    // an edit (previously this wiped every gap and reset it to "open").
+    const loggedBy = getSessionById(editingSessionId)?.loggedBy || loadIdentity()?.name || null;
+    reconcileSessionGaps(editingSessionId, [...capturedGaps, ...plannedGaps], date, loggedBy);
     showToast("Session updated.", "success");
   } else {
     const newId = document.getElementById("sessionId").value;
@@ -662,12 +656,7 @@ function saveSession() {
     sessionData.createdAt = new Date().toISOString();
     sessionData.loggedBy = loggedBy;
     addSession(sessionData);
-    capturedGaps.forEach(g => {
-      addGap({ ...g, sessionId: newId, date, status: "open", loggedBy });
-    });
-    plannedGaps.forEach(g => {
-      addGap({ ...g, sessionId: newId, date, status: "open", loggedBy });
-    });
+    reconcileSessionGaps(newId, [...capturedGaps, ...plannedGaps], date, loggedBy);
     showToast("Session scheduled.", "success");
   }
 

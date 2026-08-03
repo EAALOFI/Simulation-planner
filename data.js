@@ -1413,6 +1413,52 @@ function deleteGap(id) {
   saveGaps(getGaps().filter(g => g.id !== id));
 }
 
+// Reconcile the registry gaps of a session against the desired list from the
+// session form, matching by description so that status, comment, id, loggedBy
+// and date are PRESERVED on gaps that still exist. Only genuinely new gaps are
+// added (status "open"), and only gaps removed from the form are deleted.
+//
+// This replaces the previous delete-all-then-re-add behaviour, which silently
+// wiped the status/comment of every gap each time a session was edited.
+//
+// Matching key is the trimmed, lower-cased description. Editing a gap's
+// description in the form is therefore treated as remove+add (its status/comment
+// are not carried over) — an accepted limitation; category/priority edits are
+// preserved. `desiredGaps` items are { description, category, priority }.
+function reconcileSessionGaps(sessionId, desiredGaps, date, loggedBy) {
+  const norm = s => (s || "").trim().toLowerCase();
+  const all = getGaps();
+  const others = all.filter(g => g.sessionId !== sessionId);
+  const pool = all.filter(g => g.sessionId === sessionId); // candidates to preserve
+  const usedIds = new Set(all.map(g => g.id));
+  const newId = () => {
+    let id;
+    do { id = "GAP-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+    while (usedIds.has(id));
+    usedIds.add(id);
+    return id;
+  };
+
+  const result = [];
+  desiredGaps.forEach(d => {
+    if (!d || !norm(d.description)) return;
+    const idx = pool.findIndex(g => norm(g.description) === norm(d.description));
+    if (idx !== -1) {
+      // Preserve everything on the existing gap; refresh the editable fields only.
+      const matched = pool.splice(idx, 1)[0];
+      result.push({ ...matched, description: d.description, category: d.category, priority: d.priority });
+    } else {
+      result.push({
+        id: newId(), sessionId, description: d.description,
+        category: d.category, priority: d.priority,
+        date, status: "open", loggedBy: loggedBy || null, comment: ""
+      });
+    }
+  });
+  // Whatever is left in `pool` was removed from the form → drop it.
+  saveGaps([...others, ...result]);
+}
+
 // Get gaps linked to a scenario (for pre-identification)
 function getGapsForScenario(scenarioId) {
   return getGaps().filter(g => {
