@@ -1181,6 +1181,7 @@ const SCENARIO_TAGS_MAP = {
   "Obstetrics": d => /labor.{0,5}delivery|l&d/i.test(d),
   "Transfers":  d => /transfer|referral|kfshrc|paramedic/i.test(d),
   "Inpatient":  d => /medical.surgical|inpatient|ward|blood bank/i.test(d),
+  "Pediatrics": d => /p(a)?ediatric|picu/i.test(d),
 };
 
 function getScenarioTags(sc) {
