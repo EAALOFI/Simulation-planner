@@ -1065,6 +1065,421 @@ const SCENARIOS = [
         "Were all Auditor Checklist items confirmed complete, and were any stopper-level gaps identified that would gate OR opening?"
       ]
     }
+  },
+
+  // ── Scenario 30 ──────────────────────────────────────────────
+  {
+    id: "PEDS-OPD-ADMIT",
+    code: "Peds-Admit",
+    title: "Pediatric OPD/Clinic to Ward Admission",
+    department: "Pediatric Outpatient / Admissions / Pediatric Ward",
+    timing: { setup: 15, execution: 35, debrief: 20 },
+    groups: ["Pediatric OPD Physician & Nursing", "Admission Office / Patient Services", "Pediatric Ward Nursing", "Bed Management", "Pharmacy", "IT/Health IT (HIS / Siratech)"],
+    goal: "Validate the workflow and readiness to admit a child from the pediatric outpatient clinic to the pediatric inpatient ward through the admission office — confirming a clear guardian-consented pathway, weight capture, bed allocation, and complete HIS documentation for a first pediatric inpatient admission.",
+    content: {
+      vignette: "A 3-year-old boy presents to the pediatric outpatient clinic with several days of fever, reduced oral intake and lethargy. The clinic physician diagnoses probable pneumonia requiring IV antibiotics and admits the child to the pediatric ward. The admission must flow from the clinic through the admission office to an allocated pediatric bed, with the guardian present throughout.",
+      patient: { age: 3, pmh: "Previously well; vaccinations up to date", allergies: "NKDA (confirm with guardian)", vitals: "Weight 14 kg | HR 140 | RR 34 | Temp 38.9 C | SpO2 95% RA | alert, mild respiratory distress" },
+      objectives: [
+        "Admission Decision & Consent: Pediatric physician documents the admission decision and diagnosis in the HIS; guardian consent obtained and recorded.",
+        "Weight & Identity: Accurate weight captured and a pediatric ID band (with guardian identifiers) generated at registration.",
+        "Admission Office Workflow: Admission office registers the inpatient encounter, assigns admission type, and allocates a pediatric ward bed.",
+        "Bed & Logistics Readiness: Pediatric bed, age-appropriate equipment, and nursing confirmed available before transfer.",
+        "Orders & Handover: Weight-based admission orders entered; clinic-to-ward handover completed and documented."
+      ],
+      steps: [
+        "Step 1 - Clinical Decision: Clinic physician documents findings, diagnosis, and the decision to admit in the HIS.",
+        "Step 2 - Weight & Registration: Child weighed; pediatric ID band with guardian identifiers generated; guardian consent captured.",
+        "Step 3 - Admission Request: Admission request raised with admitting service (Pediatrics) and provisional diagnosis.",
+        "Step 4 - Admission Office: Admission office registers the inpatient encounter and assigns admission type.",
+        "Step 5 - Bed Allocation: Bed management allocates a pediatric bed; ward nursing notified and confirms readiness (cot/bed, monitoring).",
+        "Step 6 - Orders: Admitting team enters weight-based admission orders (IV antibiotics, fluids, observations) in the HIS.",
+        "Step 7 - Handover & Transfer: Clinic nurse gives ISBAR handover to ward nursing; child and guardian escorted to the ward; identity and HIS location updated."
+      ],
+      debriefTopics: [
+        "Was the admission decision and request raised clearly and promptly in the HIS?",
+        "Was an accurate weight captured and a correct pediatric ID band generated before transfer?",
+        "Was a pediatric bed with age-appropriate equipment allocated and confirmed ready?",
+        "Were weight-based admission orders entered and the clinic-to-ward handover documented?",
+        "Was the guardian kept informed and consent recorded appropriately?",
+        "Were any logistics, bed-availability, or HIS gaps identified in the pediatric admission pathway?"
+      ]
+    }
+  },
+
+  // ── Scenario 31 ──────────────────────────────────────────────
+  {
+    id: "PEDS-ED-ADMIT",
+    code: "Peds-ED",
+    title: "ED to Pediatric Ward Admission",
+    department: "Emergency Department / Pediatric Ward",
+    timing: { setup: 15, execution: 40, debrief: 20 },
+    groups: ["ED Physicians & Nursing", "Pediatric On-call Team", "Pediatric Ward Nursing", "Bed Management", "Pharmacy", "IT/Health IT (HIS / Siratech)"],
+    goal: "Validate the admission of a child from the Emergency Department to the pediatric inpatient ward — including pediatric referral and acceptance, weight-based orders, bed allocation, and a safe ED-to-ward handover.",
+    content: {
+      vignette: "An 18-month-old girl is brought to the ED with two days of vomiting and diarrhoea, now with reduced wet nappies and lethargy. She is assessed as moderately dehydrated, started on IV fluids, and referred to the pediatric team, who accept her for admission for ongoing rehydration and monitoring.",
+      patient: { age: 1, pmh: "Previously well", allergies: "NKDA", vitals: "Weight 11 kg | HR 155 | RR 30 | Temp 37.8 C | SpO2 98% RA | dry mucous membranes, lethargic but rousable" },
+      objectives: [
+        "Referral & Acceptance: ED refers to the pediatric on-call team in the HIS; the team reviews, accepts, and documents the admission.",
+        "Weight-Based Stabilisation: Fluid resuscitation and orders calculated to weight and documented before transfer.",
+        "Bed Allocation: Pediatric ward bed requested and confirmed with appropriate monitoring.",
+        "Handover: Structured ISBAR handover from ED to the pediatric ward, including guardian and safeguarding review.",
+        "HIS Documentation: Encounter, orders, and location transitions reflected correctly in the HIS."
+      ],
+      steps: [
+        "Step 1 - ED Assessment: ED documents triage, weight, hydration status, and initial management in the HIS.",
+        "Step 2 - Pediatric Referral: ED raises a referral to the pediatric on-call team; the team reviews and accepts the admission.",
+        "Step 3 - Stabilisation: Weight-based IV fluids and antiemetic ordered and administered; response documented.",
+        "Step 4 - Bed Request: Pediatric bed requested; bed management allocates and the ward confirms readiness.",
+        "Step 5 - Admission Orders: Pediatric team enters admission orders (fluids, monitoring, feeding plan) in the HIS.",
+        "Step 6 - Handover & Transfer: ED nurse delivers ISBAR handover to ward nursing; child and guardian transferred; HIS location updated."
+      ],
+      debriefTopics: [
+        "Was the ED-to-pediatric referral and acceptance timely and documented?",
+        "Were fluids and medications correctly weight-based and recorded?",
+        "Was a suitable pediatric bed allocated without delay?",
+        "Was the ED-to-ward handover complete (clinical status, guardian, safeguarding)?",
+        "Were any communication or HIS gaps identified between ED and Pediatrics?"
+      ]
+    }
+  },
+
+  // ── Scenario 32 ──────────────────────────────────────────────
+  {
+    id: "PEDS-SUBACUTE-TRANSFER",
+    code: "Peds-Transfer",
+    title: "Subacute Pediatric Transfer - KFSHRC to AMH",
+    department: "Inpatient Transfer / Pediatric Ward",
+    timing: { setup: 20, execution: 40, debrief: 20 },
+    groups: ["KFSHRC Referring Team", "AMH Admission Office", "Pediatric On-call Team", "Pediatric Ward Nursing", "Paramedic / Transfer Team", "IT/Health IT (HIS / Siratech)"],
+    goal: "Validate the acceptance and admission of a stable child transferred from KFSHRC to the AMH pediatric ward for continuing care — confirming referral review, transfer documentation, bed readiness, and a complete arrival handover.",
+    content: {
+      vignette: "A 6-year-old boy recovering from pneumonia at KFSHRC is medically stable and referred to AMH to complete his IV antibiotic course. The AMH pediatric team reviews the referral, accepts the transfer, and prepares a ward bed; the child arrives by ambulance with his mother and a transfer summary.",
+      patient: { age: 6, pmh: "Community-acquired pneumonia, improving; completing IV antibiotics", allergies: "NKDA", vitals: "Weight 20 kg | HR 96 | RR 22 | Temp 37.2 C | SpO2 98% RA | stable, comfortable" },
+      objectives: [
+        "Referral Review & Acceptance: AMH pediatric team reviews the KFSHRC referral and documents acceptance with an agreed plan of care.",
+        "Transfer Documentation: Transfer summary includes weight, allergies, code status, isolation needs, current medications, and outstanding treatment.",
+        "Bed & Readiness: Pediatric bed and required equipment/medications confirmed before arrival.",
+        "Arrival Handover: Structured handover from the transfer/paramedic team and family reconciled into the HIS.",
+        "Continuity of Care: Ongoing orders (antibiotics, monitoring) re-entered and reconciled in the AMH HIS."
+      ],
+      steps: [
+        "Step 1 - Referral Received: KFSHRC referral received; AMH pediatric team reviews clinical details and bed requirements.",
+        "Step 2 - Acceptance: Pediatric team accepts and documents the transfer plan; admission office registers the incoming encounter.",
+        "Step 3 - Bed Preparation: Pediatric bed reserved; medications and equipment prepared; family visiting information ready.",
+        "Step 4 - Transfer & Arrival: Child transported by ambulance with the transfer summary; arrival logged in the HIS.",
+        "Step 5 - Handover: Paramedic/transfer team and family provide handover; vitals reassessed and documented.",
+        "Step 6 - Reconciliation: Medications and orders reconciled and re-entered in the AMH HIS; plan of care confirmed with the guardian."
+      ],
+      debriefTopics: [
+        "Was the KFSHRC referral reviewed and accepted with a clear plan?",
+        "Did the transfer summary contain all key fields (weight, allergies, meds, isolation, code status)?",
+        "Was the pediatric bed and required medications ready before arrival?",
+        "Was the arrival handover complete and reconciled into the HIS?",
+        "Were any gaps in inter-facility communication or documentation identified?"
+      ]
+    }
+  },
+
+  // ── Scenario 33 ──────────────────────────────────────────────
+  {
+    id: "PEDS-RRT-PICU",
+    code: "Peds-RRT",
+    title: "Pediatric Rapid Response (PEWS) + PICU Admission",
+    department: "Pediatric Ward / Emergency Response / PICU",
+    timing: { setup: 20, execution: 45, debrief: 25 },
+    groups: ["Pediatric Ward Nursing", "Pediatric Rapid Response Team", "PICU Physicians & Nursing", "Respiratory Therapy", "Pharmacy", "IT/Health IT (HIS / Siratech)"],
+    goal: "Validate the pediatric rapid response pathway triggered by a rising PEWS on the ward — recognition, activation, weight-based intervention, and escalation to admission in the on-site PICU.",
+    content: {
+      vignette: "A 4-year-old girl admitted with asthma deteriorates on the ward with increasing work of breathing and falling oxygen saturations despite initial treatment. Her PEWS score rises, triggering a pediatric rapid response. The team escalates care and, given limited response to therapy, admits her to the PICU for closer monitoring and possible respiratory support.",
+      patient: { age: 4, pmh: "Asthma; admitted with acute exacerbation", allergies: "NKDA", vitals: "Weight 16 kg | HR 160 | RR 44 | Temp 37.5 C | SpO2 89% on 2 L | marked work of breathing, PEWS elevated" },
+      objectives: [
+        "PEWS Escalation: Rising PEWS recognised and the pediatric rapid response activated per protocol and time-stamped in the HIS.",
+        "Team Response: Rapid response team assembles with defined roles; overhead/ASCOM activation reaches the right responders.",
+        "Weight-Based Treatment: Escalated asthma therapy (back-to-back salbutamol, steroids, magnesium) calculated to weight and documented.",
+        "PICU Escalation: Decision to admit to PICU made and communicated; PICU bed and team confirmed.",
+        "Handover & Documentation: Ward-to-PICU ISBAR handover completed; interventions and response recorded in the HIS."
+      ],
+      steps: [
+        "Step 1 - Recognition: Ward nurse records deteriorating observations; the PEWS score triggers rapid response activation.",
+        "Step 2 - Activation: Pediatric rapid response called (overhead/ASCOM); team assembles with role allocation; time-stamped in the HIS.",
+        "Step 3 - Assessment & Treatment: ABCDE assessment; weight-based escalation therapy ordered and administered; RT involved.",
+        "Step 4 - Escalation Decision: Limited response prompts the decision to admit to PICU; PICU team notified and bed confirmed.",
+        "Step 5 - Transfer: Child transferred to PICU with continuous monitoring; oxygen/therapy maintained en route.",
+        "Step 6 - Handover: Structured ISBAR handover to PICU; all interventions, medications, and responses documented in the HIS."
+      ],
+      debriefTopics: [
+        "Was the rising PEWS recognised and the rapid response activated within target time?",
+        "Did the activation reach the correct responders, and were roles clear?",
+        "Were escalation medications correctly weight-based and documented?",
+        "Was the PICU bed and team confirmed before transfer, given limited PICU capacity?",
+        "Was the ward-to-PICU handover complete and recorded?",
+        "Were any equipment, paging, or documentation gaps identified?"
+      ]
+    }
+  },
+
+  // ── Scenario 34 ──────────────────────────────────────────────
+  {
+    id: "PEDS-CODE-BLUE",
+    code: "Peds-Code",
+    title: "Pediatric Code Blue / Resuscitation",
+    department: "Pediatric Ward / Emergency Response",
+    timing: { setup: 20, execution: 40, debrief: 30 },
+    groups: ["Pediatric Ward Nursing", "Code Blue / Resuscitation Team", "PICU / Anaesthesia", "Pharmacy", "Respiratory Therapy", "IT/Health IT (HIS / Siratech)"],
+    goal: "Validate the pediatric code blue response on the ward — activation, arrival of the resuscitation team, use of weight-based (Broselow) dosing and pediatric resuscitation equipment, and post-arrest disposition.",
+    content: {
+      vignette: "A 2-year-old boy admitted with severe gastroenteritis and dehydration is found unresponsive and apnoeic by his nurse. A pediatric code blue is called. The resuscitation team responds, initiates pediatric basic and advanced life support using weight-based dosing, and manages the child through return of circulation and transfer to PICU.",
+      patient: { age: 2, pmh: "Severe gastroenteritis with dehydration", allergies: "Unknown - confirm with guardian", vitals: "Unresponsive | apnoeic | pulse initially absent | estimated weight 12 kg (Broselow)" },
+      objectives: [
+        "Code Activation: Pediatric code blue activated correctly (overhead/ASCOM) with location; time-stamped in the HIS.",
+        "Team & Roles: Resuscitation team arrives promptly with defined roles (leader, airway, compressions, drugs, scribe).",
+        "Weight-Based Resuscitation: Broselow/weight-based drug doses and equipment sizes selected and administered correctly.",
+        "Equipment Readiness: Pediatric crash cart, defibrillator with pediatric pads, and airway equipment available and functional.",
+        "Post-Arrest Care: Return of circulation managed; PICU/anaesthesia involved; disposition and documentation completed."
+      ],
+      steps: [
+        "Step 1 - Recognition & Call: Nurse recognises arrest, starts CPR, and activates the pediatric code blue with location.",
+        "Step 2 - Team Arrival: Resuscitation team arrives; roles allocated; pediatric crash cart and monitor/defibrillator brought.",
+        "Step 3 - Resuscitation: Weight-based (Broselow) drug doses and correct equipment sizes used; rhythm assessed; interventions performed.",
+        "Step 4 - Airway & Access: Airway managed with RT/anaesthesia; IV/IO access obtained; fluids and medications given.",
+        "Step 5 - ROSC & Stabilisation: Return of circulation achieved; post-arrest care initiated; guardian supported.",
+        "Step 6 - Disposition & Documentation: Child transferred to PICU; full code documentation, medication times, and charging completed in the HIS."
+      ],
+      debriefTopics: [
+        "Was the pediatric code blue activated correctly with clear location and time-stamp?",
+        "Did the team arrive promptly with clear role allocation?",
+        "Were weight-based (Broselow) doses and equipment sizes correct?",
+        "Was the pediatric crash cart complete, functional, and accessible?",
+        "Was closed-loop communication maintained, especially for drug names and doses?",
+        "Was documentation, charging, and the PICU handover complete?"
+      ]
+    }
+  },
+
+  // ── Scenario 35 ──────────────────────────────────────────────
+  {
+    id: "PEDS-HIGHERCARE-TRANSFER",
+    code: "Peds-Escalate",
+    title: "Critical Child - PICU Capacity / Higher-Care Transfer to KFSHRC",
+    department: "PICU / Pediatric Ward / Inter-facility Transfer",
+    timing: { setup: 20, execution: 45, debrief: 25 },
+    groups: ["Pediatric / PICU Physicians & Nursing", "Duty Manager / Bed Management", "AMH Paramedics / Transfer Team", "KFSHRC PICU", "Respiratory Therapy", "IT/Health IT (HIS / Siratech)"],
+    goal: "Validate the pathway for a critically ill child who needs intensive care beyond AMH's available capacity or capability — when PICU beds are full or a higher level of care is required — including the decision, KFSHRC acceptance, stabilisation, and safe inter-facility transfer.",
+    content: {
+      vignette: "A 5-year-old with severe sepsis requires escalating support. AMH's limited PICU beds are occupied, and the child needs a level of care beyond current on-site capacity. The team decides to stabilise and transfer to KFSHRC PICU, coordinating acceptance, the transfer team, and a complete handover.",
+      patient: { age: 5, pmh: "Presented with severe sepsis; escalating vasoactive and respiratory support needs", allergies: "NKDA", vitals: "Weight 18 kg | HR 165 | BP low for age | SpO2 90% on high-flow | reduced consciousness" },
+      objectives: [
+        "Escalation Decision: Decision that the child needs care beyond AMH capacity/capability is made and documented by the responsible physician and duty manager.",
+        "KFSHRC Acceptance: KFSHRC PICU contacted; acceptance and bed confirmed and documented in the HIS.",
+        "Stabilisation: Weight-based resuscitation, airway, and access optimised before departure.",
+        "Transfer Readiness: Appropriate transfer team, monitoring, and equipment (including weight-appropriate airway/drugs) confirmed.",
+        "Handover & Chain of Custody: Structured ISBAR handover and documentation transferred with the patient; chain of custody recorded."
+      ],
+      steps: [
+        "Step 1 - Recognition & Decision: Team identifies the need for higher-level or scarce PICU care; PICU capacity checked; duty manager engaged; decision documented.",
+        "Step 2 - KFSHRC Coordination: KFSHRC PICU contacted with patient status; acceptance and bed confirmed and logged in the HIS.",
+        "Step 3 - Stabilisation: Weight-based stabilisation (fluids, vasoactive support, airway) completed and documented.",
+        "Step 4 - Transfer Preparation: Transfer team, monitoring, oxygen, and weight-appropriate emergency drugs/airway prepared and checked.",
+        "Step 5 - Transfer: Child transported with continuous monitoring; interventions maintained en route.",
+        "Step 6 - Handover: ISBAR handover delivered to KFSHRC PICU; transfer summary and chain of custody completed."
+      ],
+      debriefTopics: [
+        "Was the decision to transfer (capacity or capability) made and documented promptly?",
+        "Was KFSHRC acceptance obtained with sufficient clinical detail and a confirmed bed?",
+        "Was the child adequately stabilised with weight-based interventions before departure?",
+        "Was the transfer team, monitoring, and pediatric equipment appropriate and ready?",
+        "Was the handover and chain-of-custody documentation complete?",
+        "Were any gaps in the capacity-escalation or inter-facility pathway identified?"
+      ]
+    }
+  },
+
+  // ── Scenario 36 ──────────────────────────────────────────────
+  {
+    id: "PEDS-IP-RAD",
+    code: "Peds-Rad",
+    title: "Pediatric Inpatient to Radiology",
+    department: "Pediatric Ward / Radiology",
+    timing: { setup: 15, execution: 35, debrief: 20 },
+    groups: ["Pediatric Ward Physicians & Nursing", "Radiology Technicians", "Patient Transport", "Sedation / Anaesthesia (if required)", "IT/Health IT (HIS / Siratech / RIS)"],
+    goal: "Validate the pediatric inpatient imaging pathway — ordering, scheduling, safe transport with a guardian, sedation considerations, and result reporting within the HIS/RIS.",
+    content: {
+      vignette: "A 7-year-old inpatient with a limp and fever requires an MRI to exclude osteomyelitis. The pediatric team orders the scan; radiology schedules it, considering the child's ability to cooperate and whether sedation is needed. The child is transported with a parent and nursing escort, imaged, and the result reported back to the team.",
+      patient: { age: 7, pmh: "Fever and left hip pain, query osteomyelitis", allergies: "NKDA", vitals: "Weight 24 kg | HR 100 | RR 20 | Temp 38.2 C | SpO2 99% RA | stable" },
+      objectives: [
+        "Imaging Order: Pediatric team enters the imaging order in the HIS with correct priority and indication.",
+        "Scheduling & Sedation Screen: Radiology confirms the slot; the need for sedation/fasting is assessed and arranged if required.",
+        "Transport Preparation: Pre-transport assessment, guardian presence, and monitoring needs documented.",
+        "Safe Imaging: Correct patient identification and age-appropriate imaging performed; images uploaded to PACS.",
+        "Result Communication: Radiologist report reaches the ordering pediatric team; clinical action documented."
+      ],
+      steps: [
+        "Step 1 - Order: Pediatric team enters the imaging order with indication and priority in the HIS.",
+        "Step 2 - Scheduling & Sedation: Radiology confirms the slot in RIS; sedation/fasting need assessed and arranged if required.",
+        "Step 3 - Pre-transport: Nurse completes the pre-transport assessment; guardian informed; monitoring arranged.",
+        "Step 4 - Transport: Child transported with guardian and escort; HIS location updated.",
+        "Step 5 - Imaging: Identity verified; imaging performed (with sedation support if needed); images uploaded to PACS.",
+        "Step 6 - Report & Action: Radiologist reports in the HIS; pediatric team reviews and documents next steps."
+      ],
+      debriefTopics: [
+        "Was the imaging order correctly prioritised and visible in the RIS?",
+        "Was the need for sedation/fasting assessed and arranged appropriately?",
+        "Was the pre-transport assessment and guardian presence documented?",
+        "Was the result communicated back to the pediatric team promptly?",
+        "Were any delays, identification, or PACS/HIS gaps identified?"
+      ]
+    }
+  },
+
+  // ── Scenario 37 ──────────────────────────────────────────────
+  {
+    id: "PEDS-BLOOD-TX",
+    code: "Peds-Blood",
+    title: "Pediatric Blood Transfusion",
+    department: "Pediatric Ward / Blood Bank / Laboratory",
+    timing: { setup: 20, execution: 40, debrief: 20 },
+    groups: ["Pediatric Ward Physicians & Nursing", "Blood Bank", "Laboratory", "Pharmacy", "IT/Health IT (HIS / Siratech)"],
+    goal: "Validate the pediatric blood transfusion workflow — guardian consent, weight-based volume calculation, sampling and cross-match, collection, bedside identity checks, administration, and reaction monitoring.",
+    content: {
+      vignette: "A 4-year-old with anaemia secondary to a haemoglobinopathy requires a packed red cell transfusion. The team obtains guardian consent, calculates the weight-based volume, orders group-and-cross-match, and administers the transfusion with strict identity checks and monitoring for reactions.",
+      patient: { age: 4, pmh: "Known haemoglobinopathy; symptomatic anaemia", allergies: "NKDA", vitals: "Weight 15 kg | HR 120 | RR 24 | Temp 37.0 C | SpO2 99% RA | pale, stable" },
+      objectives: [
+        "Consent & Order: Guardian consent for transfusion obtained; weight-based volume (mL/kg) calculated and ordered in the HIS.",
+        "Sampling & Cross-match: Correctly labelled group-and-cross-match sample sent; blood bank processes and issues the correct product.",
+        "Collection & Verification: Product collected and verified against the order and patient identity.",
+        "Bedside Checks: Two-person positive patient identification and product verification at the bedside.",
+        "Administration & Monitoring: Transfusion administered at the correct rate with baseline and interval observations; reaction pathway ready."
+      ],
+      steps: [
+        "Step 1 - Consent & Order: Guardian consent obtained; weight-based volume and rate ordered in the HIS.",
+        "Step 2 - Sampling: Group-and-cross-match sample correctly labelled at the bedside and sent to the lab/blood bank.",
+        "Step 3 - Processing: Blood bank processes the sample and issues the correct, volume-appropriate product.",
+        "Step 4 - Collection: Product collected and checked against the order and patient details.",
+        "Step 5 - Bedside Verification: Two-person positive ID and product verification performed and documented.",
+        "Step 6 - Administration & Monitoring: Transfusion started at the correct rate; baseline and interval observations recorded; reaction pathway confirmed."
+      ],
+      debriefTopics: [
+        "Was guardian consent obtained and the weight-based volume correctly calculated?",
+        "Was the sample correctly labelled and the correct product issued?",
+        "Were two-person bedside identity and product checks performed?",
+        "Was the transfusion administered at the correct rate with appropriate monitoring?",
+        "Was the transfusion-reaction pathway understood and ready?",
+        "Were any labelling, collection, or HIS documentation gaps identified?"
+      ]
+    }
+  },
+
+  // ── Scenario 38 ──────────────────────────────────────────────
+  {
+    id: "PEDS-OPD-OR",
+    code: "Peds-OR",
+    title: "Pediatric OPD to OR - Elective Adenotonsillectomy",
+    department: "Pediatric Outpatient / Operating Room / Pediatric Ward",
+    timing: { setup: 25, execution: 60, debrief: 25 },
+    groups: ["ENT Clinic & Pediatric Nursing", "Anaesthesia Pre-Assessment", "Case Manager / Scheduler (RCM)", "OR Charge Nurse & Team", "Pediatric Ward Nursing", "PACU", "IT/Health IT (HIS / Siratech)"],
+    goal: "Validate the elective pediatric surgical pathway from ENT clinic booking to day-of-surgery admission, OR, PACU, and discharge — including guardian consent, weight-based anaesthesia/analgesia, fasting, and pediatric post-op care.",
+    content: {
+      vignette: "A 5-year-old with recurrent tonsillitis and obstructive symptoms is booked for an elective adenotonsillectomy in the ENT clinic. The simulation follows the operational workflow — booking, pre-anaesthesia assessment, scheduling, day-of admission, OR, PACU, and discharge — with guardian involvement and pediatric-specific considerations throughout.",
+      patient: { age: 5, pmh: "Recurrent tonsillitis with obstructive sleep symptoms; otherwise well; ASA I", allergies: "NKDA", vitals: "Weight 19 kg | elective, haemodynamically stable, ASA I" },
+      objectives: [
+        "Elective Booking: OR order, anaesthesia referral, pre-op assessment, guardian consent, and financial approval completed and sequenced at clinic booking.",
+        "Pre-Anaesthesia Assessment: Child assessed and optimised; fasting and weight-based plan documented.",
+        "Scheduling & Readiness: OR slot, pediatric bed, and age-appropriate equipment confirmed before the day of surgery.",
+        "Day-of Admission: Guardian contacted with fasting instructions and arrival time; child registered and prepared with consent and site confirmation.",
+        "OR to Discharge: Weight-based anaesthesia/analgesia, PACU recovery, ward return, and discharge with caregiver education completed and documented."
+      ],
+      steps: [
+        "Step 1 - Clinic Booking: ENT places the OR order, anaesthesia referral, any pre-op labs, guardian consent, and financial approval (RCM).",
+        "Step 2 - Pre-Anaesthesia Assessment: Child reviewed; fasting and weight-based anaesthesia plan documented; clearance obtained.",
+        "Step 3 - Scheduling: OR slot confirmed with OR charge nurse; pediatric bed reserved; guardian contacted; readiness verified in the HIS.",
+        "Step 4 - Day-of Admission: Guardian arrives with the fasted child; registration, consent re-confirmed, site/procedure verified, pre-op nursing care completed.",
+        "Step 5 - OR: Weight-based anaesthesia and analgesia; procedure performed; consumables and instruments verified.",
+        "Step 6 - PACU & Discharge: Post-op recovery with pediatric monitoring; ward return; discharge criteria met; caregiver education, analgesia plan, and follow-up booked; visit closed in the HIS."
+      ],
+      debriefTopics: [
+        "Was the elective booking complete and correctly sequenced (order, anaesthesia, consent, financial)?",
+        "Was the pre-anaesthesia assessment and fasting/weight-based plan documented?",
+        "Were the OR slot, pediatric bed, and equipment confirmed before the day of surgery?",
+        "Was guardian communication (fasting, arrival, consent) effective and closed-loop?",
+        "Was pediatric PACU recovery and discharge (analgesia, education, follow-up) safe and documented?",
+        "Were any handoff or HIS gaps identified across clinic, OR, and ward?"
+      ]
+    }
+  },
+
+  // ── Scenario 39 ──────────────────────────────────────────────
+  {
+    id: "PEDS-DISCHARGE",
+    code: "Peds-DC",
+    title: "Pediatric Discharge & Caregiver Education",
+    department: "Pediatric Ward / Pharmacy / Patient Services",
+    timing: { setup: 15, execution: 30, debrief: 20 },
+    groups: ["Pediatric Ward Physicians & Nursing", "Pharmacy", "Case Manager", "Patient Services / Admission Office", "IT/Health IT (HIS / Siratech)"],
+    goal: "Validate the pediatric discharge workflow — discharge decision and summary, weight-based home medications, caregiver education, follow-up booking, and financial clearance/visit closure.",
+    content: {
+      vignette: "A 3-year-old admitted with pneumonia has improved and is ready for discharge on oral antibiotics. The team completes the discharge summary, prescribes weight-based home medications, educates the caregiver on dosing and warning signs, books follow-up, and closes the visit.",
+      patient: { age: 3, pmh: "Admitted with pneumonia; clinically improved, tolerating oral intake", allergies: "NKDA", vitals: "Weight 14 kg | HR 110 | RR 24 | Temp 36.9 C | SpO2 98% RA | well, playful" },
+      objectives: [
+        "Discharge Decision & Summary: Discharge criteria met and documented; discharge summary completed in the HIS.",
+        "Weight-Based Home Medications: Home medications prescribed to weight; pharmacy dispenses and counsels the caregiver.",
+        "Caregiver Education: Caregiver taught dosing, administration, warning signs, and when to return.",
+        "Follow-up & Referrals: Follow-up appointment and any referrals booked and communicated.",
+        "Financial Clearance & Closure: Financial clearance obtained and the inpatient visit closed in the HIS."
+      ],
+      steps: [
+        "Step 1 - Discharge Decision: Team confirms discharge criteria and documents the decision and summary in the HIS.",
+        "Step 2 - Prescriptions: Weight-based home medications prescribed; pharmacy dispenses and counsels the caregiver.",
+        "Step 3 - Education: Nurse delivers caregiver education (dosing, warning signs, return advice) with teach-back.",
+        "Step 4 - Follow-up: Follow-up appointment and referrals booked and given to the caregiver.",
+        "Step 5 - Clearance & Closure: Financial clearance obtained; ID band removed; visit closed and location updated in the HIS."
+      ],
+      debriefTopics: [
+        "Was the discharge decision and summary completed clearly in the HIS?",
+        "Were home medications correctly weight-based, dispensed, and counselled?",
+        "Was caregiver education effective (with teach-back), including warning signs?",
+        "Was follow-up booked and communicated?",
+        "Was financial clearance and visit closure completed without delay?",
+        "Were any gaps in the discharge pathway or caregiver communication identified?"
+      ]
+    }
+  },
+
+  // ── Scenario 40 ──────────────────────────────────────────────
+  {
+    id: "PEDS-DEATH-NOTE",
+    code: "Peds-Death",
+    title: "Pediatric Death Notification & Bereavement",
+    department: "Pediatric Ward / Administration",
+    timing: { setup: 20, execution: 40, debrief: 30 },
+    groups: ["Pediatric Physicians & Nursing", "Administration / Patient Services", "Social Work / Chaplaincy / Bereavement", "Mortuary", "IT/Health IT (HIS / Siratech)"],
+    goal: "Validate the pediatric death notification and bereavement workflow — confirmation and certification of death, compassionate family communication, required documentation, mortuary process, and bereavement support, with pediatric and cultural sensitivity.",
+    content: {
+      vignette: "Despite full efforts, a critically ill child dies on the pediatric service. The team must confirm and certify the death, communicate compassionately with the family, complete the required documentation, arrange the mortuary process, and provide bereavement support — all with pediatric and cultural sensitivity.",
+      patient: { age: 4, pmh: "Critically ill child; death despite maximal therapy", allergies: "N/A", vitals: "Deceased - confirmation and certification required" },
+      objectives: [
+        "Confirmation & Certification: Death confirmed and certified per policy; documentation completed in the HIS.",
+        "Compassionate Communication: Family informed sensitively in an appropriate setting with support available.",
+        "Required Documentation: Death notification/mortality documentation and any mandatory reporting completed.",
+        "Mortuary Process: Care of the body, identification, and mortuary transfer completed with dignity and correct documentation.",
+        "Bereavement Support: Family offered bereavement, social work, chaplaincy, and any keepsake or cultural support."
+      ],
+      steps: [
+        "Step 1 - Confirmation: Physician confirms and certifies death per policy; time and findings documented in the HIS.",
+        "Step 2 - Family Communication: Family informed compassionately in a private setting; support (social work/chaplaincy) offered.",
+        "Step 3 - Documentation: Death notification, mortality form, and any mandatory reporting completed.",
+        "Step 4 - Care of the Body: Body prepared and identified with dignity; belongings managed; cultural/religious wishes respected.",
+        "Step 5 - Mortuary Transfer: Transfer to the mortuary arranged with correct documentation and handover/acceptance.",
+        "Step 6 - Bereavement: Family provided bereavement information and follow-up support; visit closed in the HIS."
+      ],
+      debriefTopics: [
+        "Was death confirmed, certified, and documented per policy?",
+        "Was the family informed compassionately in an appropriate setting with support available?",
+        "Was all required documentation and mandatory reporting completed?",
+        "Was care of the body and mortuary transfer handled with dignity and correct documentation?",
+        "Was bereavement support offered, respecting cultural and religious needs?",
+        "Were any gaps in the pediatric death-notification or bereavement pathway identified?"
+      ]
+    }
   }
 ];
 
